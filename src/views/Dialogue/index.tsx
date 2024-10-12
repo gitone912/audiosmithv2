@@ -16,6 +16,8 @@ import { db, auth } from "./firebase";
 import { collection, addDoc } from "firebase/firestore";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
+
+
 const groq = new Groq({
   apiKey: process.env.REACT_APP_GROQ_API_KEY!,
   dangerouslyAllowBrowser: true,
@@ -31,6 +33,9 @@ const systemPrompt = `You are Laura, a personal journalist capturing your userâ€
 
 const Dialogue = () => {
   const [originalText, setOriginalText] = useState<string>("");
+  const textColor = useColorModeValue("gray.800", "gray.100");
+  const transcriptBgColor = useColorModeValue("gray.50", "gray.700");
+  const responseBgColor = useColorModeValue("yellow.50", "yellow.900");
   const [groqResponse, setGroqResponse] = useState<string>("");
   const [chatHistory, setChatHistory] = useState<string>("");
   const [tempTranscript, setTempTranscript] = useState<string>(""); // New state for temp transcript
@@ -43,6 +48,7 @@ const Dialogue = () => {
   const barsRef = useRef<(HTMLDivElement | null)[]>([]);
   const speechTimeout = useRef<NodeJS.Timeout | null>(null);
   const { transcript, resetTranscript } = useSpeechRecognition();
+  
 
   const keepHFPMode = async () => {
     try {
@@ -283,38 +289,69 @@ const Dialogue = () => {
       <VStack spacing={6} align="center">
         {isProcessing && <Spinner color="teal" size="xl" />}
 
-        {/* Temporary Transcript Display */}
-        {tempTranscript && (
-          <Text color="gray.500" fontStyle="italic">
-            {tempTranscript}
-          </Text>
-        )}
+       {/* Temporary Transcript Display */}
+{tempTranscript && (
+  <Text
+    color="gray.500"
+    fontStyle="italic"
+    textAlign="center" // Center the text
+    fontSize={{ base: "sm", md: "lg" }} // Responsive size: smaller on mobile, larger on desktop
+    maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
+    mx="auto" // Horizontal center alignment
+  >
+    {tempTranscript}
+  </Text>
+)}
 
-        {/* AI Response Display */}
-        {groqResponse && (
-          <Text color="yellow.500" fontStyle="italic">
-            {groqResponse}
-          </Text>
-        )}
+{/* AI Response Display */}
+{groqResponse && (
+  <Text
+    color="yellow.500"
+    fontStyle="italic"
+    textAlign="center"
+    fontSize={{ base: "sm", md: "lg" }} // Responsive size
+    maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
+    mx="auto"
+  >
+    {groqResponse}
+  </Text>
+)}
 
-        {/* Transcript Display */}
-        {transcript && (
-            <Text color="gray.500" fontStyle="italic">
-              {transcript}
-            </Text>
-          )}
+{/* Transcript Display */}
+{transcript && (
+  <Text
+    color="gray.500"
+    fontStyle="italic"
+    textAlign="center"
+    fontSize={{ base: "sm", md: "lg" }} // Responsive size
+    maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
+    mx="auto"
+  >
+    {transcript}
+  </Text>
+)}
+
 
         {/* Microphone Control */}
         <IconButton
-          icon={isConnected ? <MdStop /> : <MdMic />}
-          colorScheme={isConnected ? "red" : "teal"}
-          onClick={toggleConnection}
-          size="lg"
-          isRound
-          aria-label={isConnected ? "Stop" : "Start"}
-          isDisabled={isProcessing || isConnecting}
-        />
-        <Text fontSize="lg" color={useColorModeValue("gray.800", "gray.100")}>
+  icon={isConnected ? <MdStop /> : <MdMic />}
+  bg="#a1adb7" // Set custom RGB color for the outer circle
+  color="white" // Set the icon color (optional, to make sure the icon contrasts well)
+  onClick={toggleConnection}
+  size="lg"
+  isRound
+  aria-label={isConnected ? "Stop" : "Start"}
+  isDisabled={isProcessing || isConnecting}
+  transition="transform 1s ease"
+  transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
+/>
+
+        <Text
+          fontSize={{ base: "sm", md: "lg" }} 
+          color={textColor} // Use the variable here
+          transition="transform 1s ease"
+          transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
+        >
           {isConnected
             ? "Connected! Click to End The Conversation"
             : "Disconnected - Click to start the Conversation"}
