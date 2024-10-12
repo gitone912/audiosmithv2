@@ -25,11 +25,9 @@ const groq = new Groq({
 });
 
 const apiKey = process.env.REACT_APP_DEEPGRAM_API_KEY!;
-const Lastaudio = new Audio(
-  "https://github.com/gitone912/testaudio/raw/refs/heads/main/deepgram-stella-1727359968635.mp3"
-);
 
-const systemPrompt = `You are Laura, a personal journalist capturing your user’s daily life events. You have a youthful and cheerful personality...`;
+  
+const systemPrompt = `You are Laura, a personal journalist capturing your user’s daily life events. You have a youthful and cheerful personality. ask questions in only 8 -14 words, more than 14 is restricted`;
 
 
 const Dialogue = () => {
@@ -48,8 +46,31 @@ const Dialogue = () => {
   const speechTimeout = useRef<NodeJS.Timeout | null>(null);
   const { transcript, resetTranscript } = useSpeechRecognition();
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  
+  const [typedResponse, setTypedResponse] = useState<string>(""); // New state for typing animation
+  const [finalResponse, setFinalResponse] = useState<string>("");
 
+  
+  useEffect(() => {
+    let index = 0;
+
+    if (groqResponse && isPlaying) {
+      // Start typing the new response
+      const interval = setInterval(() => {
+        setTypedResponse((prev) => prev + groqResponse.charAt(index));
+        index++;
+
+        // Once typing completes, store the final response and clear the interval
+        if (index >= groqResponse.length) {
+          clearInterval(interval);
+          setFinalResponse(groqResponse); // Save the completed message
+        }
+      }, 50); // Adjust typing speed (50ms per character)
+
+      return () => clearInterval(interval); // Cleanup on unmount or dependency change
+    } else {
+      setTypedResponse(""); // Reset if audio isn't playing yet
+    }
+  }, [groqResponse, isPlaying]);
   const keepHFPMode = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -98,26 +119,25 @@ const Dialogue = () => {
       currentAudio.pause();
       currentAudio.currentTime = 0;
     }
-    if (audioUrl === "last") {
-      Lastaudio.play();
-      setIsPlaying(true);
-      Lastaudio.onended = () => setIsPlaying(false);
-      return;
-    }
     const newAudio = new Audio(audioUrl);
     newAudio.playbackRate = 0.86;
+
     try {
       newAudio.play();
       setIsPlaying(true);
     } catch (error) {
-      alert("Autoplay is blocked. Please click the page to start the audio.");
+      alert("Autoplay blocked. Please click the page to start the audio.");
     }
-    setCurrentAudio(newAudio);
 
+    setCurrentAudio(newAudio);
     newAudio.onended = () => {
       setCurrentAudio(null);
       setIsPlaying(false);
     };
+  };
+  const renderResponse = () => {
+    if (typedResponse) return typedResponse; // Show typing animation if in progress
+    return finalResponse; // Show the last fully typed response if no animation
   };
 
   const getDeepgramTTS = async (text: string) => {
@@ -204,10 +224,10 @@ const Dialogue = () => {
       compiledJournal: compiledJournalEntry,
     };
 
+    // playAudio("https://github.com/gitone912/testaudio/raw/refs/heads/main/deepgram-stella-1727359968635.mp3");
     try {
-      playAudio("last");
       await addDoc(collection(db, "chats"), chatData);
-      navigate("/admin/journals");
+      navigate("/savechat");
     } catch (error) {
       console.error("Error saving chat:", error);
     }
@@ -286,7 +306,7 @@ const Dialogue = () => {
           setTempTranscript(transcript); // Update tempTranscript as speech is recognized
           resetTranscript();
         }
-      }, 1500);
+      }, 2000);
     }
   }, [transcript, isListening, resetTranscript]);
 
@@ -320,18 +340,16 @@ const Dialogue = () => {
 )}
 
 {/* AI Response Display */}
-{groqResponse && (
-  <Text
-    color="#fdde7f"
-    fontStyle="italic"
-    textAlign="center"
-    fontSize={{ base: "sm", md: "lg" }} // Responsive size
-    maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
-    mx="auto"
-  >
-    {groqResponse}
-  </Text>
-)}
+<Text
+          color="#fdde7f"
+          fontStyle="italic"
+          textAlign="center"
+          fontSize={{ base: "sm", md: "lg" }}
+          maxW={{ base: "90%", md: "80%", lg: "60%" }}
+          mx="auto"
+        >
+          {renderResponse()} {/* Display the correct text based on animation progress */}
+        </Text>
 
 {/* Transcript Display */}
 {transcript && (
