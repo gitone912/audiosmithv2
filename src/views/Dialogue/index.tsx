@@ -7,6 +7,7 @@ import {
   IconButton,
   useColorModeValue,
   Spinner,
+  keyframes,
 } from "@chakra-ui/react";
 import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-icons/md
 import React, { useState, useEffect, useRef } from "react";
@@ -34,8 +35,7 @@ const systemPrompt = `You are Laura, a personal journalist capturing your userâ€
 const Dialogue = () => {
   const [originalText, setOriginalText] = useState<string>("");
   const textColor = useColorModeValue("gray.800", "gray.100");
-  const transcriptBgColor = useColorModeValue("gray.50", "gray.700");
-  const responseBgColor = useColorModeValue("yellow.50", "yellow.900");
+
   const [groqResponse, setGroqResponse] = useState<string>("");
   const [chatHistory, setChatHistory] = useState<string>("");
   const [tempTranscript, setTempTranscript] = useState<string>(""); // New state for temp transcript
@@ -45,9 +45,9 @@ const Dialogue = () => {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const navigate = useNavigate();
-  const barsRef = useRef<(HTMLDivElement | null)[]>([]);
   const speechTimeout = useRef<NodeJS.Timeout | null>(null);
   const { transcript, resetTranscript } = useSpeechRecognition();
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   
 
   const keepHFPMode = async () => {
@@ -91,37 +91,32 @@ const Dialogue = () => {
     };
   }, []);
 
-  const toggleBarAnimation = (play: boolean) => {
-    barsRef.current.forEach((item) => {
-      if (item) {
-        item.style.animationPlayState = play ? "running" : "paused";
-      }
-    });
-  };
+  
 
   const playAudio = (audioUrl: string) => {
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
-      toggleBarAnimation(false);
     }
     if (audioUrl === "last") {
       Lastaudio.play();
+      setIsPlaying(true);
+      Lastaudio.onended = () => setIsPlaying(false);
       return;
     }
     const newAudio = new Audio(audioUrl);
     newAudio.playbackRate = 0.86;
     try {
       newAudio.play();
+      setIsPlaying(true);
     } catch (error) {
       alert("Autoplay is blocked. Please click the page to start the audio.");
     }
     setCurrentAudio(newAudio);
-    toggleBarAnimation(true);
 
     newAudio.onended = () => {
       setCurrentAudio(null);
-      toggleBarAnimation(false);
+      setIsPlaying(false);
     };
   };
 
@@ -257,6 +252,27 @@ const Dialogue = () => {
       }
     }
   };
+  const waveAnimation = keyframes`
+    0% { height: 5px }
+    50% { height: 20px }
+    100% { height: 5px }
+  `;
+
+  // Waveform component
+  const Waveform = () => (
+    <Box display="flex" gap="2px" alignItems="center">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Box
+          key={i}
+          bg="white"
+          width="4px"
+          borderRadius="2px"
+          animation={`${waveAnimation} 0.5s ease-in-out ${i * 0.1}s infinite`}
+        />
+      ))}
+    </Box>
+  );
+
 
   useEffect(() => {
     if (transcript && isListening) {
@@ -292,7 +308,7 @@ const Dialogue = () => {
        {/* Temporary Transcript Display */}
 {tempTranscript && (
   <Text
-    color="gray.500"
+    color={textColor}
     fontStyle="italic"
     textAlign="center" // Center the text
     fontSize={{ base: "sm", md: "lg" }} // Responsive size: smaller on mobile, larger on desktop
@@ -306,7 +322,7 @@ const Dialogue = () => {
 {/* AI Response Display */}
 {groqResponse && (
   <Text
-    color="yellow.500"
+    color="#fdde7f"
     fontStyle="italic"
     textAlign="center"
     fontSize={{ base: "sm", md: "lg" }} // Responsive size
@@ -320,7 +336,7 @@ const Dialogue = () => {
 {/* Transcript Display */}
 {transcript && (
   <Text
-    color="gray.500"
+    color='gray.300'
     fontStyle="italic"
     textAlign="center"
     fontSize={{ base: "sm", md: "lg" }} // Responsive size
@@ -332,30 +348,44 @@ const Dialogue = () => {
 )}
 
 
-        {/* Microphone Control */}
-        <IconButton
-  icon={isConnected ? <MdStop /> : <MdMic />}
-  bg="#a1adb7" // Set custom RGB color for the outer circle
-  color="white" // Set the icon color (optional, to make sure the icon contrasts well)
+<IconButton
+  icon={
+    isConnecting ? ( // Show Spinner when connecting
+      <Spinner color="white" size="md" />
+    ) : isConnected ? (
+      isPlaying ? (
+        <Waveform /> // Show waveform when playing
+      ) : (
+        <MdStop /> // Show stop icon when connected but not playing
+      )
+    ) : (
+      <MdMic /> // Show mic icon when disconnected
+    )
+  }
+  bg="#a1adb7"
+  color="white"
   onClick={toggleConnection}
   size="lg"
   isRound
   aria-label={isConnected ? "Stop" : "Start"}
-  isDisabled={isProcessing || isConnecting}
+  isDisabled={isProcessing || isConnecting} // Disable during processing or connecting
   transition="transform 1s ease"
   transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
 />
 
-        <Text
-          fontSize={{ base: "sm", md: "lg" }} 
-          color={textColor} // Use the variable here
-          transition="transform 1s ease"
-          transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
-        >
-          {isConnected
-            ? "Connected! Click to End The Conversation"
-            : "Disconnected - Click to start the Conversation"}
-        </Text>
+<Text
+  fontSize={{ base: "sm", md: "lg" }}
+  color="gray.400"
+  transition="transform 1s ease"
+  transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
+>
+  {isConnecting
+    ? "Connecting..." // Show "Connecting..." text during connection attempt
+    : isConnected
+    ? "Connected! Click to End The Conversation"
+    : "Disconnected - Click to Start the Conversation"}
+</Text>
+
       </VStack>
     </Box>
   );
