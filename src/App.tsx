@@ -11,6 +11,8 @@ import initialTheme from './theme/theme'; //  { themeGreen }
 import { useState } from 'react';
 import Dialogue from './views/Dialogue';
 import SaveChat from 'views/Dialogue/SaveChat';
+import Monologue from 'views/monologue';
+import SaveChatMono from 'views/monologue/SaveChatMono';
 // Chakra imports
 
 export default function Main() {
@@ -32,9 +34,17 @@ export default function Main() {
 					path="dialogue/"
 					element={<Dialogue />} // Only pass theme
 				/>
+        <Route
+					path="monologue/"
+					element={<Monologue />} // Only pass theme
+				/>
          <Route
 					path="savechat/"
 					element={<SaveChat />} // Only pass theme
+				/>
+        <Route
+					path="savechatmono/"
+					element={<SaveChatMono />} // Only pass theme
 				/>
         
 

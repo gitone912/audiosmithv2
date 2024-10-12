@@ -13,7 +13,7 @@ import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-ic
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Groq from "groq-sdk";
-import { db, auth } from "./firebase";
+import { db, auth } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
@@ -73,20 +73,25 @@ const Dialogue = () => {
   }, [groqResponse, isPlaying]);
   const keepHFPMode = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      });
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const source = audioContext.createMediaStreamSource(stream);
       const oscillator = audioContext.createOscillator();
       oscillator.frequency.setValueAtTime(0, audioContext.currentTime); // No sound
       oscillator.connect(audioContext.destination);
       oscillator.start();
-
+  
       return { stream, audioContext, oscillator };
     } catch (error) {
       console.error("Error maintaining HFP mode:", error);
     }
   };
-
+  
   useEffect(() => {
     let audioElements: { stream: MediaStream | null; audioContext: AudioContext | null; oscillator: OscillatorNode | null } = {
       stream: null,

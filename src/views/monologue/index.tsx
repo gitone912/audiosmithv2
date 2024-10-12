@@ -1,0 +1,204 @@
+// Chakra imports
+import {
+    Box,
+    Text,
+    VStack,
+    IconButton,
+    useColorModeValue,
+    Spinner,
+  } from "@chakra-ui/react";
+  import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-icons/md
+  import React, { useState, useEffect, useRef } from "react";
+  import { useNavigate } from "react-router-dom";
+  import { db, auth } from "../../firebase";
+  import { collection, addDoc } from "firebase/firestore";
+  import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+  import Groq from "groq-sdk";
+
+  const groq = new Groq({
+    apiKey: process.env.REACT_APP_GROQ_API_KEY!,
+    dangerouslyAllowBrowser: true,
+  });
+  const Monologue = () => {
+    const [originalText, setOriginalText] = useState<string>("");
+    const textColor = useColorModeValue("gray.800", "gray.100");
+  
+    const [chatHistory, setChatHistory] = useState<string>(""); // Full chat history
+    const [tempTranscript, setTempTranscript] = useState<string>(""); // Append transcripts as they come
+    const [isListening, setIsListening] = useState<boolean>(false);
+    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [isConnecting, setIsConnecting] = useState<boolean>(false);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [firstSpeech, setFirstSpeech] = useState<boolean>(true); // Track if it's the first speech
+    const navigate = useNavigate();
+    const speechTimeout = useRef<NodeJS.Timeout | null>(null);
+    const { transcript, resetTranscript } = useSpeechRecognition();
+  
+    const compileJournal = async () => {
+        try {
+          const journalPrompt = `Based on the user's input, compile a concise journal entry. User's input: "${tempTranscript}".`;
+          const journalCompletion = await groq.chat.completions.create({
+            messages: [{ role: "user", content: journalPrompt }],
+            model: "llama3-8b-8192",
+          });
+          return journalCompletion.choices[0]?.message?.content || "";
+        } catch (error) {
+          return "";
+        }
+      };
+
+    const saveChatAndNavigate = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const compiledJournalEntry = await compileJournal();
+      const chatData = {
+        user: user.email!,
+        timestamp: new Date(),
+        original_text : tempTranscript,
+        compiledJournal: compiledJournalEntry // Save the user's speech as-is
+      };
+  
+      try {
+        await addDoc(collection(db, "chat_monologue"), chatData); // Save to 'chat_monologue' collection
+        navigate("/savechatmono");
+      } catch (error) {
+        console.error("Error saving chat:", error);
+      }
+    };
+  
+    const handleSpeechInput = async (transcript: string) => {
+      setOriginalText(transcript);
+      setChatHistory((prevHistory) => `${prevHistory} User: ${transcript}\n`);
+      setTempTranscript((prevTranscript) => `${prevTranscript} ${transcript}\n`); // Append transcripts
+      setFirstSpeech(false); // First speech has now occurred
+    };
+  
+    const startListening = () => {
+      setIsListening(true);
+      SpeechRecognition.startListening({ continuous: true });
+    };
+  
+    const stopListening = () => {
+      setIsListening(false);
+      SpeechRecognition.stopListening();
+      saveChatAndNavigate();
+      setOriginalText("");
+      setChatHistory("");
+      setTempTranscript("");
+    };
+  
+    const toggleConnection = async () => {
+      if (isConnected) {
+        stopListening();
+        setIsConnected(false);
+      } else {
+        setIsConnecting(true);
+        setIsConnecting(false);
+        setIsConnected(true);
+        startListening();
+      }
+    };
+  
+    useEffect(() => {
+        if (transcript && isListening) {
+          if (speechTimeout.current) {
+            clearTimeout(speechTimeout.current);
+          }
+      
+          speechTimeout.current = setTimeout(() => {
+            if (isListening) {
+              handleSpeechInput(transcript);
+              resetTranscript();
+            }
+          }, 2000);
+        }
+      }, [transcript, isListening, resetTranscript]);
+      
+  
+    useEffect(() => {
+      const handleBeforeUnload = () => {
+        setChatHistory("");
+      };
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }, []);
+  
+    return (
+      <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
+        <VStack spacing={6} align="center">
+          {isProcessing && <Spinner color="teal" size="xl" />}
+  
+          {/* Show "Speak to Write" only when connected and hide after first speech */}
+          {isConnected && firstSpeech && (
+            <Text
+              color="gray.400"
+              fontStyle="italic"
+              textAlign="center"
+              fontSize={{ base: "md", md: "lg" }}
+            >
+              Speak to Write
+            </Text>
+          )}
+  
+          {/* Temporary Transcript Display (Full conversation) */}
+          {tempTranscript && (
+            <Text
+              color={textColor}
+              fontStyle="italic"
+              textAlign="center"
+              fontSize={{ base: "sm", md: "lg" }} // Responsive size: smaller on mobile, larger on desktop
+              maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
+              mx="auto" // Horizontal center alignment
+            >
+              {tempTranscript}
+            </Text>
+          )}
+  
+          {/* Transcript Display */}
+          {transcript && (
+            <Text
+              color="gray.300"
+              fontStyle="italic"
+              textAlign="center"
+              fontSize={{ base: "sm", md: "lg" }} // Responsive size
+              maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
+              mx="auto"
+            >
+              {transcript}
+            </Text>
+          )}
+  
+          <IconButton
+            icon={isConnecting ? <Spinner color="white" size="md" /> : isConnected ? <MdStop /> : <MdMic />}
+            bg="#a1adb7"
+            color="white"
+            onClick={toggleConnection}
+            size="lg"
+            isRound
+            aria-label={isConnected ? "Stop" : "Start"}
+            isDisabled={isProcessing || isConnecting} // Disable during processing or connecting
+            transition="transform 1s ease"
+            transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
+          />
+  
+          <Text
+            fontSize={{ base: "sm", md: "lg" }}
+            color="gray.400"
+            transition="transform 1s ease"
+            transform={isConnected ? "translateY(140px)" : "translateY(0px)"}
+          >
+            {isConnecting
+              ? "Connecting..."
+              : isConnected
+              ? "Connected! Click to End The Conversation"
+              : "Disconnected - Click to Start the Conversation"}
+          </Text>
+        </VStack>
+      </Box>
+    );
+  };
+  
+  export default Monologue;
+  

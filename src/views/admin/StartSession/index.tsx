@@ -34,7 +34,9 @@ export default function StartSession() {
   const goToDialogue = () => {
     navigate('/dialogue');
   };
-
+  const goToMonologue = () => {
+    navigate('/monologue');
+  };
   // Using the full sentence directly without splitting
   const { displayedText, isFinished } = useTypingEffect('Goood Evening, What would you like to do today,', 50);
   const { isOpen, onOpen } = useDisclosure();
@@ -76,6 +78,7 @@ export default function StartSession() {
               size="lg"
               fontSize="xl"
               m={3}
+              onClick={goToMonologue}
             >
               Monologue
             </Button>

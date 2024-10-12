@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Textarea, VStack, Text, Spinner, useColorModeValue, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { db, auth } from "./firebase"; // Ensure firebase config is correctly imported
+import { db, auth } from "../../firebase"; // Ensure firebase config is correctly imported
 import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from "firebase/firestore";
 
 // Typing effect hook for journal display
