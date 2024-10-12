@@ -176,7 +176,7 @@ const SaveChat: React.FC = () => {
                 fontSize={{ base: 'md', md: 'lg' }}
                 whiteSpace="pre-wrap"
               >
-                {displayedText}
+                {displayedText?.replace(/undefined/gi, '')}
               </Text>
             </Box>
 
