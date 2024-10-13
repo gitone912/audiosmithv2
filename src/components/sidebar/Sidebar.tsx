@@ -14,14 +14,14 @@ import {
 import Content from 'components/sidebar/components/Content';
 import { renderThumb, renderTrack, renderView } from 'components/scrollbar/Scrollbar';
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import { IoMenuOutline } from 'react-icons/io5';
+import { IoChevronForwardOutline, IoChevronBackOutline } from 'react-icons/io5'; // New icons
 
 function Sidebar(props: {
-	routes: RoutesType[];
-	setSidebarOpen: (open: boolean) => void;
-	isOpen: boolean; // <-- Add this to props
-  }) {
-	const { routes, setSidebarOpen, isOpen } = props;
+  routes: RoutesType[];
+  setSidebarOpen: (open: boolean) => void;
+  isOpen: boolean; // <-- Add this to props
+}) {
+  const { routes, setSidebarOpen, isOpen } = props;
 
   let variantChange = '0.2s linear';
   let shadow = useColorModeValue('14px 17px 40px 4px rgba(112, 144, 176, 0.08)', 'unset');
@@ -33,7 +33,7 @@ function Sidebar(props: {
 
   // Manage sidebar state
   const toggleSidebar = () => {
-	setSidebarOpen(!isOpen); 
+    setSidebarOpen(!isOpen);
     if (isOpen) {
       onClose();
       setSidebarOpen(false); // Notify parent to adjust content width
@@ -45,7 +45,7 @@ function Sidebar(props: {
 
   return (
     <>
-      {/* Hamburger icon for desktop mode */}
+      {/* Toggle icon for desktop mode */}
       <Flex
         display={{ sm: 'none', xl: 'flex' }}
         alignItems="center"
@@ -55,7 +55,7 @@ function Sidebar(props: {
         zIndex="10"
       >
         <Icon
-          as={IoMenuOutline}
+          as={isOpen ? IoChevronBackOutline : IoChevronForwardOutline} // Toggle between < and >
           color={useColorModeValue('gray.400', 'white')}
           w="24px"
           h="24px"
@@ -105,7 +105,7 @@ export function SidebarResponsive(props: { routes: RoutesType[] }) {
     <Flex display={{ sm: 'flex', xl: 'none' }} alignItems="center">
       <Flex ref={btnRef} w="max-content" h="max-content" onClick={onOpen}>
         <Icon
-          as={IoMenuOutline}
+          as={IoChevronForwardOutline} // Use forward icon for mobile menu
           color={menuColor}
           my="auto"
           w="20px"

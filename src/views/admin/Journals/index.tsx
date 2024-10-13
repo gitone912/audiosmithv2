@@ -96,22 +96,23 @@ export default function Journals() {
       </SimpleGrid>
 
       {/* Modal to show the selected journal's content */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{selectedJournal?.title}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>{selectedJournal?.content}</Text>
-            <Text mt={4} fontSize="sm" color="gray.500">
-              Date: {selectedJournal?.date}
-            </Text>
-            <Text fontSize="sm" color="gray.500">
-              Time: {selectedJournal?.time}
-            </Text>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+  <ModalOverlay />
+  <ModalContent>
+    <ModalHeader>{selectedJournal?.title}</ModalHeader>
+    <ModalCloseButton />
+    <ModalBody>
+      <Text>{selectedJournal?.content}</Text>
+      <Text mt={4} fontSize="sm" color="gray.500">
+        Date: {selectedJournal?.date}
+      </Text>
+      <Text fontSize="sm" color="gray.500">
+        Time: {selectedJournal?.time}
+      </Text>
+    </ModalBody>
+  </ModalContent>
+</Modal>
+
     </Box>
   );
 }

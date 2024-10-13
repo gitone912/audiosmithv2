@@ -13,6 +13,7 @@ import Dialogue from './views/Dialogue';
 import SaveChat from 'views/Dialogue/SaveChat';
 import Monologue from 'views/monologue';
 import SaveChatMono from 'views/monologue/SaveChatMono';
+import EditJournal from 'views/editjournal';
 // Chakra imports
 
 export default function Main() {
@@ -45,6 +46,10 @@ export default function Main() {
         <Route
 					path="savechatmono/"
 					element={<SaveChatMono />} // Only pass theme
+				/>
+         <Route
+					path="edit/"
+					element={<EditJournal />} // Only pass theme
 				/>
         
 
