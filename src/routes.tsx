@@ -19,6 +19,7 @@ import Journals from 'views/admin/Journals';
 // Auth Imports
 import SignInCentered from 'views/auth/signIn';
 import SignUp from 'views/auth/signup';
+import SignOut from 'views/auth/signOut';
 
 // Utility to check if the user is logged in
 const isUserLoggedIn = () => {
@@ -59,9 +60,9 @@ const adminRoutes = [
   {
     name: 'Logout',
     layout: '/auth',
-    path: '/sign-in',
+    path: '/sign-out',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-    component: <SignInCentered />,
+    component: <SignOut />,
   },
 ];
 
