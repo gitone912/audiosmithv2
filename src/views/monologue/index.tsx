@@ -6,6 +6,11 @@ import {
     IconButton,
     useColorModeValue,
     Spinner,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
   } from "@chakra-ui/react";
   import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-icons/md
   import React, { useState, useEffect, useRef } from "react";
@@ -14,6 +19,7 @@ import {
   import { collection, addDoc } from "firebase/firestore";
   import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
   import Groq from "groq-sdk";
+  
 
   const groq = new Groq({
     apiKey: process.env.REACT_APP_GROQ_API_KEY!,
@@ -22,7 +28,7 @@ import {
   const Monologue = () => {
     const [originalText, setOriginalText] = useState<string>("");
     const textColor = useColorModeValue("gray.800", "gray.100");
-  
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const [chatHistory, setChatHistory] = useState<string>(""); // Full chat history
     const [tempTranscript, setTempTranscript] = useState<string>(""); // Append transcripts as they come
     const [isListening, setIsListening] = useState<boolean>(false);
@@ -46,25 +52,46 @@ import {
           return "";
         }
       };
-
-    const saveChatAndNavigate = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const compiledJournalEntry = await compileJournal();
-      const chatData = {
-        user: user.email!,
-        timestamp: new Date(),
-        original_text : tempTranscript,
-        compiledJournal: compiledJournalEntry // Save the user's speech as-is
+      const compileTitle = async () => {
+        try {
+          const journalPrompt = `you are a title maker ,Based on the user's input, return a two words journal title, your response only should be two words title, returning more than two words or anything except title is prohibited. User's input: "${tempTranscript}".`;
+          const journalCompletion = await groq.chat.completions.create({
+            messages: [{ role: "user", content: journalPrompt }],
+            model: "llama3-8b-8192",
+          });
+          return journalCompletion.choices[0]?.message?.content || "";
+        } catch (error) {
+          return "";
+        }
       };
-  
-      try {
-        await addDoc(collection(db, "chat_monologue"), chatData); // Save to 'chat_monologue' collection
-        navigate("/savechatmono");
-      } catch (error) {
-        console.error("Error saving chat:", error);
-      }
-    };
+
+
+      const saveChatAndNavigate = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+      
+        setIsSaving(true); // Start showing saving modal
+      
+        const compiledJournalEntry = await compileJournal();
+        const compiledTitle = await compileTitle();
+        const chatData = {
+          user: user.email!,
+          timestamp: new Date(),
+          original_text: tempTranscript,
+          title: compiledTitle,
+          compiledJournal: compiledJournalEntry, // Save the user's speech as-is
+        };
+      
+        try {
+          await addDoc(collection(db, "chat_monologue"), chatData); // Save to 'chat_monologue' collection
+          setIsSaving(false); // Hide saving modal
+          navigate("/savechatmono");
+        } catch (error) {
+          setIsSaving(false); // Hide saving modal even on error
+          console.error("Error saving chat:", error);
+        }
+      };
+      
   
     const handleSpeechInput = async (transcript: string) => {
       setOriginalText(transcript);
@@ -127,9 +154,21 @@ import {
   
     return (
       <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
-        <VStack spacing={6} align="center">
+        <VStack spacing={6} align="center">     
+        {isSaving && (
+      <Modal isOpen={isSaving} onClose={() => {}}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Saving Chat</ModalHeader>
+          <ModalBody>
+            <Spinner color="teal" size="xl" />
+            <Text textAlign="center" mt={4}>Please wait while we save your chat...</Text>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    )}
+            
           {isProcessing && <Spinner color="teal" size="xl" />}
-  
           {/* Show "Speak to Write" only when connected and hide after first speech */}
           {isConnected && firstSpeech && (
             <Text

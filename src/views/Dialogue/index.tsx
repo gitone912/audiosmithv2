@@ -8,6 +8,11 @@ import {
   useColorModeValue,
   Spinner,
   keyframes,
+  Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
 } from "@chakra-ui/react";
 import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-icons/md
 import React, { useState, useEffect, useRef } from "react";
@@ -48,6 +53,8 @@ const Dialogue = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [typedResponse, setTypedResponse] = useState<string>(""); // New state for typing animation
   const [finalResponse, setFinalResponse] = useState<string>("");
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
 
   
   useEffect(() => {
@@ -215,25 +222,41 @@ const Dialogue = () => {
       return "";
     }
   };
+  const compileTitle = async () => {
+    try {
+      const journalPrompt = `you are a title maker ,Based on the user's input, return a two words journal title, your response only should be two words title, returning more than two words or anything except title is prohibited. User's input: "${tempTranscript}".`;
+      const journalCompletion = await groq.chat.completions.create({
+        messages: [{ role: "user", content: journalPrompt }],
+        model: "llama3-8b-8192",
+      });
+      return journalCompletion.choices[0]?.message?.content || "";
+    } catch (error) {
+      return "";
+    }
+  };
 
   const saveChatAndNavigate = async () => {
     const user = auth.currentUser;
     if (!user) return;
-
+    setIsSaving(true); 
     const compiledJournalEntry = await compileJournal();
+    const compiledTitle = await compileTitle();
     const chatData = {
       user: user.email!,
       timestamp: new Date(),
       originalText,
       groqResponse,
+      title: compiledTitle,
       compiledJournal: compiledJournalEntry,
     };
 
     // playAudio("https://github.com/gitone912/testaudio/raw/refs/heads/main/deepgram-stella-1727359968635.mp3");
     try {
       await addDoc(collection(db, "chats"), chatData);
+      setIsSaving(false);
       navigate("/savechat");
     } catch (error) {
+      setIsSaving(false);
       console.error("Error saving chat:", error);
     }
   };
@@ -328,6 +351,17 @@ const Dialogue = () => {
   return (
     <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
       <VStack spacing={6} align="center">
+      {isSaving && (
+      <Modal isOpen={isSaving} onClose={() => {}}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Saving Chat</ModalHeader>
+          <ModalBody>
+            <Spinner color="teal" size="xl" />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    )}
         {isProcessing && <Spinner color="teal" size="xl" />}
 
        {/* Temporary Transcript Display */}
