@@ -21,6 +21,7 @@ import SignInCentered from 'views/auth/signIn';
 import SignUp from 'views/auth/signup';
 import SignOut from 'views/auth/signOut';
 
+
 // Utility to check if the user is logged in
 const isUserLoggedIn = () => {
   const userDetails = localStorage.getItem('userDetails');
@@ -37,7 +38,7 @@ const adminRoutes = [
     component: <StartSession />,
   },
   {
-    name: 'Dashboard',
+    name: 'Mental Health Status',
     layout: '/admin',
     path: '/default',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
