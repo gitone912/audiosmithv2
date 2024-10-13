@@ -17,6 +17,7 @@ import TotalSpent from 'views/admin/default/components/TotalSpent';
 import WeeklyRevenue from 'views/admin/default/components/WeeklyRevenue';
 import tableDataCheck from 'views/admin/default/variables/tableDataCheck';
 import tableDataComplex from 'views/admin/default/variables/tableDataComplex';
+import Notifications from './components/Notifications';
 
 export default function UserReports() {
 	// Chakra Color Mode
@@ -42,6 +43,16 @@ export default function UserReports() {
 					<MiniCalendar h='100%' minW='100%' selectRange={false} />
 				</SimpleGrid>
 			</SimpleGrid>
+			<Notifications
+					used={25.6}
+					total={50}
+					gridArea={{
+						base: '3 / 1 / 4 / 2',
+						lg: '2 / 1 / 3 / 3',
+						'2xl': '1 / 3 / 2 / 4'
+					}}
+				/>
+				
 		</Box>
 	);
 }

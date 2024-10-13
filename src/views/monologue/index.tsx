@@ -39,6 +39,11 @@ import {
     const navigate = useNavigate();
     const speechTimeout = useRef<NodeJS.Timeout | null>(null);
     const { transcript, resetTranscript } = useSpeechRecognition();
+     // Check if the browser is Chrome
+     const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+     if (!isChrome) {
+       alert('The Monologue and Dialogue features only work on Chrome. Please switch to Chrome for a better experience.');
+     }
   
     const compileJournal = async () => {
         try {

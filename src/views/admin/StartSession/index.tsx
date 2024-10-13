@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Typing effect hook
 const useTypingEffect = (text: string, speed: number) => {
+  
   const [displayedText, setDisplayedText] = useState('');
   const [isFinished, setIsFinished] = useState(false);
 

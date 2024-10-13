@@ -21,15 +21,16 @@ import { db } from "../../../firebase";
 
 // Define the Journal type
 interface Journal {
+  id: string;
   title: string;
   compiledJournal: string;
   timestamp: any;
-  user: string;
+  user: string; // Email of the user who created the journal
   originalText: string;
   color?: string;
   date?: string;
   time?: string;
-  id: string;
+  type: "dialogue" | "monologue"; // Add type field
 }
 
 export default function Journals() {
@@ -57,50 +58,61 @@ export default function Journals() {
     };
   };
 
+  // Retrieve the current user’s email from localStorage
+  const getCurrentUserEmail = () => {
+    const userDetails = localStorage.getItem("userDetails");
+    if (userDetails) {
+      const parsedDetails = JSON.parse(userDetails);
+      return parsedDetails.email || "";
+    }
+    return "";
+  };
+
   const fetchJournals = async () => {
     setLoading(true);
     try {
+      const currentUserEmail = getCurrentUserEmail();
       let journalData: Journal[] = [];
 
+      // Fetch Dialogue Journals
       if (journalType === "all" || journalType === "dialogue") {
         const dialogueSnapshot = await getDocs(collection(db, "chats"));
         journalData = journalData.concat(
-          dialogueSnapshot.docs.map((doc) => {
-            const data = doc.data();
-            const { date, time } = formatTimestamp(data.timestamp);
-            return {
-              title: data.title || "",
-              compiledJournal: data.compiledJournal || "",
-              timestamp: data.timestamp || new Date(),
-              user: data.user || "",
-              originalText: data.originalText || "",
-              id: doc.id,
-              color: getRandomColor(),
-              date,
-              time,
-            } as Journal;
-          })
+          dialogueSnapshot.docs
+            .map((doc) => {
+              const data = doc.data();
+              const { date, time } = formatTimestamp(data.timestamp);
+              return {
+                ...data,
+                id: doc.id,
+                color: getRandomColor(),
+                date,
+                time,
+                type: "dialogue", // Add type field
+              } as Journal;
+            })
+            .filter((journal) => journal.user === currentUserEmail) // Filter by user email
         );
       }
 
+      // Fetch Monologue Journals
       if (journalType === "all" || journalType === "monologue") {
         const monologueSnapshot = await getDocs(collection(db, "chat_monologue"));
         journalData = journalData.concat(
-          monologueSnapshot.docs.map((doc) => {
-            const data = doc.data();
-            const { date, time } = formatTimestamp(data.timestamp);
-            return {
-              title: data.title || "",
-              compiledJournal: data.compiledJournal || "",
-              timestamp: data.timestamp || new Date(),
-              user: data.user || "",
-              originalText: data.originalText || "",
-              id: doc.id,
-              color: getRandomColor(),
-              date,
-              time,
-            } as Journal;
-          })
+          monologueSnapshot.docs
+            .map((doc) => {
+              const data = doc.data();
+              const { date, time } = formatTimestamp(data.timestamp);
+              return {
+                ...data,
+                id: doc.id,
+                color: getRandomColor(),
+                date,
+                time,
+                type: "monologue", // Add type field
+              } as Journal;
+            })
+            .filter((journal) => journal.user === currentUserEmail) // Filter by user email
         );
       }
 
@@ -121,7 +133,14 @@ export default function Journals() {
   };
 
   const handleEditClick = () => {
-    navigate("/edit", { state: { id: selectedJournal?.id, type: journalType } });
+    if (selectedJournal) {
+      navigate("/edit", {
+        state: {
+          id: selectedJournal.id,
+          type: selectedJournal.type, // Now type exists on Journal
+        },
+      });
+    }
   };
 
   return (
@@ -141,7 +160,7 @@ export default function Journals() {
         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
           <Spinner size="xl" />
         </Box>
-      ) : (
+      ) : journals.length > 0 ? (
         <SimpleGrid columns={{ base: 3, sm: 3, md: 4, lg: 5 }} spacing={4} p={4}>
           {journals.map((journal, index) => (
             <Box
@@ -180,6 +199,10 @@ export default function Journals() {
             </Box>
           ))}
         </SimpleGrid>
+      ) : (
+        <Text textAlign="center" mt={8} color={textColor}>
+          No entries found.
+        </Text>
       )}
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

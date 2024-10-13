@@ -1,80 +1,184 @@
-
-
-// Chakra imports
-import { Box, Grid } from '@chakra-ui/react';
-
-// Custom components
-import Banner from 'views/admin/profile/components/Banner';
-import General from 'views/admin/profile/components/General';
-import Notifications from 'views/admin/profile/components/Notifications';
-import Projects from 'views/admin/profile/components/Projects';
-import Storage from 'views/admin/profile/components/Storage';
-import Upload from 'views/admin/profile/components/Upload';
-
-// Assets
+import { ChangeEvent, useState, useEffect } from 'react';
+import { Box, Grid, Button, Input, Avatar, Flex, Text, useColorModeValue, Stack, Spinner, useToast } from '@chakra-ui/react';
+import avatarDefault from 'assets/img/avatars/image.png';
 import banner from 'assets/img/auth/banner.png';
-import avatar from 'assets/img/avatars/avatar4.png';
+import { storage, ref, uploadBytes, getDownloadURL } from '../../../firebase'; // Adjust path as needed
 
 export default function Overview() {
-	return (
-		<Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
-			{/* Main Fields */}
-			<Grid
-				templateColumns={{
-					base: '1fr',
-					lg: '1.34fr 1fr 1.62fr'
-				}}
-				templateRows={{
-					base: 'repeat(3, 1fr)',
-					lg: '1fr'
-				}}
-				gap={{ base: '20px', xl: '20px' }}>
-				<Banner
-					gridArea='1 / 1 / 2 / 2'
-					banner={banner}
-					avatar={avatar}
-					name='Adela Parkson'
-					job='Product Designer'
-					posts='17'
-					followers='9.7k'
-					following='274'
-				/>
-			
-				
-			</Grid>
-			<Grid
-				mb='20px'
-				templateColumns={{
-					base: '1fr',
-					lg: 'repeat(2, 1fr)',
-					'2xl': '1.34fr 1.62fr 1fr'
-				}}
-				templateRows={{
-					base: '1fr',
-					lg: 'repeat(2, 1fr)',
-					'2xl': '1fr'
-				}}
-				gap={{ base: '20px', xl: '20px' }}>
-				<Projects
-					banner={banner}
-					avatar={avatar}
-					name='Adela Parkson'
-					job='Product Designer'
-					posts='17'
-					followers='9.7k'
-					following='274'
-				/>
-				<General gridArea={{ base: '2 / 1 / 3 / 2', lg: '1 / 2 / 2 / 3' }} minH='365px' pe='20px' />
-				<Notifications
-					used={25.6}
-					total={50}
-					gridArea={{
-						base: '3 / 1 / 4 / 2',
-						lg: '2 / 1 / 3 / 3',
-						'2xl': '1 / 3 / 2 / 4'
-					}}
-				/>
-			</Grid>
-		</Box>
-	);
+  const [userDetails, setUserDetails] = useState(() => {
+    const storedDetails = localStorage.getItem('userDetails');
+    return storedDetails ? JSON.parse(storedDetails) : { email: '', displayName: '', phoneNumber: '' };
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState(avatarDefault);
+  const [isLoading, setIsLoading] = useState(false); // Spinner control
+
+  const toast = useToast(); // Chakra toast notification
+
+  useEffect(() => {
+    const savedImage = localStorage.getItem('userImage');
+    if (savedImage) setPreviewImage(savedImage);
+  }, []);
+
+  const handleEditToggle = () => setIsEditing(!isEditing);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserDetails({ ...userDetails, [name]: value });
+  };
+
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setUploadedImage(file);
+    if (file) {
+      const previewURL = URL.createObjectURL(file);
+      setPreviewImage(previewURL);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true); // Show spinner
+      if (uploadedImage && userDetails.email) {
+        const imageName = `${userDetails.email}.png`;
+        const storageRef = ref(storage, imageName);
+        await uploadBytes(storageRef, uploadedImage);
+        const downloadURL = await getDownloadURL(storageRef);
+        localStorage.setItem('userImage', downloadURL);
+        setPreviewImage(downloadURL);
+      }
+
+      localStorage.setItem('userDetails', JSON.stringify(userDetails));
+      toast({
+        title: 'Profile saved.',
+        description: 'Your profile details have been successfully updated!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+      });
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: 'Error saving profile.',
+        description: 'There was an issue saving your profile. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+      });
+      console.error('Error saving data:', error);
+    } finally {
+      setIsLoading(false); // Hide spinner
+    }
+  };
+
+  // Styling improvements for light/dark mode
+  const textColorPrimary = useColorModeValue('black', 'white'); // Black for light mode, white for dark mode
+  const textColorSecondary = useColorModeValue('gray.600', 'gray.400'); // Adjust secondary text color for both modes
+  const inputBg = useColorModeValue('gray.100', 'gray.700');
+  const inputTextColor = useColorModeValue('black', 'white');
+  const borderColor = useColorModeValue('gray.300', 'gray.500');
+
+  return (
+    <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" justifyContent="center" alignItems="center">
+      <Box
+        bg="transparent" // Transparent background
+        borderRadius="lg"
+        shadow="xl"
+        p="6"
+        w={{ base: '90%', md: '70%', lg: '50%' }}
+      >
+        {/* User Banner and Info Section */}
+        <Box
+          bg={`url(${banner})`}
+          bgSize="cover"
+          borderRadius="16px"
+          h="150px"
+          w="100%"
+          mb="6"
+        />
+        <Avatar
+          mx="auto"
+          src={previewImage}
+          h="120px"
+          w="120px"
+          mt="-75px"
+          border="4px solid"
+          borderColor="white"
+        />
+        <Text
+          textAlign="center"
+          color={textColorPrimary} // Adjusts color based on light/dark mode
+          fontWeight="bold"
+          fontSize="2xl"
+          mt="6"
+        >
+          {userDetails.displayName || 'Your Name'}
+        </Text>
+        <Flex justify="center" mt="4">
+          <Text color={textColorPrimary} fontSize="lg">
+            {userDetails.email || 'Your Email'}
+          </Text>
+        </Flex>
+        <Flex justify="center" mt="2">
+          <Text color={textColorSecondary} fontSize="lg">
+            {userDetails.phoneNumber || 'Your Phone Number'}
+          </Text>
+        </Flex>
+
+        {/* Editing Section */}
+        <Box mt="8">
+          {isEditing ? (
+            <Stack spacing="4">
+              <Input
+                name="displayName"
+                placeholder="Display Name"
+                value={userDetails.displayName}
+                onChange={handleInputChange}
+                bg={inputBg}
+                color={inputTextColor} // Input text color changes with mode
+                borderColor={borderColor}
+              />
+              <Input
+                name="email"
+                placeholder="Email"
+                value={userDetails.email}
+                onChange={handleInputChange}
+                bg={inputBg}
+                color={inputTextColor}
+                borderColor={borderColor}
+              />
+              <Input
+                name="phoneNumber"
+                placeholder="Phone Number"
+                value={userDetails.phoneNumber}
+                onChange={handleInputChange}
+                bg={inputBg}
+                color={inputTextColor}
+                borderColor={borderColor}
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                bg={inputBg}
+                color={inputTextColor}
+                borderColor={borderColor}
+              />
+              <Button onClick={handleSave} colorScheme="teal" isDisabled={isLoading}>
+                {isLoading ? <Spinner size="sm" /> : 'Save Changes'}
+              </Button>
+            </Stack>
+          ) : (
+            <Button onClick={handleEditToggle} colorScheme="blue" mt="6" w="full">
+              Edit Profile
+            </Button>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
 }

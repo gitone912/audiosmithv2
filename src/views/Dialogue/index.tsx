@@ -56,7 +56,11 @@ const Dialogue = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
 
-  
+   // Check if the browser is Chrome
+   const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+   if (!isChrome) {
+     alert('The Monologue and Dialogue features only work on Chrome. Please switch to Chrome for a better experience.');
+   }
   useEffect(() => {
     let index = 0;
 

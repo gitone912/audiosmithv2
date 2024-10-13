@@ -7,20 +7,27 @@ import {
   MdOutlineShoppingCart,
   MdAddIcCall,
   MdRecordVoiceOver,
-  MdNotes
+  MdNotes,
 } from 'react-icons/md';
 
 // Admin Imports
 import MainDashboard from 'views/admin/default';
 import Profile from 'views/admin/profile';
-import DataTables from 'views/admin/dataTables';
 import StartSession from 'views/admin/StartSession';
 import Journals from 'views/admin/Journals';
 
 // Auth Imports
 import SignInCentered from 'views/auth/signIn';
+import SignUp from 'views/auth/signup';
 
-const routes = [
+// Utility to check if the user is logged in
+const isUserLoggedIn = () => {
+  const userDetails = localStorage.getItem('userDetails');
+  return userDetails !== null;
+};
+
+// Routes for logged-in users (Admin routes)
+const adminRoutes = [
   {
     name: 'Start Session',
     layout: '/admin',
@@ -42,14 +49,6 @@ const routes = [
     icon: <Icon as={MdNotes} width="20px" height="20px" color="inherit" />,
     component: <Journals />,
   },
- 
-  {
-    name: 'Data Tables',
-    layout: '/admin',
-    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
-    path: '/data-tables',
-    component: <DataTables />,
-  },
   {
     name: 'Profile',
     layout: '/admin',
@@ -58,12 +57,33 @@ const routes = [
     component: <Profile />,
   },
   {
+    name: 'Logout',
+    layout: '/auth',
+    path: '/sign-in',
+    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
+    component: <SignInCentered />,
+  },
+];
+
+// Routes for non-logged-in users (Auth routes)
+const authRoutes = [
+  {
     name: 'Sign In',
     layout: '/auth',
     path: '/sign-in',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: <SignInCentered />,
-  }
+  },
+  {
+    name: 'Sign Up',
+    layout: '/auth',
+    path: '/sign-up',
+    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
+    component: <SignUp />,
+  },
 ];
+
+// Export the appropriate routes based on the user's login status
+const routes = isUserLoggedIn() ? adminRoutes : authRoutes;
 
 export default routes;

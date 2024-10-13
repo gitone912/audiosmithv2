@@ -1,24 +1,36 @@
 import './assets/css/App.css';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import {} from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from './layouts/auth';
 import AdminLayout from './layouts/admin';
-import {
-  ChakraProvider,
-  // extendTheme
-} from '@chakra-ui/react';
-import initialTheme from './theme/theme'; //  { themeGreen }
-import { useState } from 'react';
+import { ChakraProvider } from '@chakra-ui/react';
+import initialTheme from './theme/theme';
+import { useState, useEffect } from 'react';
 import Dialogue from './views/Dialogue';
 import SaveChat from 'views/Dialogue/SaveChat';
 import Monologue from 'views/monologue';
 import SaveChatMono from 'views/monologue/SaveChatMono';
 import EditJournal from 'views/editjournal';
-// Chakra imports
 
 export default function Main() {
-  // eslint-disable-next-line
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Authentication and browser detection logic
+  useEffect(() => {
+    const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+
+    const isAuthRoute = location.pathname.startsWith('/auth');
+    
+    if (!userDetails || !userDetails.email) {
+      // If user is not authenticated and not on an auth route, redirect to sign-in
+      if (!isAuthRoute) {
+        navigate('/auth/sign-in', { replace: true });
+      }
+      return; // Allow auth routes to proceed
+    }
+  }, [location.pathname, navigate]); // Run on route change
+
   return (
     <ChakraProvider theme={currentTheme}>
       <Routes>
@@ -29,30 +41,12 @@ export default function Main() {
             <AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />
           }
         />
-       
         <Route path="/" element={<Navigate to="/admin" replace />} />
-        <Route
-					path="dialogue/"
-					element={<Dialogue />} // Only pass theme
-				/>
-        <Route
-					path="monologue/"
-					element={<Monologue />} // Only pass theme
-				/>
-         <Route
-					path="savechat/"
-					element={<SaveChat />} // Only pass theme
-				/>
-        <Route
-					path="savechatmono/"
-					element={<SaveChatMono />} // Only pass theme
-				/>
-         <Route
-					path="edit/"
-					element={<EditJournal />} // Only pass theme
-				/>
-        
-
+        <Route path="dialogue/" element={<Dialogue />} />
+        <Route path="monologue/" element={<Monologue />} />
+        <Route path="savechat/" element={<SaveChat />} />
+        <Route path="savechatmono/" element={<SaveChatMono />} />
+        <Route path="edit/" element={<EditJournal />} />
       </Routes>
     </ChakraProvider>
   );
