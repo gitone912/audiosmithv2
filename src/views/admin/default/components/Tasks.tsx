@@ -1,88 +1,94 @@
 // Chakra imports
-import { Box, Flex, Text, Icon, useColorModeValue, Checkbox } from '@chakra-ui/react';
+import { Box, Flex, Text, Checkbox, useColorModeValue } from '@chakra-ui/react';
 // Custom components
 import Card from 'components/card/Card';
-import Menu from 'components/menu/MainMenu';
-import IconBox from 'components/icons/IconBox';
-
-// Assets
-import { MdCheckBox, MdDragIndicator } from 'react-icons/md';
 
 export default function Conversion(props: { [x: string]: any }) {
   const { ...rest } = props;
 
   // Chakra Color Mode
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const brandColor = useColorModeValue('brand.500', 'brand.400');
+  const textColor = useColorModeValue('gray.700', 'gray.300'); // Softer text color
+  const completedColor = useColorModeValue('gray.400', 'gray.500'); // Faded for completed tasks
 
   return (
     <Card
-      p="20px"
-      alignItems="center"
+      p="30px"
+      alignItems="flex-start"
       flexDirection="column"
       w="100%"
-      bg="transparent" // Transparent background for the Card
-      boxShadow="none" // Remove box shadow if needed
+      maxW="400px"
+      borderRadius="16px"
+      bg={useColorModeValue('gray.100', 'gray.800')} // Match the card style
       {...rest}
     >
-      <Flex alignItems="center" w="100%" mb="30px">
-        <IconBox
-          me="12px"
-          w="38px"
-          h="38px"
-          bg="transparent" // Transparent background for IconBox
-          icon={<Icon as={MdCheckBox} color={brandColor} w="24px" h="24px" />}
-        />
+      <Text
+        color={textColor}
+        fontSize="lg"
+        fontWeight="bold"
+        mb="20px"
+        textAlign="left"
+        w="100%"
+      >
+        Action Recommendations
+      </Text>
 
-        <Text color={textColor} fontSize="lg" fontWeight="700">
-          Action Recommendation
-        </Text>
-      </Flex>
-
-      <Box px="11px" w="100%">
-        {/* Task 1 */}
-        <Flex w="100%" justify="space-between" mb="20px">
-          <Checkbox me="16px" colorScheme="brandScheme" />
-          <Text fontWeight="bold" color={textColor} fontSize="md" textAlign="start">
-            Landing Page Design
+      <Box w="100%">
+        {/* Task 1 - Completed */}
+        <Flex alignItems="center" mb="15px">
+          <Checkbox defaultChecked colorScheme="green" me="10px" />
+          <Text
+            as="s" // Strikethrough effect
+            color={completedColor}
+            fontSize="md"
+            textAlign="left"
+          >
+            15 minute Call with Mom
           </Text>
-          <Icon ms="auto" as={MdDragIndicator} color="secondaryGray.600" w="24px" h="24px" />
         </Flex>
 
-        {/* Task 2 */}
-        <Flex w="100%" justify="space-between" mb="20px">
-          <Checkbox me="16px" defaultChecked colorScheme="brandScheme" />
-          <Text fontWeight="bold" color={textColor} fontSize="md" textAlign="start">
-            Dashboard Builder
+        {/* Task 2 - Completed */}
+        <Flex alignItems="center" mb="15px">
+          <Checkbox defaultChecked colorScheme="green" me="10px" />
+          <Text
+            as="s" // Strikethrough effect
+            color={completedColor}
+            fontSize="md"
+            textAlign="left"
+          >
+            Reach out to a friend you haven’t spoken to in a while
           </Text>
-          <Icon ms="auto" as={MdDragIndicator} color="secondaryGray.600" w="24px" h="24px" />
         </Flex>
 
         {/* Task 3 */}
-        <Flex w="100%" justify="space-between" mb="20px">
-          <Checkbox defaultChecked me="16px" colorScheme="brandScheme" />
-          <Text fontWeight="bold" color={textColor} fontSize="md" textAlign="start">
-            Mobile App Design
+        <Flex alignItems="center" mb="15px">
+          <Checkbox colorScheme="green" me="10px" />
+          <Text fontWeight="medium" color={textColor} fontSize="md" textAlign="left">
+            Coffee Date with Sheena
           </Text>
-          <Icon ms="auto" as={MdDragIndicator} color="secondaryGray.600" w="24px" h="24px" />
         </Flex>
 
         {/* Task 4 */}
-        <Flex w="100%" justify="space-between" mb="20px">
-          <Checkbox me="16px" colorScheme="brandScheme" />
-          <Text fontWeight="bold" color={textColor} fontSize="md" textAlign="start">
-            Illustrations
+        <Flex alignItems="center" mb="15px">
+          <Checkbox colorScheme="green" me="10px" />
+          <Text fontWeight="medium" color={textColor} fontSize="md" textAlign="left">
+            Buy yourself a treat
           </Text>
-          <Icon ms="auto" as={MdDragIndicator} color="secondaryGray.600" w="24px" h="24px" />
         </Flex>
 
         {/* Task 5 */}
-        <Flex w="100%" justify="space-between" mb="20px">
-          <Checkbox defaultChecked me="16px" colorScheme="brandScheme" />
-          <Text fontWeight="bold" color={textColor} fontSize="md" textAlign="start">
-            Promotional LP
+        <Flex alignItems="center" mb="15px">
+          <Checkbox colorScheme="green" me="10px" />
+          <Text fontWeight="medium" color={textColor} fontSize="md" textAlign="left">
+            Meet my mentor
           </Text>
-          <Icon ms="auto" as={MdDragIndicator} color="secondaryGray.600" w="24px" h="24px" />
+        </Flex>
+
+        {/* Task 6 */}
+        <Flex alignItems="center">
+          <Checkbox colorScheme="green" me="10px" />
+          <Text fontWeight="medium" color={textColor} fontSize="md" textAlign="left">
+            List down 5 things you’re grateful about
+          </Text>
         </Flex>
       </Box>
     </Card>
