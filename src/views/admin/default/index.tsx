@@ -16,6 +16,7 @@ import TotalSpent from 'views/admin/default/components/TotalSpent';
 import tableDataCheck from 'views/admin/default/variables/tableDataCheck';
 import tableDataComplex from 'views/admin/default/variables/tableDataComplex';
 import Notifications from './components/Notifications';
+import DailyTask from './components/DailyTask';
 
 export default function UserReports() {
 	// Chakra Color Mode
@@ -25,25 +26,13 @@ export default function UserReports() {
 		<Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
 
 			<SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
-				<TotalSpent />
+			<Tasks />
+			<DailyTask />
 			</SimpleGrid>
 			<SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap='20px' mb='20px'>
-				
-				<SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px'>
-					<Tasks />
-					<MiniCalendar h='100%' minW='100%' selectRange={false} />
-				</SimpleGrid>
 			</SimpleGrid>
-			<Notifications
-					used={25.6}
-					total={50}
-					gridArea={{
-						base: '3 / 1 / 4 / 2',
-						lg: '2 / 1 / 3 / 3',
-						'2xl': '1 / 3 / 2 / 4'
-					}}
-				/>
-				
+			
+			<TotalSpent />
 		</Box>
 	);
 }

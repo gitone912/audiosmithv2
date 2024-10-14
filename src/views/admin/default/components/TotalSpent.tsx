@@ -1,77 +1,93 @@
-// Chakra imports
-import { Box, Button, Flex, Icon, Text, useColorModeValue } from '@chakra-ui/react';
-// Custom components
-import Card from 'components/card/Card';
-import LineChart from 'components/charts/LineChart';
-import { IoCheckmarkCircle } from 'react-icons/io5';
-import { MdBarChart, MdOutlineCalendarToday } from 'react-icons/md';
-// Assets
-import { RiArrowUpSFill } from 'react-icons/ri';
-import { lineChartDataTotalSpent, lineChartOptionsTotalSpent } from 'variables/charts';
+// Imports
+import React from 'react';
+import { Box, useColorModeValue } from '@chakra-ui/react';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Filler,
+} from 'chart.js';
 
-export default function TotalSpent(props: { [x: string]: any }) {
-	const { ...rest } = props;
+// Registering ChartJS components
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Filler);
 
-	// Chakra Color Mode
+// Sample data for the chart
+const lineChartData = {
+  labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  datasets: [
+    {
+      data: [3, 2, 5, 6, 4, 9, 5], // Example values
+      borderColor: 'rgba(255, 255, 255, 0.8)', // White line
+      backgroundColor: 'rgba(255, 255, 255, 0.1)', // Transparent fill
+      borderWidth: 2,
+      pointBackgroundColor: 'white',
+      pointBorderColor: 'transparent',
+      tension: 0.4, // Smooth curve
+      fill: true,
+    },
+  ],
+};
 
-	const textColor = useColorModeValue('secondaryGray.900', 'white');
-	const textColorSecondary = useColorModeValue('secondaryGray.600', 'white');
-	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-	const iconColor = useColorModeValue('brand.500', 'white');
-	const bgButton = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-	const bgHover = useColorModeValue({ bg: 'secondaryGray.400' }, { bg: 'whiteAlpha.50' });
-	const bgFocus = useColorModeValue({ bg: 'secondaryGray.300' }, { bg: 'whiteAlpha.100' });
-	return (
-		<Card justifyContent='center' alignItems='center' flexDirection='column' w='100%' mb='0px' {...rest}>
-			<Flex align='center' justify='space-between' w='100%' pe='20px' pt='5px'>
-				<Button bg={boxBg} fontSize='sm' fontWeight='500' color={textColorSecondary} borderRadius='7px'>
-					<Icon as={MdOutlineCalendarToday} color={textColorSecondary} me='4px' />
-					This month
-				</Button>
-				<Button
-					ms='auto'
-					alignItems='center'
-					justifyContent='center'
-					bg={bgButton}
-					_hover={bgHover}
-					_focus={bgFocus}
-					_active={bgFocus}
-					w='37px'
-					h='37px'
-					lineHeight='100%'
-					borderRadius='10px'
-					{...rest}>
-					<Icon as={MdBarChart} color={iconColor} w='24px' h='24px' />
-				</Button>
-			</Flex>
-			<Flex w='100%' flexDirection={{ base: 'column', lg: 'row' }}>
-				<Flex flexDirection='column' me='20px' mt='28px'>
-					<Text color={textColor} fontSize='34px' textAlign='start' fontWeight='700' lineHeight='100%'>
-						$37.5K
-					</Text>
-					<Flex align='center' mb='20px'>
-						<Text color='secondaryGray.600' fontSize='sm' fontWeight='500' mt='4px' me='12px'>
-							Total Spent
-						</Text>
-						<Flex align='center'>
-							<Icon as={RiArrowUpSFill} color='green.500' me='2px' mt='2px' />
-							<Text color='green.500' fontSize='sm' fontWeight='700'>
-								+2.45%
-							</Text>
-						</Flex>
-					</Flex>
+// Chart options with Y-axis on the left and reduced padding/margin
+const lineChartOptions: any = {
+  responsive: true,
+  maintainAspectRatio: false,
+  layout: {
+    padding: {
+      left: 0, // Remove padding from the left
+      right: 0, // Remove padding from the right
+      top: 10, // Minimal padding on top
+      bottom: 10, // Minimal padding on bottom
+    },
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: 'white', // X-axis tick color
+        padding: 5, // Minimal space between ticks and axis
+      },
+      grid: {
+        display: false, // Hide X-axis grid lines
+      },
+    },
+    y: {
+      position: 'left' as const, // Shift Y-axis numbers to the left
+      ticks: {
+        color: 'white',
+        stepSize: 1,
+        padding: 5, // Reduce padding between numbers and axis
+      },
+      grid: {
+        color: 'rgba(255, 255, 255, 0.2)', // Light grid lines
+      },
+    },
+  },
+  plugins: {
+    legend: {
+      display: false, // Hide legend
+    },
+  },
+};
 
-					<Flex align='center'>
-						<Icon as={IoCheckmarkCircle} color='green.500' me='4px' />
-						<Text color='green.500' fontSize='md' fontWeight='700'>
-							On track
-						</Text>
-					</Flex>
-				</Flex>
-				<Box minH='260px' minW='75%' mt='auto'>
-					<LineChart chartData={lineChartDataTotalSpent} chartOptions={lineChartOptionsTotalSpent} />
-				</Box>
-			</Flex>
-		</Card>
-	);
+export default function TotalSpent() {
+  const bgColor = useColorModeValue('gray.800', 'gray.700'); // Background color
+
+  return (
+    <Box
+      w="70%"
+      h="50vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      bg={bgColor}
+    >
+      <Box w="95%" maxW="1000px" h="350px" px="0" py="0"> {/* Reduced size and padding */}
+        <Line data={lineChartData} options={lineChartOptions} />
+      </Box>
+    </Box>
+  );
 }
