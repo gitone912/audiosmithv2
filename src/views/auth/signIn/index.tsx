@@ -19,20 +19,18 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, storage } from "../../../firebase"; // Import Firebase auth
+import { auth, storage, db } from "../../../firebase"; // Import Firestore
+import { doc, getDoc } from "firebase/firestore";
 import DefaultAuth from "layouts/auth/Default";
 import { HSeparator } from "components/separator/Separator";
 import { ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
-
 
 function SignIn() {
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
   const textColorBrand = useColorModeValue("brand.500", "white");
-  const brandStars = useColorModeValue("brand.500", "brand.400");
-  
-  
+
   // State management
   const [show, setShow] = useState(false);
   const [email, setEmail] = useState("");
@@ -45,56 +43,88 @@ function SignIn() {
   // Handle visibility of password
   const handleClick = () => setShow(!show);
 
-  // Handle form submission
   // Function to check for user profile image in Firebase Storage
-const checkUserImage = async (email : string) => {
-  try {
-    const imageRef = ref(storage, `${email}.png`);
-    const url = await getDownloadURL(imageRef);
-    localStorage.setItem("userImage", url);
-  } catch (error) {
-    console.log("No profile image found for this user.");
-  }
-};
-
-// Handle form submission
-const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setError(null);
-  setNotification(""); // Clear previous messages
-
-  try {
-    // Sign in with Firebase
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Check if the profile image is in localStorage, if not, check Firebase Storage
-    const userDetails = localStorage.getItem("userDetails");
-    if (!userDetails || !JSON.parse(userDetails).userImage) {
-      await checkUserImage(user.email);
+  const checkUserImage = async (email: string) => {
+    try {
+      const imageRef = ref(storage, `${email}.png`);
+      const url = await getDownloadURL(imageRef);
+      localStorage.setItem("userImage", url);
+    } catch (error) {
+      console.log("No profile image found for this user.");
     }
+  };
 
-    // Save user details to local storage based on "Keep me logged in"
-    const newUserDetails = {
-      email: user.email,
-      displayName: user.displayName || "User",
-      phoneNumber: user.phoneNumber || "Not provided",
-      userImage: localStorage.getItem("userImage") || null, // Store user image URL if available
-    };
+  // Fetch user's fullName and phoneNumber from Firestore
+  const fetchUserDetails = async (uid: string) => {
+    try {
+      // Reference to the user's document in Firestore under 'users' collection
+      const userDocRef = doc(db, "users", uid); // Use db here instead of firestore
+      const userDoc = await getDoc(userDocRef);
 
-    const storageDuration = keepLoggedIn ? 7 : 1;
-    localStorage.setItem("userDetails", JSON.stringify(newUserDetails));
-    localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        return {
+          fullName: userData.fullName || "User", // Default to 'User' if fullName is missing
+          phoneNumber: userData.phoneNumber || "Not provided",
+        };
+      } else {
+        console.log("No user data found in Firestore.");
+        return {
+          fullName: "User",
+          phoneNumber: "Not provided",
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching user details from Firestore:", error);
+      return {
+        fullName: "User",
+        phoneNumber: "Not provided",
+      };
+    }
+  };
 
-    // Success message and redirect
-    setNotification("Successfully signed in! Redirecting...");
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1000);
-  } catch (error) {
-    setError("Failed to sign in. Please check your credentials.");
-  }
-};
+  // Handle form submission
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setNotification(""); // Clear previous messages
+
+    try {
+      // Sign in with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const uid = user.uid; // Get user's UID
+
+      // Fetch additional user details from Firestore
+      const { fullName, phoneNumber } = await fetchUserDetails(uid);
+
+      // Check if the profile image is in localStorage, if not, check Firebase Storage
+      const userDetails = localStorage.getItem("userDetails");
+      if (!userDetails || !JSON.parse(userDetails).userImage) {
+        await checkUserImage(user.email);
+      }
+
+      // Save user details to local storage based on "Keep me logged in"
+      const newUserDetails = {
+        email: user.email,
+        displayName: fullName,
+        phoneNumber: phoneNumber,
+        userImage: localStorage.getItem("userImage") || null, // Store user image URL if available
+      };
+
+      const storageDuration = keepLoggedIn ? 7 : 1;
+      localStorage.setItem("userDetails", JSON.stringify(newUserDetails));
+      localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
+
+      // Success message and redirect
+      setNotification("Successfully signed in! Redirecting...");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (error) {
+      setError("Failed to sign in. Please check your credentials.");
+    }
+  };
 
   return (
     <DefaultAuth>

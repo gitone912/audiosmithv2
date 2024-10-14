@@ -1,11 +1,8 @@
-// Chakra Imports
 import {
 	Avatar,
 	Button,
 	Flex,
 	Icon,
-	Image,
-	Link,
 	Menu,
 	MenuButton,
 	MenuItem,
@@ -14,34 +11,34 @@ import {
 	useColorModeValue,
 	useColorMode
 } from '@chakra-ui/react';
-// Custom Components
-import { ItemContent } from 'components/menu/ItemContent';
-import { SidebarResponsive } from 'components/sidebar/Sidebar';
-import PropTypes from 'prop-types';
 import React from 'react';
-// Assets
-import navImage from 'assets/img/layout/Navbar.png';
-import { MdNotificationsNone, MdInfoOutline } from 'react-icons/md';
+import { MdNotificationsNone } from 'react-icons/md';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import { FaEthereum } from 'react-icons/fa';
+import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import routes from 'routes';
-export default function HeaderLinks(props: { secondary: boolean }) {
+import { useNavigate } from 'react-router-dom'; // Use React Router's useNavigate for navigation
+
+export default function HeaderLinks(props:any) {
 	const { secondary } = props;
 	const { colorMode, toggleColorMode } = useColorMode();
-	// Chakra Color Mode
 	const navbarIcon = useColorModeValue('gray.400', 'white');
 	let menuBg = useColorModeValue('white', 'navy.800');
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
 	const textColorBrand = useColorModeValue('brand.700', 'brand.400');
 	const ethColor = useColorModeValue('gray.700', 'white');
-	const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)');
 	const ethBg = useColorModeValue('secondaryGray.300', 'navy.900');
 	const ethBox = useColorModeValue('white', 'navy.800');
-	const shadow = useColorModeValue(
-		'14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
-		'14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
-	);
+	const shadow = useColorModeValue('14px 17px 40px 4px rgba(112, 144, 176, 0.18)', '14px 17px 40px 4px rgba(112, 144, 176, 0.06)');
+	const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)');
 	const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
+	
+	const navigate = useNavigate(); // React Router's hook for navigation
+	
+	// Fetch username from localStorage
+	const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+	const username = userDetails.displayName || 'User'; // Default to 'User' if username is not found
+	
 	return (
 		<Flex
 			w={{ sm: '100%', md: 'auto' }}
@@ -77,36 +74,7 @@ export default function HeaderLinks(props: { secondary: boolean }) {
 				<MenuButton p='0px'>
 					<Icon mt='6px' as={MdNotificationsNone} color={navbarIcon} w='18px' h='18px' me='10px' />
 				</MenuButton>
-				<MenuList
-					boxShadow={shadow}
-					p='20px'
-					borderRadius='20px'
-					bg={menuBg}
-					border='none'
-					mt='22px'
-					me={{ base: '30px', md: 'unset' }}
-					minW={{ base: 'unset', md: '400px', xl: '450px' }}
-					maxW={{ base: '360px', md: 'unset' }}>
-					<Flex w='100%' mb='20px'>
-						<Text fontSize='md' fontWeight='600' color={textColor}>
-							Notifications
-						</Text>
-						<Text fontSize='sm' fontWeight='500' color={textColorBrand} ms='auto' cursor='pointer'>
-							Mark all read
-						</Text>
-					</Flex>
-					<Flex flexDirection='column'>
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} px='0' borderRadius='8px' mb='10px'>
-							<ItemContent info='Horizon UI Dashboard PRO' />
-						</MenuItem>
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} px='0' borderRadius='8px' mb='10px'>
-							<ItemContent info='Horizon Design System Free' />
-						</MenuItem>
-					</Flex>
-				</MenuList>
 			</Menu>
-
-			
 
 			<Button
 				variant='no-hover'
@@ -130,7 +98,7 @@ export default function HeaderLinks(props: { secondary: boolean }) {
 					<Avatar
 						_hover={{ cursor: 'pointer' }}
 						color='white'
-						name='Adela Parkson'
+						name={username} // Use dynamic username here
 						bg='#11047A'
 						size='sm'
 						w='40px'
@@ -149,22 +117,27 @@ export default function HeaderLinks(props: { secondary: boolean }) {
 							fontSize='sm'
 							fontWeight='700'
 							color={textColor}>
-							👋&nbsp; Hey, Adela
+							👋&nbsp; Hey, {username} {/* Replace 'Adela' with the dynamic username */}
 						</Text>
 					</Flex>
 					<Flex flexDirection='column' p='10px'>
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius='8px' px='14px'>
+						<MenuItem
+							_hover={{ bg: 'none' }}
+							_focus={{ bg: 'none' }}
+							borderRadius='8px'
+							px='14px'
+							onClick={() => navigate('/admin/profile')} // Navigate to profile
+						>
 							<Text fontSize='sm'>Profile Settings</Text>
-						</MenuItem>
-						<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius='8px' px='14px'>
-							<Text fontSize='sm'>Newsletter Settings</Text>
 						</MenuItem>
 						<MenuItem
 							_hover={{ bg: 'none' }}
 							_focus={{ bg: 'none' }}
 							color='red.400'
 							borderRadius='8px'
-							px='14px'>
+							px='14px'
+							onClick={() => navigate('/auth/sign-out')} // Navigate to sign-out
+						>
 							<Text fontSize='sm'>Log out</Text>
 						</MenuItem>
 					</Flex>
@@ -173,10 +146,3 @@ export default function HeaderLinks(props: { secondary: boolean }) {
 		</Flex>
 	);
 }
-
-HeaderLinks.propTypes = {
-	variant: PropTypes.string,
-	fixed: PropTypes.bool,
-	secondary: PropTypes.bool,
-	onOpen: PropTypes.func
-};

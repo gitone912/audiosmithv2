@@ -20,6 +20,7 @@ import Journals from 'views/admin/Journals';
 import SignInCentered from 'views/auth/signIn';
 import SignUp from 'views/auth/signup';
 import SignOut from 'views/auth/signOut';
+import ActionRec from 'views/admin/ActionRec';
 
 
 // Utility to check if the user is logged in
@@ -43,6 +44,13 @@ const adminRoutes = [
     path: '/default',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: <MainDashboard />,
+  },
+  {
+    name: 'Action Recommendation',
+    layout: '/admin',
+    path: '/action',
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    component: <ActionRec />,
   },
   {
     name: 'Journals',

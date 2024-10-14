@@ -11,6 +11,7 @@ import {
     ModalContent,
     ModalHeader,
     ModalBody,
+    useToast,
   } from "@chakra-ui/react";
   import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-icons/md
   import React, { useState, useEffect, useRef } from "react";
@@ -40,10 +41,23 @@ import {
     const speechTimeout = useRef<NodeJS.Timeout | null>(null);
     const { transcript, resetTranscript } = useSpeechRecognition();
      // Check if the browser is Chrome
-     const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-     if (!isChrome) {
-       alert('The Monologue and Dialogue features only work on Chrome. Please switch to Chrome for a better experience.');
-     }
+     const toast = useToast(); // Initialize the toast hook
+
+  // Check if the browser is Chrome
+  const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  useEffect(() => {
+    if (!isChrome) {
+      // Show Chakra UI toast instead of an alert
+      toast({
+        title: "Unsupported Browser",
+        description: "The Monologue feature may not work well in this browser . We Highly Recommend to switch to Google Chrome for a better experience.",
+        status: "warning",
+        duration: 10000,
+        isClosable: true,
+        position: "top", // Show toast at the top of the screen
+      });
+    }
+  }, [isChrome, toast]);
   
     const compileJournal = async () => {
         try {

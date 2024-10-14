@@ -2,7 +2,8 @@ import { ChangeEvent, useState, useEffect } from 'react';
 import { Box, Grid, Button, Input, Avatar, Flex, Text, useColorModeValue, Stack, Spinner, useToast } from '@chakra-ui/react';
 import avatarDefault from 'assets/img/avatars/image.png';
 import banner from 'assets/img/auth/banner.png';
-import { storage, ref, uploadBytes, getDownloadURL } from '../../../firebase'; // Adjust path as needed
+import { storage, ref, uploadBytes, getDownloadURL, db, auth } from '../../../firebase'; // Adjust path as needed
+import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore'; // Firestore functions
 
 export default function Overview() {
   const [userDetails, setUserDetails] = useState(() => {
@@ -41,16 +42,48 @@ export default function Overview() {
   const handleSave = async () => {
     try {
       setIsLoading(true); // Show spinner
+      let imageUrl = previewImage;
+
+      // Get the current user UID from Firebase Auth
+      const user = auth.currentUser;
+      if (!user) throw new Error("No authenticated user found");
+      const uid = user.uid;
+
       if (uploadedImage && userDetails.email) {
         const imageName = `${userDetails.email}.png`;
         const storageRef = ref(storage, imageName);
         await uploadBytes(storageRef, uploadedImage);
-        const downloadURL = await getDownloadURL(storageRef);
-        localStorage.setItem('userImage', downloadURL);
-        setPreviewImage(downloadURL);
+        imageUrl = await getDownloadURL(storageRef);
+        localStorage.setItem('userImage', imageUrl);
+        setPreviewImage(imageUrl);
       }
 
+      // Update localStorage
       localStorage.setItem('userDetails', JSON.stringify(userDetails));
+
+      // Get the Firestore user document reference using UID
+      const userDocRef = doc(db, 'users', uid);  // Using UID instead of email
+
+      // Check if the document exists
+      const docSnap = await getDoc(userDocRef);
+
+      if (docSnap.exists()) {
+        // If document exists, update it
+        await updateDoc(userDocRef, {
+          fullName: userDetails.displayName,
+          phoneNumber: userDetails.phoneNumber,
+          userImage: imageUrl, // Optional: save the image URL in Firestore as well
+        });
+      } else {
+        // If document does not exist, create it
+        await setDoc(userDocRef, {
+          email: userDetails.email,
+          fullName: userDetails.displayName,
+          phoneNumber: userDetails.phoneNumber,
+          userImage: imageUrl, // Save the image URL in Firestore
+        });
+      }
+
       toast({
         title: 'Profile saved.',
         description: 'Your profile details have been successfully updated!',
@@ -76,8 +109,8 @@ export default function Overview() {
   };
 
   // Styling improvements for light/dark mode
-  const textColorPrimary = useColorModeValue('black', 'white'); // Black for light mode, white for dark mode
-  const textColorSecondary = useColorModeValue('gray.600', 'gray.400'); // Adjust secondary text color for both modes
+  const textColorPrimary = useColorModeValue('black', 'white');
+  const textColorSecondary = useColorModeValue('gray.600', 'gray.400');
   const inputBg = useColorModeValue('gray.100', 'gray.700');
   const inputTextColor = useColorModeValue('black', 'white');
   const borderColor = useColorModeValue('gray.300', 'gray.500');
@@ -85,13 +118,12 @@ export default function Overview() {
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" justifyContent="center" alignItems="center">
       <Box
-        bg="transparent" // Transparent background
+        bg="transparent"
         borderRadius="lg"
         shadow="xl"
         p="6"
         w={{ base: '90%', md: '70%', lg: '50%' }}
       >
-        {/* User Banner and Info Section */}
         <Box
           bg={`url(${banner})`}
           bgSize="cover"
@@ -111,7 +143,7 @@ export default function Overview() {
         />
         <Text
           textAlign="center"
-          color={textColorPrimary} // Adjusts color based on light/dark mode
+          color={textColorPrimary}
           fontWeight="bold"
           fontSize="2xl"
           mt="6"
@@ -129,7 +161,6 @@ export default function Overview() {
           </Text>
         </Flex>
 
-        {/* Editing Section */}
         <Box mt="8">
           {isEditing ? (
             <Stack spacing="4">
@@ -139,7 +170,7 @@ export default function Overview() {
                 value={userDetails.displayName}
                 onChange={handleInputChange}
                 bg={inputBg}
-                color={inputTextColor} // Input text color changes with mode
+                color={inputTextColor}
                 borderColor={borderColor}
               />
               <Input

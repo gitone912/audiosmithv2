@@ -25,7 +25,9 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import { HSeparator } from "components/separator/Separator";
 import DefaultAuth from "layouts/auth/Default";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../../firebase"; // Adjust the import according to your project structure
+import { auth, db } from "../../../firebase"; // Ensure db is initialized properly in your firebase.js file
+import { doc, setDoc } from "firebase/firestore"; // For Firestore
+
 
 function SignUp() {
   const textColor = useColorModeValue("navy.700", "white");
@@ -66,26 +68,39 @@ function SignUp() {
   };
 
   // Handle signup
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    setNotification(""); 
-    e.preventDefault();
-    const { email, password, confirmPassword } = formData;
+  // Handle signup
+const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setNotification("");
+  const { email, password, confirmPassword, fullName, phone } = formData;
 
-    if (password !== confirmPassword) {
-      setAlert({ message: "Passwords do not match", type: "error" });
-      return;
-    }
+  if (password !== confirmPassword) {
+    setAlert({ message: "Passwords do not match", type: "error" });
+    return;
+  }
 
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      setAlert({ message: "Signup Successful!", type: "success" });
-      navigate("/auth/sign-in");
-    } catch (err) {
-      if (err instanceof Error) {
-        setAlert({ message: err.message, type: "error" });
-      }
+  try {
+    // Create the user with email and password
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Save the additional data (fullName, phone) to Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      fullName,
+      email,
+      phone
+    });
+
+    // Show success alert and navigate
+    setAlert({ message: "Signup Successful!", type: "success" });
+    navigate("/auth/sign-in");
+  } catch (err) {
+    if (err instanceof Error) {
+      setAlert({ message: err.message, type: "error" });
     }
-  };
+  }
+};
+
 
   return (
     <DefaultAuth>
