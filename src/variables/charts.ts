@@ -214,7 +214,7 @@ export const barChartDataConsumption = [
 	},
 	{
 		name: 'PRODUCT C',
-		data: [ 400, 370, 330, 390, 320, 350, 360, 320, 380 ]
+		data: [  984, 370, 330, 390, 320, 350, 360, 320, 380 ]
 	}
 ];
 
@@ -345,7 +345,7 @@ export const pieChartOptions: any = {
 	}
 };
 
-export const pieChartData = [ 63, 25, 12 ];
+export const pieChartData = [ 63, 25, 12,10 ];
 
 // Total Spent Default
 

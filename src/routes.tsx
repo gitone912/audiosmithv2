@@ -39,6 +39,13 @@ const adminRoutes = [
     component: <StartSession />,
   },
   {
+    name: 'Journals',
+    layout: '/admin',
+    path: '/journals',
+    icon: <Icon as={MdNotes} width="20px" height="20px" color="inherit" />,
+    component: <Journals />,
+  },
+  {
     name: 'Mental Health Status',
     layout: '/admin',
     path: '/default',
@@ -52,13 +59,7 @@ const adminRoutes = [
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: <ActionRec />,
   },
-  {
-    name: 'Journals',
-    layout: '/admin',
-    path: '/journals',
-    icon: <Icon as={MdNotes} width="20px" height="20px" color="inherit" />,
-    component: <Journals />,
-  },
+ 
   {
     name: 'Profile',
     layout: '/admin',

@@ -11,12 +11,14 @@ import IconBox from 'components/icons/IconBox';
 import { MdAddTask, MdAttachMoney, MdBarChart, MdFileCopy } from 'react-icons/md';
 import ComplexTable from 'views/admin/default/components/ComplexTable';
 import DailyTraffic from 'views/admin/default/components/DailyTraffic';
-import PieCard from 'views/admin/default/components/PieCard';
 import Tasks from 'views/admin/default/components/Tasks';
 import TotalSpent from 'views/admin/default/components/TotalSpent';
-import WeeklyRevenue from 'views/admin/default/components/WeeklyRevenue';
 import tableDataCheck from 'views/admin/default/variables/tableDataCheck';
 import tableDataComplex from 'views/admin/default/variables/tableDataComplex';
+import WeeklyRevenue from './WeeklyRevenue';
+import PieCard from './PieCard';
+import WordChart from './WordChart';
+import LifeSat from './LifeSat';
 
 export default function ActionRec() {
 	// Chakra Color Mode
@@ -26,8 +28,14 @@ export default function ActionRec() {
 		<Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
 
 			<SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
-				<TotalSpent />
 				<WeeklyRevenue />
+                <PieCard />
+			</SimpleGrid>
+            <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap='100px' mb='100px'>
+			</SimpleGrid>
+            <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap='20px' mb='20px'>
+				<WordChart/>
+                <LifeSat/>
 			</SimpleGrid>
 			
 				
