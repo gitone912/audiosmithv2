@@ -10,6 +10,8 @@ import SaveChat from 'views/Dialogue/SaveChat';
 import Monologue from 'views/monologue';
 import SaveChatMono from 'views/monologue/SaveChatMono';
 import EditJournal from 'views/editjournal';
+import DialoguePht from 'views/Dialogue_playht';
+import DialogueEle from 'views/DialogueEle';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -47,6 +49,8 @@ export default function Main() {
         <Route path="savechat/" element={<SaveChat />} />
         <Route path="savechatmono/" element={<SaveChatMono />} />
         <Route path="edit/" element={<EditJournal />} />
+        <Route path="dialoguepht/" element={<DialoguePht />} />
+        {/* <Route path="dialogueele/" element={<DialogueEle />} /> */}
       </Routes>
     </ChakraProvider>
   );
