@@ -18,7 +18,7 @@ export default function Conversion(props: { [x: string]: any }) {
       w="100%"
       maxW="400px"
       borderRadius="16px"
-      bg={useColorModeValue('gray.100', 'gray.800')} // Match the card style
+      bg={useColorModeValue('gray.100', 'rgb(82,87,76)')} // Match the card style
       {...rest}
     >
       <Text

@@ -44,20 +44,21 @@ import {
      const toast = useToast(); // Initialize the toast hook
 
   // Check if the browser is Chrome
-  const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  const {browserSupportsSpeechRecognition } = useSpeechRecognition()
+
   useEffect(() => {
-    if (!isChrome) {
+    if (!browserSupportsSpeechRecognition) {
       // Show Chakra UI toast instead of an alert
       toast({
         title: "Unsupported Browser",
-        description: "The Monologue feature may not work well in this browser . We Highly Recommend to switch to Google Chrome for a better experience.",
+        description: "The Dialogue feature is only for chrome for now, in future we will allow this browser as well . We Highly Recommend to switch to Google Chrome for a better experience.",
         status: "warning",
-        duration: 10000,
+        duration: 5000,
         isClosable: true,
         position: "top", // Show toast at the top of the screen
       });
     }
-  }, [isChrome, toast]);
+  }, [browserSupportsSpeechRecognition, toast]);
   
     const compileJournal = async () => {
         try {
@@ -121,7 +122,7 @@ import {
   
     const startListening = () => {
       setIsListening(true);
-      SpeechRecognition.startListening({ continuous: true });
+      SpeechRecognition.startListening({ continuous: true ,language:'en-CA'});
     };
   
     const stopListening = () => {

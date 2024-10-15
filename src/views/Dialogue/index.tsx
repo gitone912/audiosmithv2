@@ -22,6 +22,8 @@ import Groq from "groq-sdk";
 import { db, auth } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { localPrompt , jPrompt, tPrompt} from "systemPrompt";
+
 
 
 
@@ -33,7 +35,8 @@ const groq = new Groq({
 const apiKey = process.env.REACT_APP_DEEPGRAM_API_KEY!;
 
   
-const systemPrompt = `You are Laura, a personal journalist capturing your user’s daily life events. You have a youthful and cheerful personality. ask questions in only 8 -14 words, more than 14 is restricted`;
+const systemPrompt = {localPrompt};
+// console.log(localPrompt)
 
 
 const Dialogue = () => {
@@ -59,22 +62,21 @@ const Dialogue = () => {
 
    // Check if the browser is Chrome
    const toast = useToast(); // Initialize the toast hook
+   const {browserSupportsSpeechRecognition } = useSpeechRecognition()
 
-  // Check if the browser is Chrome
-  const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
   useEffect(() => {
-    if (!isChrome) {
+    if (!browserSupportsSpeechRecognition) {
       // Show Chakra UI toast instead of an alert
       toast({
         title: "Unsupported Browser",
-        description: "The Dialogue feature may not work well in this browser . We Highly Recommend to switch to Google Chrome for a better experience.",
+        description: "The Dialogue feature is only for chrome for now, in future we will allow this browser as well . We Highly Recommend to switch to Google Chrome for a better experience.",
         status: "warning",
-        duration: 10000,
+        duration: 5000,
         isClosable: true,
         position: "top", // Show toast at the top of the screen
       });
     }
-  }, [isChrome, toast]);
+  }, [browserSupportsSpeechRecognition, toast]);
   useEffect(() => {
     let index = 0;
 
@@ -210,6 +212,7 @@ const Dialogue = () => {
           { role: "user", content: transcript },
         ],
         model: "llama-3.1-70b-versatile",
+        max_tokens: 40,
       });
 
       const groqMessage = chatCompletion.choices[0]?.message?.content || "";
@@ -230,22 +233,25 @@ const Dialogue = () => {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Based on the user's input and the AI's response, compile a concise journal entry. User's input: "${originalText}". AI's response: "${groqResponse}".`;
+      const journalPrompt = `${jPrompt}. Conversation history: "${chatHistory}".`;
+      console.log(journalPrompt)
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
-        model: "llama3-8b-8192",
+        model: "llama-3.1-70b-versatile",
       });
+  
       return journalCompletion.choices[0]?.message?.content || "";
     } catch (error) {
       return "";
     }
   };
+  
   const compileTitle = async () => {
     try {
       const journalPrompt = `you are a title maker ,Based on the user's input, return a two words journal title, your response only should be two words title, returning more than two words or anything except title is prohibited. User's input: "${tempTranscript}".`;
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
-        model: "llama3-8b-8192",
+        model: "llama-3.1-70b-versatile",
       });
       return journalCompletion.choices[0]?.message?.content || "";
     } catch (error) {
@@ -281,7 +287,7 @@ const Dialogue = () => {
 
   const startListening = () => {
     setIsListening(true);
-    SpeechRecognition.startListening({ continuous: true });
+    SpeechRecognition.startListening({ continuous: true ,language:'en-CA'});
   };
 
   const stopListening = () => {
