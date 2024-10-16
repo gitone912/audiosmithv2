@@ -11,7 +11,6 @@ import Monologue from 'views/monologue';
 import SaveChatMono from 'views/monologue/SaveChatMono';
 import EditJournal from 'views/editjournal';
 import DialoguePht from 'views/Dialogue_playht';
-import DialogueEle from 'views/DialogueEle';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
