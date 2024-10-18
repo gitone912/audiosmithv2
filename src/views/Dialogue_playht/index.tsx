@@ -145,26 +145,39 @@ const DialoguePht = () => {
   
 
   const playAudio = (audioUrl: string) => {
+    // Stop any current audio that is playing
     if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+      currentAudio.pause(); // Pause the current audio
+      currentAudio.currentTime = 0; // Reset to the start
+      setCurrentAudio(null); // Clear the current audio
     }
+  
+    // Create new audio object
     const newAudio = new Audio(audioUrl);
-    newAudio.playbackRate = 0.86;
-
+    newAudio.playbackRate = 0.95;
+  
+    // Try to play the new audio
     try {
       newAudio.play();
-      setIsPlaying(true);
+      setIsPlaying(true); // Set playing state
+      setCurrentAudio(newAudio); // Set the new audio as current
     } catch (error) {
       alert("Autoplay blocked. Please click the page to start the audio.");
     }
-
-    setCurrentAudio(newAudio);
+  
+    // Handle the end of the audio playback
     newAudio.onended = () => {
-      setCurrentAudio(null);
-      setIsPlaying(false);
+      setIsPlaying(false); // Update playing state
+      setCurrentAudio(null); // Clear the current audio
+    };
+  
+    // In case the audio errors out during playback
+    newAudio.onerror = () => {
+      setIsPlaying(false); // Ensure playing state is false
+      setCurrentAudio(null); // Clear the current audio
     };
   };
+  
   const renderResponse = () => {
     if (typedResponse) return typedResponse; // Show typing animation if in progress
     return finalResponse; // Show the last fully typed response if no animation
