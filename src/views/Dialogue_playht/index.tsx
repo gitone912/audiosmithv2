@@ -22,7 +22,7 @@ import Groq from "groq-sdk";
 import { db, auth } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-
+import * as PlayHT from 'playht';
 
 
 

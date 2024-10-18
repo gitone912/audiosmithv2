@@ -161,11 +161,15 @@ export default function LifeSat(props: any) {
       {...props}
     >
       <Text fontSize="lg" fontWeight="bold" mb="1" color={textColor}>
-        Life Satisfaction Score
-      </Text>
-      <Badge fontSize="md" colorScheme="green" borderRadius="md" px="3" py="1" mb="2">
-        {chartData.datasets[0].data.reduce((a:any, b:any) => a + b, 0) / chartData.datasets[0].data.length}
-      </Badge>
+  Life Satisfaction Score
+</Text>
+<Badge fontSize="md" colorScheme="green" borderRadius="md" px="3" py="1" mb="2">
+  {Math.round(
+    chartData.datasets[0].data.reduce((a: any, b: any) => a + b, 0) / 
+    chartData.datasets[0].data.length
+  )}
+</Badge>
+
       <Box w="300px" h="300px">
         <Radar data={chartData} options={options} />
       </Box>

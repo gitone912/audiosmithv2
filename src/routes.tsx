@@ -8,6 +8,7 @@ import {
   MdAddIcCall,
   MdRecordVoiceOver,
   MdNotes,
+  MdFeedback
 } from 'react-icons/md';
 
 // Admin Imports
@@ -21,6 +22,7 @@ import SignInCentered from 'views/auth/signIn';
 import SignUp from 'views/auth/signup';
 import SignOut from 'views/auth/signOut';
 import ActionRec from 'views/admin/ActionRec';
+import Feedback from 'views/admin/Feedback';
 
 
 // Utility to check if the user is logged in
@@ -73,6 +75,13 @@ const adminRoutes = [
     path: '/sign-out',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: <SignOut />,
+  },
+  {
+    name: 'Feedback',
+    layout: '/admin',
+    path: '/feedback',
+    icon: <Icon as={MdFeedback} width="20px" height="20px" color="inherit" />,
+    component: <Feedback />,
   },
 ];
 
