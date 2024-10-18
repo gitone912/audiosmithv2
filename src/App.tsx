@@ -49,7 +49,6 @@ export default function Main() {
         <Route path="savechatmono/" element={<SaveChatMono />} />
         <Route path="edit/" element={<EditJournal />} />
         <Route path="dialoguepht/" element={<DialoguePht />} />
-        {/* <Route path="dialogueele/" element={<DialogueEle />} /> */}
       </Routes>
     </ChakraProvider>
   );

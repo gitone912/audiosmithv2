@@ -1,43 +1,99 @@
-import React from 'react';
-// Chakra UI imports
-import { Box, Text, useColorModeValue } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Text, Spinner, useColorModeValue } from '@chakra-ui/react';
 import { TagCloud } from 'react-tagcloud';
 
-const data = [
-  { value: 'Anxiety', count: 80 },
-  { value: 'Hope', count: 70 },
-  { value: 'Frustration', count: 60 },
-  { value: 'Excitement', count: 55 },
-  { value: 'Love', count: 50 },
-  { value: 'Sadness', count: 45 },
-  { value: 'Contentment', count: 40 },
-  { value: 'Gratitude', count: 35 },
-  { value: 'Anger', count: 30 },
-  { value: 'Joy', count: 25 },
-  { value: 'Envy', count: 20 },
-  { value: 'Fear', count: 20 },
-  { value: 'Pride', count: 75 },
-  { value: 'Boredom', count: 15 },
-  { value: 'Guilt', count: 10 },
-  { value: 'Loneliness', count: 10 },
-  { value: 'Shame', count: 5 },
-];
-
 export default function WordChart(props: any) {
+  const [wordData, setWordData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const textColor = useColorModeValue('gray.700', 'gray.200');
+  const spinnerTextColor = useColorModeValue('gray.600', 'gray.400');
+
+  const fetchWordData = async (retryCount = 3) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/word-chart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: JSON.parse(localStorage.getItem('userDetails') || '{}').email,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch word data');
+
+      const data = await response.json();
+      setWordData(data);
+      setLoading(false);
+      setError(false);
+    } catch (err) {
+      console.error('Error fetching word data:', err);
+      if (retryCount > 0) {
+        setTimeout(() => fetchWordData(retryCount - 1), 1000); // Retry after 1 second
+      } else {
+        setError(true);
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchWordData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        h="100vh"
+        w="100%"
+        bg="transparent"
+      >
+        <Spinner size="xl" color="blue.500" />
+        <Text mt="2" fontSize="sm" color={spinnerTextColor}>
+          Data is processing...
+        </Text>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        h="100vh"
+        w="100%"
+        bg="transparent"
+      >
+        <Text fontSize="lg" color="red.500">
+          Error loading data. Please try again later.
+        </Text>
+      </Box>
+    );
+  }
+
   return (
     <Box display="flex" flexDirection="column" alignItems="center" w="100%" {...props}>
       <Text
         fontSize="lg"
         fontWeight="bold"
         mb="4"
-        color={useColorModeValue('gray.700', 'gray.200')}
-        textAlign="center" // Center text
+        color={textColor}
+        textAlign="center"
       >
-        You are anxious yet hopeful these days. You’re frustrated with work, but your connection with your partner helps you go through it.
+        {wordData.conclusion}
       </Text>
       <Box 
         display="flex" 
-        justifyContent="center" // Center the TagCloud
+        justifyContent="center" 
         alignItems="center"
         w="400px" 
         h="200px"
@@ -45,7 +101,7 @@ export default function WordChart(props: any) {
         <TagCloud
           minSize={12}
           maxSize={35}
-          tags={data}
+          tags={wordData.data}
           colorOptions={{
             luminosity: 'light',
             hue: 'blue',

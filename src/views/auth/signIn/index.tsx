@@ -14,6 +14,7 @@ import {
   InputRightElement,
   Text,
   useColorModeValue,
+  Spinner, // Import Spinner
 } from "@chakra-ui/react";
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
@@ -30,6 +31,18 @@ function SignIn() {
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
   const textColorBrand = useColorModeValue("brand.500", "white");
+  const buttonBg = useColorModeValue("rgb(55, 60, 49)", "white");
+  const buttonText= useColorModeValue("white", "rgb(55, 60, 49)");
+  const googleBg = useColorModeValue("secondaryGray.300", "whiteAlpha.200");
+  const googleText = useColorModeValue("navy.700", "white");
+  const googleHover = useColorModeValue(
+    { bg: "gray.200" },
+    { bg: "whiteAlpha.300" }
+  );
+  const googleActive = useColorModeValue(
+    { bg: "secondaryGray.300" },
+    { bg: "whiteAlpha.200" }
+  );
 
   // State management
   const [show, setShow] = useState(false);
@@ -38,7 +51,9 @@ function SignIn() {
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(""); // New state for notifications
+  const [loading, setLoading] = useState(false); // New loading state
   const navigate = useNavigate(); // For navigation
+  
 
   // Handle visibility of password
   const handleClick = () => setShow(!show);
@@ -57,14 +72,13 @@ function SignIn() {
   // Fetch user's fullName and phoneNumber from Firestore
   const fetchUserDetails = async (uid: string) => {
     try {
-      // Reference to the user's document in Firestore under 'users' collection
       const userDocRef = doc(db, "users", uid); // Use db here instead of firestore
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
         return {
-          fullName: userData.fullName || "User", // Default to 'User' if fullName is missing
+          fullName: userData.fullName || "User",
           phoneNumber: userData.phoneNumber || "Not provided",
         };
       } else {
@@ -88,9 +102,9 @@ function SignIn() {
     e.preventDefault();
     setError(null);
     setNotification(""); // Clear previous messages
+    setLoading(true); // Start loading
 
     try {
-      // Sign in with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const uid = user.uid; // Get user's UID
@@ -104,7 +118,6 @@ function SignIn() {
         await checkUserImage(user.email);
       }
 
-      // Save user details to local storage based on "Keep me logged in"
       const newUserDetails = {
         email: user.email,
         displayName: fullName,
@@ -116,13 +129,14 @@ function SignIn() {
       localStorage.setItem("userDetails", JSON.stringify(newUserDetails));
       localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
 
-      // Success message and redirect
       setNotification("Successfully signed in! Redirecting...");
       setTimeout(() => {
         window.location.href = "/";
       }, 1000);
     } catch (error) {
       setError("Failed to sign in. Please check your credentials.");
+    } finally {
+      setLoading(false); // Stop loading after sign-in attempt
     }
   };
 
@@ -168,15 +182,15 @@ function SignIn() {
             py="15px"
             h="50px"
             borderRadius="16px"
-            bg="secondaryGray.300"
-            color="navy.700"
+            bg={googleBg}
+            color={googleText}
             fontWeight="500"
-            _hover={{ bg: "gray.200" }}
-            _active={{ bg: "secondaryGray.300" }}
-            _focus={{ bg: "secondaryGray.300" }}
+            _hover={googleHover}
+            _active={googleActive}
+            _focus={googleActive}
           >
             <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
-            Sign in with Google
+            Sign up with Google
           </Button>
 
           <Flex align="center" mb="25px">
@@ -257,8 +271,21 @@ function SignIn() {
                 </NavLink>
               </Flex>
 
-              {/* Submit the form via the button */}
-              <Button fontSize="sm" variant="brand" fontWeight="500" w="100%" h="50" mb="24px" type="submit">
+              {/* Submit button */}
+              <Button 
+                fontSize="sm" 
+                variant="brand" 
+                fontWeight="500" 
+                w="100%" 
+                h="50" 
+                mb="24px" 
+                type="submit" 
+                color={buttonText} 
+                bg={buttonBg} 
+                _hover={{ bg: "gray.200" }}
+                isLoading={loading} // Use isLoading prop
+                loadingText="Signing In..." // Loading text
+              >
                 Sign In
               </Button>
             </FormControl>

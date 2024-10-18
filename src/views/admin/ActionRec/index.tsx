@@ -1,44 +1,100 @@
-
-
 // Chakra imports
-import { Avatar, Box, Flex, FormLabel, Icon, Select, SimpleGrid, useColorModeValue } from '@chakra-ui/react';
-// Assets
-import Usa from 'assets/img/dashboards/usa.png';
+import React, { useEffect, useState } from 'react';
+import { Box, SimpleGrid, Spinner, Text, useColorModeValue } from '@chakra-ui/react';
+// Firebase imports
+import { db } from '../../../firebase'; // Adjust the import based on your file structure
+import { collection, getDocs, query, where } from 'firebase/firestore';
 // Custom components
-import MiniCalendar from 'components/calendar/MiniCalendar';
-import MiniStatistics from 'components/card/MiniStatistics';
-import IconBox from 'components/icons/IconBox';
-import { MdAddTask, MdAttachMoney, MdBarChart, MdFileCopy } from 'react-icons/md';
-import ComplexTable from 'views/admin/default/components/ComplexTable';
-import DailyTraffic from 'views/admin/default/components/DailyTraffic';
-import Tasks from 'views/admin/default/components/Tasks';
-import TotalSpent from 'views/admin/default/components/TotalSpent';
-import tableDataCheck from 'views/admin/default/variables/tableDataCheck';
-import tableDataComplex from 'views/admin/default/variables/tableDataComplex';
 import WeeklyRevenue from './WeeklyRevenue';
 import PieCard from './PieCard';
 import WordChart from './WordChart';
 import LifeSat from './LifeSat';
 
 export default function ActionRec() {
-	// Chakra Color Mode
-	const brandColor = useColorModeValue('brand.500', 'white');
-	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-	return (
-		<Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
+    const [hasEntries, setHasEntries] = useState<boolean | null>(null);
+    const [loading, setLoading] = useState(true);
 
-			<SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
-				<WeeklyRevenue />
+    // Chakra Color Mode
+    const brandColor = useColorModeValue('brand.500', 'white');
+    const overlayColor = useColorModeValue('rgba(255, 255, 255, 0.5)', 'rgba(0, 0, 0, 0.5)'); // Blur effect overlay color
+    const textColor = useColorModeValue('gray.700', 'gray.200'); // Text color for no journals message
+
+    // Function to check if user has entries in chats or chat_monologue
+    const checkUserEntries = async () => {
+        const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+        const userEmail = userDetails.email; // Get user email from local storage
+
+        // Fetch chats and chat_monologue collections
+        const chatsRef = collection(db, 'chats');
+        const chatMonologueRef = collection(db, 'chat_monologue');
+
+        try {
+            // Query for chats with the user's email
+            const chatsQuery = query(chatsRef, where('user', '==', userEmail));
+            const chatMonologueQuery = query(chatMonologueRef, where('user', '==', userEmail));
+
+            // Check if the user has any entries in either collection
+            const chatsSnapshot = await getDocs(chatsQuery);
+            const chatMonologueSnapshot = await getDocs(chatMonologueQuery);
+
+            // Set hasEntries state based on whether any documents exist
+            const userHasChats = !chatsSnapshot.empty; // If chats exist
+            const userHasMonologues = !chatMonologueSnapshot.empty; // If monologues exist
+
+            setHasEntries(userHasChats || userHasMonologues); // Set to true if either collection has entries
+        } catch (error) {
+            console.error("Error fetching user entries:", error);
+            setHasEntries(false); // Assume no entries if there's an error
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        checkUserEntries();
+    }, []);
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <Spinner size="xl" color={brandColor} />
+                <Text ml={2}>Loading...</Text>
+            </Box>
+        );
+    }
+
+    if (hasEntries === false) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh" position="relative">
+                <Box
+                    position="absolute"
+                    top="0"
+                    left="0"
+                    right="0"
+                    bottom="0"
+                    bg={overlayColor} // Use the overlay color based on the color mode
+                    backdropFilter="blur(5px)"
+                    zIndex="1"
+                />
+                <Text fontSize="xl" zIndex="2" color={textColor}>
+                    No journals to provide action recommendations.
+                </Text>
+            </Box>
+        );
+    }
+
+    return (
+        <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
+            <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
+                <WeeklyRevenue />
                 <PieCard />
-			</SimpleGrid>
+            </SimpleGrid>
             <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap='100px' mb='100px'>
-			</SimpleGrid>
+            </SimpleGrid>
             <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap='20px' mb='20px'>
-				<WordChart/>
-                <LifeSat/>
-			</SimpleGrid>
-			
-				
-		</Box>
-	);
+                <WordChart />
+                <LifeSat />
+            </SimpleGrid>
+        </Box>
+    );
 }

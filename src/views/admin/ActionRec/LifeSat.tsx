@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Text, Badge, useColorModeValue } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Text, Badge, Spinner, useColorModeValue } from '@chakra-ui/react';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -21,100 +21,153 @@ ChartJS.register(
   Legend
 );
 
-// Radar chart data
-const data = {
-  labels: [
-    'Health',
-    'Social Life',
-    'Spirituality',
-    'Relationships',
-    'Emotional Well-Being',
-    'Leisure',
-    'Career',
-  ],
-  datasets: [
-    {
-      label: 'Satisfaction Level',
-      data: [70, 60, 50, 80, 65, 55, 75], // Sample values
-      backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent light green fill
-      borderColor: '#a1adb7', // Green border
-      borderWidth: 2,
-      pointBackgroundColor: 'rgba(102, 187, 106, 1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(102, 187, 106, 1)',
-    },
-  ],
-};
-
 export default function LifeSat(props: any) {
-  // Color mode values
+  const [chartData, setChartData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  // Move useColorModeValue calls outside of any conditional
   const gridColor = useColorModeValue('#ccc', '#a1adb7');
   const angleLineColor = useColorModeValue('#ccc', '#a1adb7');
-  const labelColor = useColorModeValue('black', 'white')
+  const labelColor = useColorModeValue('black', 'white');
+  const textColor = useColorModeValue('gray.700', 'gray.200');
+  const spinnerTextColor = useColorModeValue('gray.600', 'gray.400');
 
-  // Chart options
+  const fetchChartData = async (retryCount = 3) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/life-satisfaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: JSON.parse(localStorage.getItem('userDetails') || '{}').email,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch chart data');
+
+      const data = await response.json();
+      console.log('Fetched data:', data); // Log the fetched data
+
+      // Check if the response has the required properties
+      if (!data.analysis || !data.analysis.labels || !data.analysis.datasets || !data.analysis.datasets.length) {
+        throw new Error('Invalid response structure');
+      }
+
+      // Map the received data to the required format for charting
+      const chartFormattedData = {
+        labels: data.analysis.labels,
+        datasets: [
+          {
+            label: data.analysis.datasets[0].label,
+            data: data.analysis.datasets[0].data,
+            backgroundColor: data.analysis.datasets[0].backgroundColor,
+            borderColor: data.analysis.datasets[0].borderColor,
+            borderWidth: data.analysis.datasets[0].borderWidth,
+            pointBackgroundColor: data.analysis.datasets[0].pointBackgroundColor,
+            pointBorderColor: data.analysis.datasets[0].pointBorderColor,
+            pointHoverBackgroundColor: data.analysis.datasets[0].pointHoverBackgroundColor,
+            pointHoverBorderColor: data.analysis.datasets[0].pointHoverBorderColor,
+          },
+        ],
+      };
+
+      setChartData(chartFormattedData);
+      setLoading(false);
+      setError(false);
+    } catch (err) {
+      console.error('Error fetching chart data:', err);
+      if (retryCount > 0) {
+        setTimeout(() => fetchChartData(retryCount - 1), 1000); // Retry after 1 second
+      } else {
+        setError(true);
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchChartData();
+  }, []);
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       r: {
-        ticks: {
-          display: false, // Hide tick values
-        },
-        grid: {
-          color: gridColor, // Grid color
-        },
-        angleLines: {
-          color: angleLineColor, // Angle line color
-        },
+        ticks: { display: false },
+        grid: { color: gridColor },
+        angleLines: { color: angleLineColor },
         pointLabels: {
-          color: labelColor, // Set label color to white
-          font: {
-            size: 12, // Adjust font size if needed
-          },
+          color: labelColor,
+          font: { size: 12 },
         },
       },
     },
     plugins: {
-      legend: {
-        display: false, // Hide the legend
-      },
+      legend: { display: false },
     },
   };
+
+  // Conditional rendering for loading, error, and data states
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        h="100vh"
+        w="100%"
+        bg="transparent"
+      >
+        <Spinner size="xl" color="green.500" />
+        <Text mt="2" fontSize="sm" color={spinnerTextColor}>
+          Data is processing...
+        </Text>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        h="100vh"
+        w="100%"
+        bg="transparent"
+      >
+        <Text fontSize="lg" color="red.500">
+          Error loading data. Please try again later.
+        </Text>
+      </Box>
+    );
+  }
 
   return (
     <Box
       display="flex"
       flexDirection="column"
       alignItems="center"
-      justifyContent="start" // Start from the top
+      justifyContent="start"
       w="100%"
       h="100vh"
-      pt="10" // Small padding from top
-      bg="transparent" // Transparent background
+      pt="10"
+      bg="transparent"
       {...props}
     >
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        mb="1" // Reduced margin
-        color={useColorModeValue('gray.700', 'gray.200')}
-      >
+      <Text fontSize="lg" fontWeight="bold" mb="1" color={textColor}>
         Life Satisfaction Score
       </Text>
-      <Badge
-        fontSize="md"
-        colorScheme="green"
-        borderRadius="md"
-        px="3"
-        py="1"
-        mb="2" // Reduced margin below badge
-      >
-        64
+      <Badge fontSize="md" colorScheme="green" borderRadius="md" px="3" py="1" mb="2">
+        {chartData.datasets[0].data.reduce((a:any, b:any) => a + b, 0) / chartData.datasets[0].data.length}
       </Badge>
-      <Box w="300px" h="300px"> {/* Reduced size */}
-        <Radar data={data} options={options} />
+      <Box w="300px" h="300px">
+        <Radar data={chartData} options={options} />
       </Box>
     </Box>
   );

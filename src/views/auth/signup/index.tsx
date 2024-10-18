@@ -28,7 +28,6 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../../firebase"; // Ensure db is initialized properly in your firebase.js file
 import { doc, setDoc } from "firebase/firestore"; // For Firestore
 
-
 function SignUp() {
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
@@ -38,6 +37,8 @@ function SignUp() {
   const googleBg = useColorModeValue("secondaryGray.300", "whiteAlpha.200");
   const googleText = useColorModeValue("navy.700", "white");
   const [notification, setNotification] = useState("");
+  const buttonBg = useColorModeValue("rgb(55, 60, 49)", "white");
+  const buttonText= useColorModeValue("white", "rgb(55, 60, 49)");
   const googleHover = useColorModeValue(
     { bg: "gray.200" },
     { bg: "whiteAlpha.300" }
@@ -58,7 +59,8 @@ function SignUp() {
     phone: "",
   });
 
-  const [alert, setAlert] = useState({ message: "", type: "" }); // State for alert messages
+  const [alert, setAlert] = useState({ message: "", type: "" });
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
   // Handle form data change
@@ -68,39 +70,37 @@ function SignUp() {
   };
 
   // Handle signup
-  // Handle signup
-const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setNotification("");
-  const { email, password, confirmPassword, fullName, phone } = formData;
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setNotification("");
+    const { email, password, confirmPassword, fullName, phone } = formData;
 
-  if (password !== confirmPassword) {
-    setAlert({ message: "Passwords do not match", type: "error" });
-    return;
-  }
-
-  try {
-    // Create the user with email and password
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Save the additional data (fullName, phone) to Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      fullName,
-      email,
-      phone
-    });
-
-    // Show success alert and navigate
-    setAlert({ message: "Signup Successful!", type: "success" });
-    navigate("/auth/sign-in");
-  } catch (err) {
-    if (err instanceof Error) {
-      setAlert({ message: err.message, type: "error" });
+    if (password !== confirmPassword) {
+      setAlert({ message: "Passwords do not match", type: "error" });
+      return;
     }
-  }
-};
 
+    setLoading(true); // Start loading
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        fullName,
+        email,
+        phone,
+      });
+
+      setAlert({ message: "Signup Successful!", type: "success" });
+      navigate("/auth/sign-in");
+    } catch (err) {
+      if (err instanceof Error) {
+        setAlert({ message: err.message, type: "error" });
+      }
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
 
   return (
     <DefaultAuth>
@@ -141,10 +141,10 @@ const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
           </Alert>
         )}
         {notification && (
-            <Text color="green.500" mb="10px" textAlign="center">
-              {notification}
-            </Text>
-          )}
+          <Text color="green.500" mb="10px" textAlign="center">
+            {notification}
+          </Text>
+        )}
 
         <Flex
           zIndex="2"
@@ -322,6 +322,10 @@ const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
                 w="100%"
                 h="50"
                 mb="24px"
+                isLoading={loading} // Add loading state to button
+                loadingText="Signing Up" // Text to display while loading
+                color={buttonText}
+                bg={buttonBg}
               >
                 Sign Up
               </Button>

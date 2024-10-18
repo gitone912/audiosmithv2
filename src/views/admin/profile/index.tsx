@@ -174,15 +174,6 @@ export default function Overview() {
                 borderColor={borderColor}
               />
               <Input
-                name="email"
-                placeholder="Email"
-                value={userDetails.email}
-                onChange={handleInputChange}
-                bg={inputBg}
-                color={inputTextColor}
-                borderColor={borderColor}
-              />
-              <Input
                 name="phoneNumber"
                 placeholder="Phone Number"
                 value={userDetails.phoneNumber}

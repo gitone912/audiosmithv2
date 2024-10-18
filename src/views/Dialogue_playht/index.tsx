@@ -22,7 +22,6 @@ import Groq from "groq-sdk";
 import { db, auth } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-import { localPrompt , jPrompt, tPrompt} from "systemPrompt";
 
 
 
@@ -34,7 +33,7 @@ const groq = new Groq({
 
 
   
-const systemPrompt = {localPrompt};
+const systemPrompt = `You are Laura, a personal journalist capturing your user’s daily life events. You have a youthful and cheerful personality. ask questions in only 8 to 20 words, more than 20 is restricted, Start the conversation naturally with a question and keep responses short. Ask one question at a time and stay on the current topic, but after 3 questions, gently shift to another aspect of the user’s day. If the user do not want to continue the conversation suggest to the user to click 'stop' button to save the conversation. Do not make many assumptions. Do not just revolve around one topic only. Act like a real journalist who tries to cover all of the user's daily day activity in short time. Read previous chats and respond accordingly. Act as a natural human. you can add '...' symbol for natural pauses where your response can be split for text to speech. you can use some human fillers as well.`
 // console.log(localPrompt)
 
 
@@ -231,7 +230,7 @@ const DialoguePht = () => {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `${jPrompt}. Conversation history: "${chatHistory}".`;
+      const journalPrompt =  `Based on the user's input and the AI's response, compile a concise journal entry. Instead, focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. Conversation history: "${chatHistory}".`;
       console.log(journalPrompt)
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
@@ -266,8 +265,7 @@ const DialoguePht = () => {
     const chatData = {
       user: user.email!,
       timestamp: new Date(),
-      originalText,
-      groqResponse,
+      chatHistory,
       title: compiledTitle,
       compiledJournal: compiledJournalEntry,
     };

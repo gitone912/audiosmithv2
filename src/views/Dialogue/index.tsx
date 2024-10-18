@@ -22,7 +22,6 @@ import Groq from "groq-sdk";
 import { db, auth } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-import { localPrompt , jPrompt, tPrompt} from "systemPrompt";
 
 
 
@@ -35,7 +34,7 @@ const groq = new Groq({
 const apiKey = process.env.REACT_APP_DEEPGRAM_API_KEY!;
 
   
-const systemPrompt = {localPrompt};
+const systemPrompt = `You are Laura, a personal journalist capturing your user’s daily life events. You have a youthful and cheerful personality. Start the conversation naturally and keep responses short. Ask one question at a time and stay on the current topic, but after 3 questions, ask questions in only between 8 to 25 words, more than 25 is restricted, gently shift to another aspect of the user’s day. Explore their thoughts, feelings, and overall perception of their experiences. Ensure the conversation covers a variety of topics, including emotions, daily reflections, and general life views. And when you think enough information has been shared during the day, ask the user if there is anything he or she wants to talk about. If the user wants to talk more, continue the conversation as it is. If the user do not want to continue the conversation or want to end the conversation suggest to the user to click 'stop' button to save the conversation and greet the user with a warm and friendly good bye. Don't make many assumptions. Don't just revolve around one topic only. Act like a real journalist who tries to cover all of the user's daily day activity in short time. Try to shift the topics evry two to three questions. Read previous chats and respond accordingly. Let the user speak if their words are not completed according to the previous chats. Act as a natural human. you can add '...' symbol for natural pauses where your response can be split for text to speech. you can use some human fillers as well.`
 // console.log(localPrompt)
 
 
@@ -152,7 +151,7 @@ const Dialogue = () => {
       currentAudio.currentTime = 0;
     }
     const newAudio = new Audio(audioUrl);
-    newAudio.playbackRate = 0.86;
+    newAudio.playbackRate = 0.95;
 
     try {
       newAudio.play();
@@ -173,7 +172,7 @@ const Dialogue = () => {
   };
 
   const getDeepgramTTS = async (text: string) => {
-    const url = "https://api.deepgram.com/v1/speak?model=aura-stella-en";
+    const url = "https://api.deepgram.com/v1/speak?model=aura-athena-en";
 
     try {
       const response = await fetch(url, {
@@ -211,9 +210,10 @@ const Dialogue = () => {
           },
           { role: "user", content: transcript },
         ],
-        model: "llama-3.1-70b-versatile",
-        max_tokens: 40,
+        model: "llama3-groq-70b-8192-tool-use-preview",
+        max_tokens: 70,
       });
+      console.log(updatedChatHistory)
 
       const groqMessage = chatCompletion.choices[0]?.message?.content || "";
       setGroqResponse(groqMessage);
@@ -233,11 +233,10 @@ const Dialogue = () => {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `${jPrompt}. Conversation history: "${chatHistory}".`;
-      console.log(journalPrompt)
+      const journalPrompt = `Based on the user's input and the AI's response, compile a concise and short journal entry. focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. try not to assume and add events on your own. Conversation history: "${chatHistory}".`;
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
-        model: "llama-3.1-70b-versatile",
+        model: "llama3-groq-70b-8192-tool-use-preview",
       });
   
       return journalCompletion.choices[0]?.message?.content || "";
@@ -248,10 +247,10 @@ const Dialogue = () => {
   
   const compileTitle = async () => {
     try {
-      const journalPrompt = `you are a title maker ,Based on the user's input, return a two words journal title, your response only should be two words title, returning more than two words or anything except title is prohibited. User's input: "${tempTranscript}".`;
+      const journalPrompt = `you are a title maker ,Based on the user's input, return a two words journal title, your response only should be two words title, returning more than two words or anything except title is prohibited. User's input: "${chatHistory}".`;
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
-        model: "llama-3.1-70b-versatile",
+        model: "llama3-groq-70b-8192-tool-use-preview",
       });
       return journalCompletion.choices[0]?.message?.content || "";
     } catch (error) {
@@ -268,8 +267,7 @@ const Dialogue = () => {
     const chatData = {
       user: user.email!,
       timestamp: new Date(),
-      originalText,
-      groqResponse,
+      chatHistory,
       title: compiledTitle,
       compiledJournal: compiledJournalEntry,
     };
@@ -358,7 +356,7 @@ const Dialogue = () => {
           setTempTranscript(transcript); // Update tempTranscript as speech is recognized
           resetTranscript();
         }
-      }, 2000);
+      }, 1500);
     }
   }, [transcript, isListening, resetTranscript]);
 
