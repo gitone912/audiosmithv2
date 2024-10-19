@@ -11,6 +11,7 @@ import Monologue from 'views/monologue';
 import SaveChatMono from 'views/monologue/SaveChatMono';
 import EditJournal from 'views/editjournal';
 import DialoguePht from 'views/Dialogue_playht';
+import DialogueHume from 'views/DialogueHume';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -43,7 +44,7 @@ export default function Main() {
           }
         />
         <Route path="/" element={<Navigate to="/admin" replace />} />
-        <Route path="dialogue/" element={<Dialogue />} />
+        <Route path="dialogue/" element={<DialogueHume />} />
         <Route path="monologue/" element={<Monologue />} />
         <Route path="savechat/" element={<SaveChat />} />
         <Route path="savechatmono/" element={<SaveChatMono />} />
