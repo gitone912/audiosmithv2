@@ -70,7 +70,7 @@ function Sidebar(props: {
           <Box
             bg={sidebarBg}
             transition={variantChange}
-            w="300px"
+            w="350px"
             h="100vh"
             m={sidebarMargins}
             minH="100%"
@@ -94,7 +94,7 @@ function Sidebar(props: {
 
 // SidebarResponsive remains unchanged
 export function SidebarResponsive(props: { routes: RoutesType[] }) {
-  let sidebarBackgroundColor = useColorModeValue('white', 'navy.800');
+  let sidebarBackgroundColor = useColorModeValue('white', 'rgb(75, 80, 70)');
   let menuColor = useColorModeValue('gray.400', 'white');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = React.useRef();
@@ -121,7 +121,7 @@ export function SidebarResponsive(props: { routes: RoutesType[] }) {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent w="285px" maxW="285px" bg={sidebarBackgroundColor}>
+        <DrawerContent w="300px" maxW="300px" bg={sidebarBackgroundColor}>
           <DrawerCloseButton
             zIndex="3"
             onClick={onClose}

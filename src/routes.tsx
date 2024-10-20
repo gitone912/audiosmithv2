@@ -8,7 +8,9 @@ import {
   MdAddIcCall,
   MdRecordVoiceOver,
   MdNotes,
-  MdFeedback
+  MdFeedback,
+  MdSentimentNeutral,
+  MdDashboard
 } from 'react-icons/md';
 
 // Admin Imports
@@ -39,6 +41,7 @@ const adminRoutes = [
     path: '/session',
     icon: <Icon as={MdRecordVoiceOver} width="20px" height="20px" color="inherit" />,
     component: <StartSession />,
+    lock:false
   },
   {
     name: 'Journals',
@@ -46,20 +49,31 @@ const adminRoutes = [
     path: '/journals',
     icon: <Icon as={MdNotes} width="20px" height="20px" color="inherit" />,
     component: <Journals />,
+    lock:false
   },
   {
-    name: 'Mental Health Status',
+    name: 'Dashboard',
     layout: '/admin',
-    path: '/default',
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: <MainDashboard />,
+    path: '/dashboard',
+    icon: <Icon as={MdDashboard} width="20px" height="20px" color="inherit" />,
+    component: <Journals />,
+    lock:true
   },
   {
     name: 'Action Recommendation',
     layout: '/admin',
     path: '/action',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    component: <MainDashboard />,
+    lock:false
+  },
+  {
+    name: 'Mental Health Status',
+    layout: '/admin',
+    path: '/status',
+    icon: <Icon as={MdSentimentNeutral} width="20px" height="20px" color="inherit" />,
     component: <ActionRec />,
+    lock:true
   },
  
   {
@@ -68,6 +82,7 @@ const adminRoutes = [
     path: '/profile',
     icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
     component: <Profile />,
+    lock:false
   },
   {
     name: 'Logout',
@@ -75,6 +90,7 @@ const adminRoutes = [
     path: '/sign-out',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: <SignOut />,
+    lock:false
   },
   {
     name: 'Feedback',
@@ -82,6 +98,7 @@ const adminRoutes = [
     path: '/feedback',
     icon: <Icon as={MdFeedback} width="20px" height="20px" color="inherit" />,
     component: <Feedback />,
+    lock:false
   },
 ];
 
@@ -93,6 +110,7 @@ const authRoutes = [
     path: '/sign-in',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: <SignInCentered />,
+    lock:false
   },
   {
     name: 'Sign Up',
@@ -100,6 +118,7 @@ const authRoutes = [
     path: '/sign-up',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: <SignUp />,
+    lock:false
   },
 ];
 

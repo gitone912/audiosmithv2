@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Flex, IconButton, Spinner, Text, VStack } from "@chakra-ui/react";
 import { MdMic, MdStop } from "react-icons/md"; // Mic and Stop icons
 import { useNavigate } from "react-router-dom"; // Router for navigation
-import { TypeAnimation } from 'react-type-animation'; // Import the TypeAnimation component
 
 export default function UnifiedComponent({ accessToken }: { accessToken: string }) {
   return (

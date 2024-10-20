@@ -29,7 +29,7 @@ export default function AdminNavbar(props: {
     md: 'calc(100vw - 8%)',    // Mobile views remain the same
     lg: 'calc(100vw - 6%)',    // Desktop views remain the same
     xl: isSidebarOpen ? 'calc(100vw - 350px)' : '90vw', // Adjust based on sidebar state
-    '2xl': isSidebarOpen ? 'calc(100vw - 365px)' : '90vw', // Adjust based on sidebar state
+    '2xl': isSidebarOpen ? 'calc(100vw - 400px)' : '90vw', // Adjust based on sidebar state
   };
   
 

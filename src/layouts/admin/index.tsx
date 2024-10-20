@@ -83,11 +83,11 @@ export default function Dashboard(props: { [x: string]: any }) {
       >
         {/* Pass the setSidebarOpen function to Sidebar */}
         <Sidebar
-        routes={routes}
-        setSidebarOpen={setSidebarOpen}
-        isOpen={isSidebarOpen} // Pass isOpen state to Sidebar
-        {...rest}
-      />
+          routes={routes}
+          setSidebarOpen={setSidebarOpen}
+          isOpen={isSidebarOpen} // Pass isOpen state to Sidebar
+          {...rest}
+        />
 
         <Box
           float="right"
@@ -98,11 +98,11 @@ export default function Dashboard(props: { [x: string]: any }) {
           maxHeight="100%"
           w={{
             base: '100%',
-            xl: isSidebarOpen ? 'calc( 100% - 290px )' : '100%', // Adjust based on sidebar state
+            xl: isSidebarOpen ? 'calc( 100% - 350px )' : '100%', // Adjust based on sidebar state
           }}
           maxWidth={{
             base: '100%',
-            xl: isSidebarOpen ? 'calc( 100% - 290px )' : '100%', // Adjust based on sidebar state
+            xl: isSidebarOpen ? 'calc( 100% - 350px )' : '100%', // Adjust based on sidebar state
           }}
           transition="width 0.5s ease, max-width 0.5s ease" // Smooth transition
         >
