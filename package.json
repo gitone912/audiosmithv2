@@ -51,6 +51,7 @@
     "react-scripts": "^5.0.0",
     "react-speech-recognition": "^3.10.0",
     "react-tagcloud": "^2.3.3",
+    "react-type-animation": "^3.2.0",
     "react-virtualized": "^9.22.5",
     "recharts": "^2.13.0",
     "remeda": "^2.15.2",

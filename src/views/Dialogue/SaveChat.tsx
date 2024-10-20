@@ -3,39 +3,7 @@ import { Box, Button, Textarea, VStack, Text, Spinner, useColorModeValue, useToa
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../../firebase"; // Ensure firebase config is correctly imported
 import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from "firebase/firestore";
-
-// Typing effect hook for journal display
-const useTypingEffect = (text: string, speed: number) => {
-    const [displayedText, setDisplayedText] = useState('');
-    const [isFinished, setIsFinished] = useState(false);
-  
-    useEffect(() => {
-      // Prepend a dummy character (space) to ensure the first character appears properly
-      const adjustedText = ' ' + text; // Add a dummy space character in front
-  
-      setDisplayedText('');  // Reset the displayed text
-  
-      let currentIndex = 0;
-  
-      const typeCharacter = () => {
-          // Continue the typing effect if no "undefined" is found
-          if (currentIndex < adjustedText.length) {
-            setDisplayedText((prev) => prev + adjustedText[currentIndex]);
-            currentIndex++;
-          } else {
-            setIsFinished(true);
-        }
-      };
-  
-      const interval = setInterval(typeCharacter, speed);
-  
-      return () => clearInterval(interval);
-    }, [text, speed]);  // Reset effect when new text comes in
-  
-    return { displayedText, isFinished };
-  };
-  
-  
+import { TypeAnimation } from 'react-type-animation'; // Import the TypeAnimation component
 
 const SaveChat: React.FC = () => {
   const [compiledJournal, setCompiledJournal] = useState<string>("");
@@ -53,9 +21,6 @@ const SaveChat: React.FC = () => {
 
   // Store the audio instance globally in the component state
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-
-  // Typing effect for compiled journal text
-  const { displayedText, isFinished } = useTypingEffect(compiledJournal, 20);
 
   // Fetch the latest compiled journal from Firestore
   useEffect(() => {
@@ -176,35 +141,44 @@ const SaveChat: React.FC = () => {
                 fontSize={{ base: 'md', md: 'lg' }}
                 whiteSpace="pre-wrap"
               >
-                {displayedText?.replace(/undefined/gi, '')}
+                {/* Use the TypeAnimation component */}
+                <TypeAnimation
+                  sequence={[
+                    compiledJournal, // The journal text
+                    1000, // Pause for a second after typing is finished
+                  ]}
+                  speed={70} // Typing speed
+                  wrapper="span"
+                  cursor={true} // Show the cursor
+                  repeat={0} // Don't repeat the animation
+                  style={{ whiteSpace: 'pre-wrap' }}
+                />
               </Text>
             </Box>
 
-            {isFinished && (
-              <Box>
-                <Button
-                  bg={buttonBg}
-                  color="white"
-                  size={{ base: 'sm', md: 'md' }}
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  m={3}
-                  onClick={() => setIsEditing(true)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  bg={buttonBg}
-                  color="white"
-                  size={{ base: 'sm', md: 'md' }}
-                  fontSize={{ base: 'sm', md: 'md' }}
-                  m={3}
-                  onClick={handleSave}
-                  isLoading={isSaving} // Show spinner while saving
-                >
-                  Save
-                </Button>
-              </Box>
-            )}
+            <Box>
+              <Button
+                bg={buttonBg}
+                color="white"
+                size={{ base: 'sm', md: 'md' }}
+                fontSize={{ base: 'sm', md: 'md' }}
+                m={3}
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </Button>
+              <Button
+                bg={buttonBg}
+                color="white"
+                size={{ base: 'sm', md: 'md' }}
+                fontSize={{ base: 'sm', md: 'md' }}
+                m={3}
+                onClick={handleSave}
+                isLoading={isSaving} // Show spinner while saving
+              >
+                Save
+              </Button>
+            </Box>
           </>
         ) : (
           <>

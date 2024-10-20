@@ -1,6 +1,6 @@
 // Chakra imports
 import React, { useEffect, useState, Suspense } from 'react';
-import { Box, SimpleGrid, Spinner, Text, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Spinner, Text } from '@chakra-ui/react';
 // Firebase imports
 import { db } from '../../firebase'; // Adjust the import based on your file structure
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -40,25 +40,37 @@ export default function DialogueHume() {
 
   if (loading) {
     return (
-      <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
+      <Flex
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <Spinner size="xl" />
-      </Box>
+      </Flex>
     );
   }
 
   if (!accessToken) {
     return (
-      <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
+      <Flex
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <Text>Error: Unable to fetch access token</Text>
-      </Box>
+      </Flex>
     );
   }
 
   return (
-    <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
+    <Flex
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+    >
       <Suspense fallback={<Spinner size="xl" />}>
         <Chat accessToken={accessToken} />
       </Suspense>
-    </Box>
+    </Flex>
   );
 }
