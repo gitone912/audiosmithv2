@@ -25,10 +25,13 @@ function InnerComponent() {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // Variables to store latest messages and chat history
   const [latestUserMessage, setLatestUserMessage] = useState<string | null>(null);
   const [latestAssistantMessage, setLatestAssistantMessage] = useState<string | null>(null);
-  const [chatHistory, setChatHistory] = useState<string[]>([]); // Array to hold the full conversation history
+  const [chatHistory, setChatHistory] = useState<string[]>([]);
+
+  // States for typing animation
+  const [typedResponse, setTypedResponse] = useState<string>(""); // For simulating the typing animation
+  const [finalResponse, setFinalResponse] = useState<string>(""); // For storing the final AI message
 
   useEffect(() => {
     setIsAudioPlaying(status.value === "connected");
@@ -47,33 +50,52 @@ function InnerComponent() {
   }, [messages]);
 
   useEffect(() => {
-    // Whenever messages change, update the latest message and chat history
     const latestMessage = messages[messages.length - 1];
-  
+
     if (latestMessage) {
-      if (latestMessage.type === "user_message" || latestMessage.type === "assistant_message") {
-        // Ensure 'message' property exists on the latestMessage object
-        const content = (latestMessage as any).message?.content;
+      let content = (latestMessage as any)?.message?.content;
+
+      if (latestMessage.type === "user_message") {
+        setLatestUserMessage(content);
+      } else if (latestMessage.type === "assistant_message") {
+        // Prepend a dummy character (non-breaking space)
+        content = "\u00A0" + content;
+
+        // Start the typing effect when there's an assistant message
+        setFinalResponse(content || "");
+        setTypedResponse(""); // Reset the typed response
+      }
+
+      if (content) {
         
-        if (latestMessage.type === "user_message") {
-          setLatestUserMessage(content);
-        } else if (latestMessage.type === "assistant_message") {
-          setLatestAssistantMessage(content);
-        }
-  
-        // Add the message content to the chat history
-        if (content) {
-          setChatHistory((prevHistory) => [...prevHistory, content]);
-        }
+        setChatHistory((prevHistory) => [...prevHistory, content]);
       }
     }
   }, [messages]);
-  
+
+
+  // Typing animation effect
+  useEffect(() => {
+    let index = 0;
+
+    if (finalResponse) {
+      const interval = setInterval(() => {
+        setTypedResponse((prev) => prev + finalResponse.charAt(index));
+        index++;
+
+        if (index >= finalResponse.length) {
+          clearInterval(interval); 
+        }
+      }, 65); // Adjust typing speed
+
+      return () => clearInterval(interval); // Cleanup
+    }
+  }, [finalResponse]);
 
   const handleCallClick = () => {
     if (status.value === "connected") {
       disconnect();
-      router("/admin/session"); // Navigate to dashboard after disconnect
+      router("/admin/session"); 
     } else {
       setIsConnecting(true);
       connect().finally(() => setIsConnecting(false));
@@ -81,88 +103,67 @@ function InnerComponent() {
   };
 
   return (
-    <>
-      {/* Messages Section */}
-      <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
-        <VStack spacing={6} align="center">
+   <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
+    <VStack spacing={6} align="center" width="100%" maxW="1200px">
+      
+      {/* Latest User Message Box */}
+      <Box
+      w={{ base: "100%", md: "80%", lg: "60%" }}  
+      maxW="100%"  
+      minH="100px"  
+    >
+      {latestUserMessage && (
+        <Text
+          color="white"
+          fontStyle="italic"
+          textAlign="center"
+          fontSize={{ base: "sm", md: "lg" }}  
+          wordBreak="break-word"  
+          p={4}
+        >
+          {latestUserMessage}
+        </Text>
+      )}
+    </Box>
 
-          {/* Display the latest user message */}
-          <Box
-  bg="transparent" // Transparent background
-  p={4}            // Add some padding if needed
->
-          {latestUserMessage && (
-                <Text
-                  color="white"
-                  fontStyle="italic"
-                  textAlign="center"
-                  fontSize={{ base: "sm", md: "lg" }}
-                  maxW={{ base: "90%", md: "80%", lg: "60%" }}
-                  mx="auto"
-                >
-                  {latestUserMessage}
-                </Text>
-          )}
-           </Box>
-           <Box
-  bg="transparent" // Transparent background
-  p={4}            
->
-          {/* Display the latest assistant message */}
-          {latestAssistantMessage && (
-
-                <Text
-                  color="#fdde7f"
-                  fontStyle="italic"
-                  textAlign="center"
-                  fontSize={{ base: "sm", md: "lg" }}
-                  maxW={{ base: "90%", md: "80%", lg: "60%" }}
-                  mx="auto"
-                >
-                  {latestAssistantMessage}
-                </Text>
-          )}
-         </Box>
+    <Box
+      w={{ base: "100%", md: "80%", lg: "60%" }}  
+      maxW="100%"  
+      minH="100px" 
+    >
+      {typedResponse && (
+        <Text
+          color="#fdde7f"
+          fontStyle="italic"
+          textAlign="center"
+          fontSize={{ base: "sm", md: "lg" }}  
+          wordBreak="break-word"  
+          p={4}
+        >
+          {typedResponse}
+        </Text>
+      )}
+    </Box>
 
           <IconButton
-            icon={
-              isConnecting ? (
-                <Spinner color="white" size="md" />
-              )
-                : status.value === "connected" ? (
-                  <MdStop />
-                ) : (
-                  <MdMic />
-                )
-            }
-            bg="#a1adb7"
+            icon={isConnecting ? <Spinner color="white" size="md" /> : isAudioPlaying ? <MdStop /> : <MdMic />}
+            bg="teal.500"
             color="white"
             onClick={handleCallClick}
             size="lg"
             isRound
-            aria-label={status.value === "connected" ? "Stop" : "Start"}
+            aria-label={isAudioPlaying ? "Stop" : "Start"}
             isDisabled={isConnecting}
-            transition="transform 1s ease"
-            transform={status.value === "connected" ? "translateY(140px)" : "translateY(0px)"}
           />
 
-          {/* Status Text */}
-          <Text
-            fontSize={{ base: "sm", md: "lg" }}
-            color="gray.400"
-            transition="transform 1s ease"
-            transform={status.value === "connected" ? "translateY(140px)" : "translateY(0px)"}
-            ml={4}
-          >
+          <Text fontSize={{ base: "sm", md: "lg" }} color="gray.400">
             {isConnecting
               ? "Connecting..."
-              : status.value === "connected"
-                ? "Connected! Click to End The Conversation"
-                : "Disconnected - Click to Start the Conversation"}
+              : isAudioPlaying
+              ? "Connected! Click to End The Conversation"
+              : "Disconnected - Click to Start the Conversation"}
           </Text>
-
         </VStack>
       </Box>
-    </>
   );
 }
