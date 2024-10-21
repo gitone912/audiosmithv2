@@ -123,10 +123,12 @@ const SaveChat: React.FC = () => {
     try {
       // Simulate Groq API calls for mood, summary, and tasks
       const moodResponse = await fetchGroqData("find my current mood based on this journal in 5 words"+compiledJournal);
-      const moodEmojiRes = await fetchGroqData("find my current mood based on this journal and send it in one emoji only"+compiledJournal);
-      const summaryResponse = await fetchGroqData("Summarize my recent activities in brief and short from this"+compiledJournal);
-      const tasksResponse = await fetchGroqData("What tasks should I focus on? find me 5 short tasks based on this journal, only send points in one one sentence"+compiledJournal);
 
+      const moodEmojiRes = await fetchGroqData("find my current mood based on this journal and send it in one emoji only"+compiledJournal);
+
+      const summaryResponse = await fetchGroqData("Summarize the journal entry in the second person, keeping it brief and concise."+compiledJournal);
+
+      const tasksResponse = await fetchGroqData("Based on the journal entry, recommend three specific and realistic actions that the person can take to improve their well-being and productivity. Keep the suggestions concise, without any additional explanations."+compiledJournal);
       setMood(moodResponse);
       setSummary(summaryResponse);
       setTasks(tasksResponse);

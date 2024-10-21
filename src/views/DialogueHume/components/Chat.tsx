@@ -204,7 +204,7 @@ function InnerComponent() {
 
         <IconButton
           icon={isConnecting ? <Spinner color="white" size="md" /> : isAudioPlaying ? <MdStop /> : <MdMic />}
-          bg="teal.500"
+          bg="#a1adb7"
           color="white"
           onClick={handleCallClick}
           size="lg"
