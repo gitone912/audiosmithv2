@@ -26,6 +26,7 @@ import SignOut from 'views/auth/signOut';
 import ActionRec from 'views/admin/ActionRec';
 import Feedback from 'views/admin/Feedback';
 import LockedPage from 'views/admin/500';
+import { LineChart } from 'recharts';
 
 
 // Utility to check if the user is logged in
@@ -65,8 +66,8 @@ const adminRoutes = [
     layout: '/admin',
     path: '/action',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: <MainDashboard />,
-    lock:false
+    component: <LockedPage />,
+    lock:true
   },
   {
     name: 'Mental Health Status',
