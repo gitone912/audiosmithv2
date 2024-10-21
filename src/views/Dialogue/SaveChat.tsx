@@ -147,7 +147,7 @@ const SaveChat: React.FC = () => {
                     compiledJournal, // The journal text
                     1000, // Pause for a second after typing is finished
                   ]}
-                  speed={70} // Typing speed
+                  speed={75} // Typing speed
                   wrapper="span"
                   cursor={true} // Show the cursor
                   repeat={0} // Don't repeat the animation

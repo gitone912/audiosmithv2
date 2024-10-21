@@ -72,18 +72,6 @@ import {
           return "";
         }
       };
-      const compileTitle = async () => {
-        try {
-          const journalPrompt = `you are a title maker ,Based on the user's input, return a two words journal title, your response only should be two words title, returning more than two words or anything except title is prohibited. User's input: "${tempTranscript}".`;
-          const journalCompletion = await groq.chat.completions.create({
-            messages: [{ role: "user", content: journalPrompt }],
-            model: "llama3-8b-8192",
-          });
-          return journalCompletion.choices[0]?.message?.content || "";
-        } catch (error) {
-          return "";
-        }
-      };
 
 
       const saveChatAndNavigate = async () => {
@@ -93,12 +81,10 @@ import {
         setIsSaving(true); // Start showing saving modal
       
         const compiledJournalEntry = await compileJournal();
-        const compiledTitle = await compileTitle();
         const chatData = {
           user: user.email!,
           timestamp: new Date(),
           original_text: tempTranscript,
-          title: compiledTitle,
           compiledJournal: compiledJournalEntry, // Save the user's speech as-is
         };
       
@@ -193,7 +179,6 @@ import {
           {isConnected && firstSpeech && (
             <Text
               color="gray.400"
-              fontStyle="italic"
               textAlign="center"
               fontSize={{ base: "md", md: "lg" }}
             >
@@ -205,7 +190,6 @@ import {
           {tempTranscript && (
             <Text
               color={textColor}
-              fontStyle="italic"
               textAlign="center"
               fontSize={{ base: "sm", md: "lg" }} // Responsive size: smaller on mobile, larger on desktop
               maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
@@ -219,7 +203,6 @@ import {
           {transcript && (
             <Text
               color="gray.300"
-              fontStyle="italic"
               textAlign="center"
               fontSize={{ base: "sm", md: "lg" }} // Responsive size
               maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width

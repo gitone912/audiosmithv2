@@ -23,7 +23,8 @@ export default function HeaderLinks(props:any) {
 	const { secondary } = props;
 	const { colorMode, toggleColorMode } = useColorMode();
 	const navbarIcon = useColorModeValue('gray.400', 'white');
-	let menuBg = useColorModeValue('white', 'navy.800');
+	let menuBg = useColorModeValue('white', '#6c7069');
+	const buttonBg = useColorModeValue('white', '#60645b');
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
 	const textColorBrand = useColorModeValue('brand.700', 'brand.400');
 	const ethColor = useColorModeValue('gray.700', 'white');
@@ -80,7 +81,7 @@ export default function HeaderLinks(props:any) {
 						_hover={{ cursor: 'pointer' }}
 						color='white'
 						name={username} // Use dynamic username here
-						bg='#11047A'
+						bg='#474d41'
 						size='sm'
 						w='40px'
 						h='40px'
@@ -98,30 +99,32 @@ export default function HeaderLinks(props:any) {
 							fontSize='sm'
 							fontWeight='700'
 							color={textColor}>
+								
 							👋&nbsp; Hey, {username} {/* Replace 'Adela' with the dynamic username */}
 						</Text>
 					</Flex>
 					<Flex flexDirection='column' p='10px'>
-						<MenuItem
-							_hover={{ bg: 'none' }}
-							_focus={{ bg: 'none' }}
-							borderRadius='8px'
-							px='14px'
-							onClick={() => navigate('/admin/profile')} // Navigate to profile
-						>
-							<Text fontSize='sm'>Profile Settings</Text>
-						</MenuItem>
-						<MenuItem
-							_hover={{ bg: 'none' }}
-							_focus={{ bg: 'none' }}
-							color='red.400'
-							borderRadius='8px'
-							px='14px'
-							onClick={() => navigate('/auth/sign-out')} // Navigate to sign-out
-						>
-							<Text fontSize='sm'>Log out</Text>
-						</MenuItem>
-					</Flex>
+  <MenuItem
+    borderRadius='8px'
+    px='14px'
+    bg={buttonBg}
+    onClick={() => navigate('/admin/profile')} // Navigate to profile
+  >
+    <Text fontSize='sm'>Profile Settings</Text>
+  </MenuItem>
+
+  <MenuItem
+    mt='10px' // Adds margin-top to the second MenuItem
+    color='red.400'
+    borderRadius='8px'
+    px='14px'
+    bg={buttonBg}
+    onClick={() => navigate('/auth/sign-out')} // Navigate to sign-out
+  >
+    <Text fontSize='sm'>Log out</Text>
+  </MenuItem>
+</Flex>
+
 				</MenuList>
 			</Menu>
 		</Flex>

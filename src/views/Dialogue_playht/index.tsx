@@ -401,7 +401,6 @@ const DialoguePht = () => {
 {tempTranscript && (
   <Text
     color={textColor}
-    fontStyle="italic"
     textAlign="center" // Center the text
     fontSize={{ base: "sm", md: "lg" }} // Responsive size: smaller on mobile, larger on desktop
     maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
@@ -414,7 +413,6 @@ const DialoguePht = () => {
 {/* AI Response Display */}
 <Text
           color="#fdde7f"
-          fontStyle="italic"
           textAlign="center"
           fontSize={{ base: "sm", md: "lg" }}
           maxW={{ base: "90%", md: "80%", lg: "60%" }}
@@ -427,7 +425,6 @@ const DialoguePht = () => {
 {transcript && (
   <Text
     color='gray.300'
-    fontStyle="italic"
     textAlign="center"
     fontSize={{ base: "sm", md: "lg" }} // Responsive size
     maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width

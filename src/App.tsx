@@ -13,6 +13,7 @@ import EditJournal from 'views/editjournal';
 import DialoguePht from 'views/Dialogue_playht';
 import DialogueHume from 'views/DialogueHume';
 import SignOut from 'views/auth/signOut';
+import Entries from 'views/admin/Journals/Entries';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -52,6 +53,7 @@ export default function Main() {
         <Route path="edit/" element={<EditJournal />} />
         <Route path="dialoguepht/" element={<DialoguePht />} />
         <Route path="auth/sign-out/" element={<SignOut />} />
+        <Route path="entries/" element={<Entries />} />
       </Routes>
     </ChakraProvider>
   );

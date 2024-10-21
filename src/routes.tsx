@@ -25,6 +25,7 @@ import SignUp from 'views/auth/signup';
 import SignOut from 'views/auth/signOut';
 import ActionRec from 'views/admin/ActionRec';
 import Feedback from 'views/admin/Feedback';
+import LockedPage from 'views/admin/500';
 
 
 // Utility to check if the user is logged in
@@ -56,7 +57,7 @@ const adminRoutes = [
     layout: '/admin',
     path: '/dashboard',
     icon: <Icon as={MdDashboard} width="20px" height="20px" color="inherit" />,
-    component: <Journals />,
+    component: <LockedPage />,
     lock:true
   },
   {
@@ -72,7 +73,7 @@ const adminRoutes = [
     layout: '/admin',
     path: '/status',
     icon: <Icon as={MdSentimentNeutral} width="20px" height="20px" color="inherit" />,
-    component: <ActionRec />,
+    component: <LockedPage />,
     lock:true
   },
  
