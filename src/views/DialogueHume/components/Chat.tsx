@@ -8,12 +8,15 @@ import {
   ModalHeader,
   ModalBody,
   useToast,
+  Icon,
 } from "@chakra-ui/react";
 import { MdMic, MdStop } from "react-icons/md"; // Mic and Stop icons
 import { useNavigate } from "react-router-dom"; // Router for navigation
 import Groq from "groq-sdk";
 import { db, auth } from "../../../firebase";
 import { collection, addDoc } from "firebase/firestore";
+import AudioVisualizer from "./AudioVisualizer";
+import { IoChevronBackOutline } from "react-icons/io5";
 
 const groq = new Groq({
   apiKey: process.env.REACT_APP_GROQ_API_KEY!,
@@ -138,7 +141,7 @@ function InnerComponent() {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Based on the user's input and the AI's response, compile a concise and short journal entry. focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. try not to assume and add events on your own. Conversation history: "${chatHistory}".`;
+      const journalPrompt = `Based on the user's input and the AI's response, compile a concise and short journal entry. focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. try not to assume and add events on your own. No need to address the journal as dear journal or ending it with a greeting. Just write the summary without adding more to what has been discussed during the conversation Conversation history: "${chatHistory}".`;
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
         model: "llama3-groq-70b-8192-tool-use-preview",
@@ -152,6 +155,23 @@ function InnerComponent() {
 
   return (
     <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
+      <Flex
+        display={{ sm: 'none', xl: 'flex' }}
+        alignItems="center"
+        position="fixed"
+        top="20px"
+        left="20px"
+        zIndex="10"
+      >
+       <Icon
+        as={IoChevronBackOutline}
+        color='white'
+        w="24px"
+          h="24px"
+          _hover={{ cursor: 'pointer' }}
+        onClick={() => navigate(-1)} // Navigate to the previous page
+      />
+</Flex>
       <VStack spacing={6} align="center" width="100%" maxW="1200px">
         {isSaving && (
           <Modal isOpen={isSaving} onClose={() => { }}>
@@ -166,12 +186,12 @@ function InnerComponent() {
         )}
 
         {/* Latest User Message Box */}
-        <Box
-          w={{ base: "100%", md: "80%", lg: "60%" }}
-          maxW="100%"
-          minH="100px"
-        >
-          {latestUserMessage && (
+        {/* <Box
+          w={{ base: "100%", md: "80%", lg: "100%" }}
+          maxW="800px"
+          minH="150px"
+        > */}
+          {/* {latestUserMessage && (
             <Text
               color="white"
               textAlign="center"
@@ -181,10 +201,11 @@ function InnerComponent() {
             >
               {latestUserMessage}
             </Text>
-          )}
-        </Box>
+          )} */}
+        {/* </Box> */}
+          <AudioVisualizer/>
 
-        <Box
+        {/* <Box
           w={{ base: "100%", md: "80%", lg: "60%" }}
           maxW="100%"
           minH="100px"
@@ -200,7 +221,7 @@ function InnerComponent() {
               {typedResponse}
             </Text>
           )}
-        </Box>
+        </Box> */}
 
         <IconButton
           icon={isConnecting ? <Spinner color="white" size="md" /> : isAudioPlaying ? <MdStop /> : <MdMic />}
@@ -211,9 +232,12 @@ function InnerComponent() {
           isRound
           aria-label={isAudioPlaying ? "Stop" : "Start"}
           isDisabled={isConnecting}
+          transition="transform 1s ease"
+          transform={isAudioPlaying ? "translateY(180px)" : "translateY(0px)"}
         />
 
-        <Text fontSize={{ base: "sm", md: "lg" }} color="gray.400">
+        <Text fontSize={{ base: "sm", md: "lg" }} color="gray.400" transition="transform 1s ease"
+          transform={isAudioPlaying ? "translateY(180px)" : "translateY(0px)"}>
           {isConnecting
             ? "Connecting..."
             : isAudioPlaying

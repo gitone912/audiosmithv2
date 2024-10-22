@@ -13,11 +13,14 @@ import {
     Button,
     Select,
     Spinner,
+    Flex,
+    Icon,
   } from "@chakra-ui/react";
   import { useState, useEffect } from "react";
   import { useNavigate } from "react-router-dom";
   import { collection, getDocs } from "firebase/firestore";
   import { db } from "../../../firebase";
+import { IoChevronBackOutline } from "react-icons/io5";
   
   // Define the Journal type
   interface Journal {
@@ -132,6 +135,23 @@ import {
   
     return (
       <Box pt={{ base: "130px", md: "80px", xl: "80px" }} pl={{ base: 4, md: 10, lg: 20 }}>
+        <Flex
+        display={{ sm: 'none', xl: 'flex' }}
+        alignItems="center"
+        position="fixed"
+        top="20px"
+        left="20px"
+        zIndex="10"
+      >
+       <Icon
+        as={IoChevronBackOutline}
+        color='white'
+        w="24px"
+          h="24px"
+          _hover={{ cursor: 'pointer' }}
+        onClick={() => navigate(-1)} // Navigate to the previous page
+      />
+</Flex>
         <Select
           value={journalType}
           onChange={(e) => setJournalType(e.target.value as "all" | "monologue" | "dialogue")}

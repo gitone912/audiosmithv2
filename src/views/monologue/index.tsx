@@ -12,6 +12,8 @@ import {
     ModalHeader,
     ModalBody,
     useToast,
+    Flex,
+    Icon,
   } from "@chakra-ui/react";
   import { MdMic, MdStop } from "react-icons/md"; // Replacing icons with react-icons/md
   import React, { useState, useEffect, useRef } from "react";
@@ -20,6 +22,7 @@ import {
   import { collection, addDoc } from "firebase/firestore";
   import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
   import Groq from "groq-sdk";
+import { IoChevronBackOutline } from "react-icons/io5";
   
 
   const groq = new Groq({
@@ -133,19 +136,8 @@ import {
     };
   
     useEffect(() => {
-        if (transcript && isListening) {
-          if (speechTimeout.current) {
-            clearTimeout(speechTimeout.current);
-          }
-      
-          speechTimeout.current = setTimeout(() => {
-            if (isListening) {
-              handleSpeechInput(transcript);
-              resetTranscript();
-            }
-          }, 2000);
-        }
-      }, [transcript, isListening, resetTranscript]);
+      handleSpeechInput(transcript);
+      }, [transcript]);
       
   
     useEffect(() => {
@@ -160,6 +152,23 @@ import {
   
     return (
       <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
+        <Flex
+        display={{ sm: 'none', xl: 'flex' }}
+        alignItems="center"
+        position="fixed"
+        top="20px"
+        left="20px"
+        zIndex="10"
+      >
+       <Icon
+        as={IoChevronBackOutline}
+        color='white'
+        w="24px"
+          h="24px"
+          _hover={{ cursor: 'pointer' }}
+        onClick={() => navigate(-1)} // Navigate to the previous page
+      />
+</Flex>
         <VStack spacing={6} align="center">     
         {isSaving && (
       <Modal isOpen={isSaving} onClose={() => {}}>
@@ -186,18 +195,6 @@ import {
             </Text>
           )}
   
-          {/* Temporary Transcript Display (Full conversation) */}
-          {tempTranscript && (
-            <Text
-              color={textColor}
-              textAlign="center"
-              fontSize={{ base: "sm", md: "lg" }} // Responsive size: smaller on mobile, larger on desktop
-              maxW={{ base: "90%", md: "80%", lg: "60%" }} // Responsive width
-              mx="auto" // Horizontal center alignment
-            >
-              {tempTranscript}
-            </Text>
-          )}
   
           {/* Transcript Display */}
           {transcript && (
