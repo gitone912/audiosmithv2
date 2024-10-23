@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { TypeAnimation } from "react-type-animation";
 import Groq from "groq-sdk";
 import { ArrowBackIcon } from "@chakra-ui/icons";
@@ -129,6 +129,33 @@ const EditJournals: React.FC = () => {
       setIsSaving(false);
     }
   };
+  const handleDelete = async () => {
+    if (!journalId) return;
+
+    try {
+      const journalRef = doc(db, collectionName, journalId);
+      await deleteDoc(journalRef);
+
+      toast({
+        title: "Journal Deleted",
+        description: "Your journal has been successfully deleted.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      navigate("/admin/journals"); // Redirect after deletion
+    } catch (error) {
+      console.error("Error deleting the journal:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the journal.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
 
   if (loading) {
@@ -222,6 +249,16 @@ const EditJournals: React.FC = () => {
               >
                 Save
               </Button>
+              <Button
+                bg={buttonBg}
+                color="white"
+                size={{ base: 'sm', md: 'md' }}
+                fontSize={{ base: 'sm', md: 'md' }}
+                m={3}
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
             </Box>
           </>
         ) : (
@@ -246,6 +283,16 @@ const EditJournals: React.FC = () => {
             >
               Save
             </Button>
+            <Button
+                bg={buttonBg}
+                color="white"
+                size={{ base: 'sm', md: 'md' }}
+                fontSize={{ base: 'sm', md: 'md' }}
+                m={3}
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
           </>
         )}
       </VStack>
