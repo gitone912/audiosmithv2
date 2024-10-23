@@ -83,17 +83,25 @@ const SaveChat: React.FC = () => {
 
   const handleSave = async () => {
     if (!docId) return;
-
+  
     setIsSaving(true);
-
+  
     try {
       const journalRef = doc(db, "chats", docId);
-      await updateDoc(journalRef, { compiledJournal: editedJournal });
-
+      
+      // Update the document with the edited journal, mood, summary, and tasks
+      await updateDoc(journalRef, {
+        compiledJournal: editedJournal,
+        moodEmoji: `${moodEmoji}`, // Save mood emoji + mood string
+        mood:mood,
+        summary: summary,             // Save summary
+        actions: tasks                // Save tasks (action recommendations)
+      });
+  
       if (audio) {
         await audio.play();
       }
-
+  
       toast({
         title: "Journal Saved",
         description: "Your journal has been successfully saved.",
@@ -101,7 +109,7 @@ const SaveChat: React.FC = () => {
         duration: 3000,
         isClosable: true,
       });
-
+  
       setTimeout(() => navigate("/admin/journals"), 2000);
     } catch (error) {
       console.error("Error saving the journal:", error);
@@ -116,6 +124,7 @@ const SaveChat: React.FC = () => {
       setIsSaving(false);
     }
   };
+  
 
   const fetchAnalysis = async () => {
     setIsAnalyzing(true); // Start loading state

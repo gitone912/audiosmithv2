@@ -261,7 +261,7 @@ const Dialogue = () => {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Based on the user's input and the AI's response, compile a concise and short journal entry. focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. try not to assume and add events on your own. Conversation history: "${chatHistory}".`;
+      const journalPrompt = `Based on the user's input and the AI's response, compile a concise  journal entry. focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. try not to assume and add events on your own. Capture the thoughts, feelings, and key points discussed, and rewrite it in the style of personal reflection. Remove dialogue structure, but maintain the essence of the user’s emotions and insights, as if they are reflecting on the experience themselves. Do not add date or any greetings. The beginning should be a concise summary of what the user feels for that day. Don't start with "Today, I woke up feeling..." or something like that. Make it unique every time so that the entry is different for each day. Make the sound of it natural as if a real person is writing it. Don't make it sound too complicated or too formal. Conversation history: "${chatHistory}".`;
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
         model: "llama3-groq-70b-8192-tool-use-preview",
@@ -298,6 +298,10 @@ const Dialogue = () => {
       chatHistory,
       title: compiledTitle,
       compiledJournal: compiledJournalEntry,
+      moodEmoji:"",
+      mood:"",
+      summary:"",
+      actions:""
     };
 
     // playAudio("https://github.com/gitone912/testaudio/raw/refs/heads/main/deepgram-stella-1727359968635.mp3");
