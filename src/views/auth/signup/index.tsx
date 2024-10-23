@@ -24,7 +24,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { HSeparator } from "components/separator/Separator";
 import DefaultAuth from "layouts/auth/Default";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth, db } from "../../../firebase"; // Ensure db is initialized properly in your firebase.js file
 import { doc, setDoc } from "firebase/firestore"; // For Firestore
 
@@ -92,6 +92,31 @@ function SignUp() {
       });
 
       setAlert({ message: "Signup Successful!", type: "success" });
+      navigate("/auth/sign-in");
+    } catch (err) {
+      if (err instanceof Error) {
+        setAlert({ message: err.message, type: "error" });
+      }
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+  const handleGoogleSignUp = async () => {
+    const provider = new GoogleAuthProvider();
+  
+    setLoading(true); // Show loading state during sign-up process
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+  
+      // Optionally, you can store user info in Firestore here as well
+      await setDoc(doc(db, "users", user.uid), {
+        fullName: user.displayName || "No Name", // Fallback if no display name is found
+        email: user.email,
+        phone: user.phoneNumber || "", // Fallback to empty if phone not provided
+      });
+  
+      setAlert({ message: "Google sign-up successful!", type: "success" });
       navigate("/auth/sign-in");
     } catch (err) {
       if (err instanceof Error) {
@@ -170,6 +195,7 @@ function SignUp() {
             _hover={googleHover}
             _active={googleActive}
             _focus={googleActive}
+            onClick={handleGoogleSignUp}
           >
             <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
             Sign up with Google
@@ -326,6 +352,7 @@ function SignUp() {
                 loadingText="Signing Up" // Text to display while loading
                 color={buttonText}
                 bg={buttonBg}
+                _hover={{ bg: "gray.200" }}
               >
                 Sign Up
               </Button>

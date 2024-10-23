@@ -19,7 +19,7 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, storage, db } from "../../../firebase"; // Import Firestore
 import { doc, getDoc } from "firebase/firestore";
 import DefaultAuth from "layouts/auth/Default";
@@ -139,6 +139,38 @@ function SignIn() {
       setLoading(false); // Stop loading after sign-in attempt
     }
   };
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    setLoading(true);
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const { fullName, phoneNumber } = await fetchUserDetails(user.uid);
+
+      const newUserDetails = {
+        email: user.email,
+        displayName: fullName || user.displayName,
+        phoneNumber: phoneNumber || user.phoneNumber || "Not provided",
+        userImage: user.photoURL,
+      };
+
+      const storageDuration = keepLoggedIn ? 7 : 1;
+      localStorage.setItem("userDetails", JSON.stringify(newUserDetails));
+      localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
+
+      setNotification("Google sign-in successful! Redirecting...");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
+    } catch (error) {
+      setError("Google sign-in failed.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <DefaultAuth>
@@ -188,9 +220,10 @@ function SignIn() {
             _hover={googleHover}
             _active={googleActive}
             _focus={googleActive}
+            onClick={handleGoogleSignIn}
           >
             <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
-            Sign up with Google
+            Sign in with Google
           </Button>
 
           <Flex align="center" mb="25px">
