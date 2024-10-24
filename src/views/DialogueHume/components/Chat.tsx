@@ -141,7 +141,8 @@ function InnerComponent() {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Based on the user's input and the AI's response, compile a concise and short journal entry. focus on translating the user's answers into a natural narrative that reflects their day, emotions, observations, and reflections. The tone should be personal, introspective, and authentic, as though the user is recording their thoughts for their own private journal. Do not mention AI, just use AI responses to understand the user's daily life context. try not to assume and add events on your own. No need to address the journal as dear journal or ending it with a greeting. Just write the summary without adding more to what has been discussed during the conversation Conversation history: "${chatHistory}".`;
+      const journalPrompt = `Act as a personal journal assistant who writes journal in user's behalf, Based only on the user’s explicit input and the AI’s response, compile a concise journal entry. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and key points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user. Do not add dates, times, or greetings unless provided. 
+If the journal entry does not have input, write this: "It seems there isn’t enough specific input to create a journal entry based on your direct thoughts or reflections." Conversation history: "${chatHistory}".`;
       const journalCompletion = await groq.chat.completions.create({
         messages: [{ role: "user", content: journalPrompt }],
         model: "llama3-groq-70b-8192-tool-use-preview",
@@ -163,15 +164,15 @@ function InnerComponent() {
         left="20px"
         zIndex="10"
       >
-       <Icon
-        as={IoChevronBackOutline}
-        color='white'
-        w="24px"
+        <Icon
+          as={IoChevronBackOutline}
+          color='white'
+          w="24px"
           h="24px"
           _hover={{ cursor: 'pointer' }}
-        onClick={() => navigate(-1)} // Navigate to the previous page
-      />
-</Flex>
+          onClick={() => navigate(-1)} // Navigate to the previous page
+        />
+      </Flex>
       <VStack spacing={6} align="center" width="100%" maxW="1200px">
         {isSaving && (
           <Modal isOpen={isSaving} onClose={() => { }}>
@@ -191,7 +192,7 @@ function InnerComponent() {
           maxW="800px"
           minH="150px"
         > */}
-          {/* {latestUserMessage && (
+        {/* {latestUserMessage && (
             <Text
               color="white"
               textAlign="center"
@@ -203,7 +204,7 @@ function InnerComponent() {
             </Text>
           )} */}
         {/* </Box> */}
-          <AudioVisualizer/>
+        <AudioVisualizer />
 
         {/* <Box
           w={{ base: "100%", md: "80%", lg: "60%" }}
