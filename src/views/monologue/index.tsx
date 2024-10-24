@@ -211,7 +211,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
   
           <IconButton
             icon={isConnecting ? <Spinner color="white" size="md" /> : isConnected ? <MdStop /> : <MdMic />}
-            bg="#a1adb7"
+            bg="#9ba192"
             color="white"
             onClick={toggleConnection}
             size="lg"

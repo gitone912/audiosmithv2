@@ -226,7 +226,7 @@ If the journal entry does not have input, write this: "It seems there isn’t en
 
         <IconButton
           icon={isConnecting ? <Spinner color="white" size="md" /> : isAudioPlaying ? <MdStop /> : <MdMic />}
-          bg="#a1adb7"
+          bg="#9ba192"
           color="white"
           onClick={handleCallClick}
           size="lg"

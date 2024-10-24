@@ -56,7 +56,7 @@ const EditJournals: React.FC = () => {
   const boxBg = useColorModeValue('secondaryGray.300', 'rgb(55, 60, 49)');
   const SideboxBg = useColorModeValue('secondaryGray.300', 'rgb(76,80,71)');
   const sideBoxBg = useColorModeValue("secondaryGray.300", "rgb(76,80,71)");
-  const buttonBg = "#a1adb7";
+  const buttonBg = "#9ba192";
   const textColor = useColorModeValue("black", "white");
   
 

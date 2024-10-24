@@ -470,7 +470,7 @@ const Dialogue = () => {
       <MdMic /> // Show mic icon when disconnected
     )
   }
-  bg="#a1adb7"
+  bg="#9ba192"
   color="white"
   onClick={toggleConnection}
   size="lg"

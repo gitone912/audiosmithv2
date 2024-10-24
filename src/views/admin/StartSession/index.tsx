@@ -1,52 +1,25 @@
 import { Box, Button, Text, VStack, useColorModeValue, useDisclosure, Fade } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Typing effect hook
-const useTypingEffect = (text: string, speed: number) => {
-  
-  const [displayedText, setDisplayedText] = useState('');
-  const [isFinished, setIsFinished] = useState(false);
-
-  useEffect(() => {
-    let currentIndex = 0;
-    const typeCharacter = () => {
-      if (currentIndex < text.length) {
-        setDisplayedText((prev) => prev + text[currentIndex]);
-        currentIndex++;
-      } else {
-        setIsFinished(true);
-      }
-    };
-    const interval = setInterval(typeCharacter, speed);
-
-    return () => clearInterval(interval);
-  }, [text, speed]);
-
-  return { displayedText, isFinished };
-};
+import { TypeAnimation } from 'react-type-animation';
 
 export default function StartSession() {
   const textColor = useColorModeValue('black', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'rgb(55, 60, 49)');
-  const buttonBg = '#a1adb7'; // Button color
+  const buttonBg = '#9ba192'; // Button color
 
   const navigate = useNavigate();
-  const goToDialogue = () => {
-    navigate('/dialogue');
-  };
-  const goToMonologue = () => {
-    navigate('/monologue');
-  };
-  // Using the full sentence directly without splitting
-  const { displayedText, isFinished } = useTypingEffect('Goood Evening, What would you like to do today,', 50);
   const { isOpen, onOpen } = useDisclosure();
 
+  // Get the display name from local storage
+  const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+  const userDisplayName = userDetails.displayName || 'Guest';
+
   useEffect(() => {
-    if (isFinished) {
-      onOpen();
-    }
-  }, [isFinished, onOpen]);
+    // Trigger the fade effect after animation completes
+    const timer = setTimeout(onOpen, 3000); // Adjust timeout to match animation length
+    return () => clearTimeout(timer);
+  }, [onOpen]);
 
   return (
     <Box
@@ -60,16 +33,18 @@ export default function StartSession() {
     >
       <VStack spacing={8}>
         <Text color={textColor} fontSize="3xl">
-          {/* Manually add <br> between "Good Evening" and the rest of the sentence */}
-          {displayedText.includes(',') ? (
-            <>
-              {displayedText.split(',')[0]}
-              <br />
-              {displayedText.split(',')[1]}
-            </>
-          ) : (
-            displayedText
-          )}
+          <TypeAnimation
+            sequence={[
+              `Good day, ${userDisplayName},`+`What would you like to do today?`, // Text to animate
+              1000,
+               // Pause for 1 second after typing
+            ]}
+            wrapper="div"
+            cursor={true}
+            repeat={0} // Animation plays only once
+            style={{ display: 'pre-wrap' }}
+            
+          />
         </Text>
         <Fade in={isOpen}>
           <Box>
@@ -79,7 +54,7 @@ export default function StartSession() {
               size="lg"
               fontSize="xl"
               m={3}
-              onClick={goToMonologue}
+              onClick={() => navigate('/monologue')}
             >
               Monologue
             </Button>
@@ -89,7 +64,7 @@ export default function StartSession() {
               size="lg"
               fontSize="xl"
               m={3}
-              onClick={goToDialogue}
+              onClick={() => navigate('/dialogue')}
             >
               Dialogue
             </Button>
