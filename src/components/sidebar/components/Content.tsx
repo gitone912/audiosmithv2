@@ -6,19 +6,18 @@ import Links from 'components/sidebar/components/Links';
 
 // FUNCTIONS
 
-function SidebarContent(props: { routes: RoutesType[] }) {
-	const { routes } = props;
-	// SIDEBAR
+function SidebarContent(props: { routes: RoutesType[]; onClose: () => void }) {
+	const { routes, onClose } = props;
+  
 	return (
-		<Flex direction='column' height='100%' pt='25px' borderRadius='30px' pe={{ lg: '16px', '2xl': '16px' }}>
-			<Brand />
-			<Stack direction='column' mt='8px' mb='auto'>
-				<Box ps='20px' pe={{ lg: '16px', '2xl': '16px' }}>
-					<Links routes={routes} />
-				</Box>
-			</Stack>
-		</Flex>
+	  <Flex direction="column" height="100%" pt="25px" borderRadius="30px" pe={{ lg: '16px', '2xl': '16px' }}>
+		<Brand />
+		<Stack direction="column" mt="8px" mb="auto">
+		  <Box ps="20px" pe={{ lg: '16px', '2xl': '16px' }}>
+			<Links routes={routes} onClose={onClose} /> {/* Pass onClose */}
+		  </Box>
+		</Stack>
+	  </Flex>
 	);
 }
-
 export default SidebarContent;

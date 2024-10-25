@@ -47,22 +47,23 @@ function Sidebar(props: {
     <>
       {/* Toggle icon for desktop mode */}
       <Flex
-        display={{ sm: 'flex', xl: 'flex' }}
-        alignItems="center"
-        position="fixed"
-        top="20px"
-        left="20px"
-        zIndex="10"
-      >
-        <Icon
-          as={isOpen ? IoChevronBackOutline : IoChevronForwardOutline} // Toggle between < and >
-          color={useColorModeValue('gray.400', 'white')}
-          w="24px"
-          h="24px"
-          _hover={{ cursor: 'pointer' }}
-          onClick={toggleSidebar}
-        />
-      </Flex>
+  display={{ sm: 'none', xl: 'flex' }} // Hide on small screens, show on desktop
+  alignItems="center"
+  position="fixed"
+  top="20px"
+  left="20px"
+  zIndex="10"
+>
+  <Icon
+    as={isOpen ? IoChevronBackOutline : IoChevronForwardOutline}
+    color={useColorModeValue('gray.400', 'white')}
+    w="24px"
+    h="24px"
+    _hover={{ cursor: 'pointer' }}
+    onClick={toggleSidebar}
+  />
+</Flex>
+
 
       {/* Sidebar for desktop mode */}
       {isOpen && (
@@ -83,7 +84,7 @@ function Sidebar(props: {
               renderThumbVertical={renderThumb}
               renderView={renderView}
             >
-              <Content routes={routes} />
+              <Content routes={routes} onClose={onClose} />
             </Scrollbars>
           </Box>
         </Box>
@@ -96,7 +97,7 @@ function Sidebar(props: {
 export function SidebarResponsive(props: { routes: RoutesType[] }) {
   let sidebarBackgroundColor = useColorModeValue('white', 'rgb(75, 80, 70)');
   let menuColor = useColorModeValue('gray.400', 'white');
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Track state
   const btnRef = React.useRef();
 
   const { routes } = props;
@@ -105,7 +106,7 @@ export function SidebarResponsive(props: { routes: RoutesType[] }) {
     <Flex display={{ sm: 'flex', xl: 'none' }} alignItems="center">
       <Flex ref={btnRef} w="max-content" h="max-content" onClick={onOpen}>
         <Icon
-          as={IoChevronForwardOutline} // Use forward icon for mobile menu
+          as={IoChevronForwardOutline}
           color={menuColor}
           my="auto"
           w="20px"
@@ -135,7 +136,7 @@ export function SidebarResponsive(props: { routes: RoutesType[] }) {
               renderThumbVertical={renderThumb}
               renderView={renderView}
             >
-              <Content routes={routes} />
+              <Content routes={routes} onClose={onClose} /> {/* Pass onClose */}
             </Scrollbars>
           </DrawerBody>
         </DrawerContent>
