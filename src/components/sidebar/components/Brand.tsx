@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export function SidebarBrand() {
   // Chakra color mode
-  let logoColor = useColorModeValue('navy.700', 'white');
+  let logoColor = useColorModeValue('#474d4', 'white');
 
   // State to manage user image and name
   const [userImage, setUserImage] = useState(Avatar5);

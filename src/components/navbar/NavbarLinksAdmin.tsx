@@ -28,8 +28,6 @@ export default function HeaderLinks(props:any) {
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
 	const textColorBrand = useColorModeValue('brand.700', 'brand.400');
 	const ethColor = useColorModeValue('gray.700', 'white');
-	const ethBg = useColorModeValue('secondaryGray.300', 'navy.900');
-	const ethBox = useColorModeValue('white', 'navy.800');
 	const shadow = useColorModeValue('14px 17px 40px 4px rgba(112, 144, 176, 0.18)', '14px 17px 40px 4px rgba(112, 144, 176, 0.06)');
 	const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)');
 	const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');

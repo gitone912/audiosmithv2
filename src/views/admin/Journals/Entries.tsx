@@ -136,7 +136,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
     return (
       <Box pt={{ base: "130px", md: "80px", xl: "80px" }} pl={{ base: 4, md: 10, lg: 20 }}>
         <Flex
-        display={{ sm: 'none', xl: 'flex' }}
+        display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
         top="20px"
@@ -218,7 +218,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
               </Text>
               <Box textAlign="center" mt={4}>
                 <Button colorScheme="blue" onClick={handleEditClick}>
-                  Edit
+                 View
                 </Button>
               </Box>
             </ModalBody>

@@ -157,7 +157,7 @@ If the journal entry does not have input, write this: "It seems there isn’t en
   return (
     <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
       <Flex
-        display={{ sm: 'none', xl: 'flex' }}
+        display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
         top="20px"

@@ -12,7 +12,7 @@ export const textareaStyles = {
 			variants: {
 				main: (props: any) => ({
 					field: {
-						bg: mode('transparent', 'navy.800')(props),
+						bg: mode('transparent', '#474d4')(props),
 						border: '1px solid !important',
 						color: mode('secondaryGray.900', 'white')(props),
 						borderColor: mode('secondaryGray.100', 'whiteAlpha.100')(props),

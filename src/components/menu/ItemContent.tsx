@@ -2,7 +2,7 @@
 import { Icon, Flex, Text, useColorModeValue } from "@chakra-ui/react";
 
 export function ItemContent(props:{info:string}) {
-  const textColor = useColorModeValue("navy.700", "white");
+  const textColor = useColorModeValue("#474d41", "white");
   return (
     <>
       <Flex

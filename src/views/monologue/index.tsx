@@ -153,7 +153,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
     return (
       <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
         <Flex
-        display={{ sm: 'none', xl: 'flex' }}
+        display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
         top="20px"

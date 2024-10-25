@@ -47,7 +47,7 @@ function Sidebar(props: {
     <>
       {/* Toggle icon for desktop mode */}
       <Flex
-        display={{ sm: 'none', xl: 'flex' }}
+        display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
         top="20px"

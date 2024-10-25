@@ -169,228 +169,236 @@ const EditJournals: React.FC = () => {
   const formattedTasks = tasks.split(/(?=\d+\.)/);
 
   return (
-    
     <Box
-      pt={{ base: '100px', md: '150px' }}
+      pt={{ base: '80px', md: '150px' }}
       textAlign="center"
       bg={boxBg}
       display="flex"
+      flexDirection="column"
       justifyContent="center"
-      alignItems="flex-start"
+      alignItems="center"
+      minH="100vh"
+      px={{ base: '4', md: '8' }}
     >
-       <Flex
-        display={{ sm: 'none', xl: 'flex' }}
+      {/* Back Button */}
+      <Flex
+        display={{ base: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
         top="20px"
         left="20px"
         zIndex="10"
       >
-       <Icon
-        as={IoChevronBackOutline}
-        color='white'
-        w="24px"
+        <Icon
+          as={IoChevronBackOutline}
+          color="white"
+          w="24px"
           h="24px"
           _hover={{ cursor: 'pointer' }}
-        onClick={() => navigate(-1)} // Navigate to the previous page
-      />
-</Flex>
-      
-      <VStack spacing={3} width={{ base: '90%', md: '80%', lg: '60%' }} maxW="800px" mx="auto">
-        {!isEditing ? (
-          <>
-            <Box
-              width="100%"
-              padding={4}
-              borderRadius="md"
-              border="1px solid"
-              borderColor={boxBg}
-              bg={boxBg}
-            >
-              <Text
-                color={textColor}
-                fontSize={{ base: 'md', md: 'lg' }}
-                whiteSpace="pre-wrap"
+          onClick={() => navigate(-1)}
+        />
+      </Flex>
+
+      {/* Main Content Container */}
+      <Flex
+        width="100%"
+        maxW="1200px"
+        mx="auto"
+        flexDirection={{ base: 'column', md: 'row' }} // Row on desktop, column on mobile
+        justifyContent="space-between"
+        gap={6} // Adds space between the columns
+      >
+        {/* Left Column */}
+        <VStack
+          spacing={4}
+          width={{ base: '100%', md: '48%' }}
+          maxW="800px"
+          mx="auto"
+        >
+          {!isEditing ? (
+            <>
+              <Box
+                width="100%"
+                padding={4}
+                borderRadius="md"
+                border="1px solid"
+                borderColor={boxBg}
+                bg={boxBg}
               >
-                {/* Use the TypeAnimation component */}
-                <TypeAnimation
-                  sequence={[
-                    editedJournal, // The journal text
-                    1000, // Pause for a second after typing is finished
-                  ]}
-                  speed={75} // Typing speed
-                  wrapper="span"
-                  cursor={true} // Show the cursor
-                  repeat={0} // Don't repeat the animation
-                  style={{ whiteSpace: 'pre-wrap' }}
-                />
+                <Text
+                  color={textColor}
+                  fontSize={{ base: 'sm', md: 'lg' }}
+                  whiteSpace="pre-wrap"
+                >
+                  <TypeAnimation
+                    sequence={[editedJournal, 1000]}
+                    speed={75}
+                    wrapper="span"
+                    cursor
+                    repeat={0}
+                    style={{ whiteSpace: 'pre-wrap' }}
+                  />
+                </Text>
+              </Box>
+
+              <Box>
+                <Button
+                  bg={buttonBg}
+                  color="white"
+                  size={{ base: 'sm', md: 'md' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  m={2}
+                  onClick={() => setIsEditing(true)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  bg={buttonBg}
+                  color="white"
+                  size={{ base: 'sm', md: 'md' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  m={2}
+                  onClick={handleSave}
+                  isLoading={isSaving}
+                >
+                  Save
+                </Button>
+                <Button
+                  bg={buttonBg}
+                  color="white"
+                  size={{ base: 'sm', md: 'md' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  m={2}
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <>
+              <Textarea
+                value={editedJournal}
+                onChange={(e) => setEditedJournal(e.target.value)}
+                size="md"
+                border="1px solid"
+                borderColor={boxBg}
+                height={{ base: '300px', md: '700px' }}
+                resize="vertical"
+                mb={4}
+              />
+              <Box>
+                <Button
+                  bg={buttonBg}
+                  color="white"
+                  size={{ base: 'sm', md: 'md' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  onClick={handleSave}
+                  isLoading={isSaving}
+                  m={2}
+                >
+                  Save
+                </Button>
+                <Button
+                  bg={buttonBg}
+                  color="white"
+                  size={{ base: 'sm', md: 'md' }}
+                  fontSize={{ base: 'sm', md: 'md' }}
+                  m={2}
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+              </Box>
+            </>
+          )}
+        </VStack>
+
+        {/* Right Column */}
+        <VStack
+          spacing={5}
+          width={{ base: '100%', md: '48%' }}
+          maxW="500px"
+          mx="auto"
+          bg={boxBg}
+          justifyContent="center"
+          padding={5}
+          display={{ base: 'none', sm: 'block' }}
+        >
+          {/* Mood Box */}
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="bold"
+            color="#b8b9b7"
+            width="100%"
+            textAlign="left"
+          >
+            Mood
+          </Text>
+          <Box bg={SideboxBg} padding={6} borderRadius="16px" width="100%">
+            <Box display="flex" alignItems="center">
+              <Text fontSize={{ base: '4xl', md: '7xl' }} color="white" mr={4}>
+                {moodEmoji}
+              </Text>
+              <Text fontSize={{ base: 'md', md: 'lg' }} color="white">
+                {mood}
               </Text>
             </Box>
+          </Box>
 
-            <Box>
-              <Button
-                bg={buttonBg}
-                color="white"
-                size={{ base: 'sm', md: 'md' }}
-                fontSize={{ base: 'sm', md: 'md' }}
-                m={3}
-                onClick={() => setIsEditing(true)}
-              >
-                Edit
-              </Button>
-              <Button
-                bg={buttonBg}
-                color="white"
-                size={{ base: 'sm', md: 'md' }}
-                fontSize={{ base: 'sm', md: 'md' }}
-                m={3}
-                onClick={handleSave}
-                isLoading={isSaving} // Show spinner while saving
-              >
-                Save
-              </Button>
-              <Button
-                bg={buttonBg}
-                color="white"
-                size={{ base: 'sm', md: 'md' }}
-                fontSize={{ base: 'sm', md: 'md' }}
-                m={3}
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </Box>
-          </>
-        ) : (
-          <>
-            <Textarea
-              value={editedJournal}
-              onChange={(e) => setEditedJournal(e.target.value)}
-              size="md"
-              border="1px solid"
-              borderColor={boxBg}
-              height="700px"  // Increased the height for a larger edit box
-              resize="vertical"  // Allows the user to resize the box vertically if needed
-            />
+          {/* Summary Box */}
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="bold"
+            color="#b8b9b7"
+            width="100%"
+            textAlign="left"
+          >
+            Summary
+          </Text>
+          <Box
+            bg={SideboxBg}
+            padding={5}
+            borderRadius="16px"
+            width="100%"
+            maxH={{ base: '200px', md: '300px' }}
+            overflowY="auto"
+          >
+            <Text color="white" fontSize={{ base: 'sm', md: 'md' }} lineHeight="1.6">
+              {summary}
+            </Text>
+          </Box>
 
-            <Button
-              bg={buttonBg}
-              color="white"
-              size={{ base: 'sm', md: 'md' }}
-              fontSize={{ base: 'sm', md: 'md' }}
-              onClick={handleSave}
-              isLoading={isSaving} // Show spinner while saving
-            >
-              Save
-            </Button>
-            <Button
-                bg={buttonBg}
-                color="white"
-                size={{ base: 'sm', md: 'md' }}
-                fontSize={{ base: 'sm', md: 'md' }}
-                m={3}
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-          </>
-        )}
-      </VStack>
-
-
-{/* stack that i need to get appeared only when analyse button get clicked , and content here will be generated by groq */}
-      <VStack
-      spacing={5}
-      width={{ base: '90%', md: '80%', lg: '60%' }}
-      maxW="500px"
-      mx="auto"
-      bg={boxBg}
-      justifyContent="center"
-      padding={5}
-    >
-      {/* Mood Box */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color="#b8b9b7"
-        width="100%"
-        textAlign="left"
-      >
-        Mood
-      </Text>
-      <Box
-  bg={SideboxBg}
-  padding={8}
-  borderRadius="16px"
-  width="100%"
->
-  <Box display="flex" alignItems="center">
-    <Text fontSize="7xl" color="white" mr={4}>
-      {moodEmoji}
-    </Text>
-    <Text fontSize="lg" color="white">
-    {mood}
-    </Text>
-  </Box>
-</Box>
-
-
-      {/* Summary Title */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color="#b8b9b7"
-        width="100%"
-        textAlign="left"
-      >
-        Summary
-      </Text>
-
-      {/* Summary Box */}
-      <Box
-        bg={SideboxBg}
-        padding={6}
-        borderRadius="16px"
-        width="100%"
-        maxH="300px" // Set max height for scrollable content
-        overflowY="auto" // Enable vertical scroll if needed
-      >
-        <Text color="white" fontSize="md" lineHeight="1.6">
-        {summary}
-        </Text>
-      </Box>
-
-      {/* Action Recommendations Title */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color="#b8b9b7"
-        width="100%"
-        textAlign="left"
-      >
-        Action Recommendations
-      </Text>
-
-      {/* Action Recommendations Box */}
-      <Box
-        bg={SideboxBg}
-        padding={6}
-        borderRadius="16px"
-        width="100%"
-        maxH="200px" // Set max height for scrollable content
-        overflowY="auto" // Enable vertical scroll if needed
-      >
-       <Text color="white" fontSize="md" lineHeight="1.6">
-  {formattedTasks.map((task, index) => (
-    <span key={index} style={{ display: 'block', marginBottom: '8px' }}>
-      {task.trim()}
-    </span>
-  ))}
-</Text>
-
-      </Box>
-    </VStack>
+          {/* Action Recommendations Box */}
+          <Text
+            fontSize={{ base: 'md', md: 'lg' }}
+            fontWeight="bold"
+            color="#b8b9b7"
+            width="100%"
+            textAlign="left"
+          >
+            Action Recommendations
+          </Text>
+          <Box
+            bg={SideboxBg}
+            padding={5}
+            borderRadius="16px"
+            width="100%"
+            maxH={{ base: '150px', md: '200px' }}
+            overflowY="auto"
+          >
+            <Text color="white" fontSize={{ base: 'sm', md: 'md' }} lineHeight="1.6">
+              {formattedTasks.map((task, index) => (
+                <span key={index} style={{ display: 'block', marginBottom: '8px' }}>
+                  {task.trim()}
+                </span>
+              ))}
+            </Text>
+          </Box>
+        </VStack>
+      </Flex>
     </Box>
   );
 };
+
 export default EditJournals;

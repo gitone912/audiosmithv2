@@ -14,12 +14,41 @@ export default function StartSession() {
   // Get the display name from local storage
   const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
   const userDisplayName = userDetails.displayName || 'Guest';
+  const firstName = userDisplayName.split(' ')[0];
 
   useEffect(() => {
     // Trigger the fade effect after animation completes
     const timer = setTimeout(onOpen, 3000); // Adjust timeout to match animation length
     return () => clearTimeout(timer);
   }, [onOpen]);
+
+  const useTypingEffect = (text: string, speed: number) => {
+  
+    const [displayedText, setDisplayedText] = useState('');
+    const [isFinished, setIsFinished] = useState(false);
+    useEffect(() => {
+      let currentIndex = 0;
+      const typeCharacter = () => {
+        if (currentIndex < text.length) {
+          setDisplayedText((prev) => prev + text[currentIndex]);
+          currentIndex++;
+        } else {
+          setIsFinished(true);
+        }
+      };
+      const interval = setInterval(typeCharacter, speed);
+      return () => clearInterval(interval);
+    }, [text, speed]);
+    return { displayedText, isFinished };
+  };
+
+  const { displayedText, isFinished } = useTypingEffect(`Goood day ${firstName},`+`What would you like to do today?,`, 50);
+
+  useEffect(() => {
+    if (isFinished) {
+      onOpen();
+    }
+  }, [isFinished, onOpen]);
 
   return (
     <Box
@@ -32,19 +61,17 @@ export default function StartSession() {
       alignItems="flex-start"
     >
       <VStack spacing={8}>
-        <Text color={textColor} fontSize="3xl">
-          <TypeAnimation
-            sequence={[
-              `Good day, ${userDisplayName},`+`What would you like to do today?`, // Text to animate
-              1000,
-               // Pause for 1 second after typing
-            ]}
-            wrapper="div"
-            cursor={true}
-            repeat={0} // Animation plays only once
-            style={{ display: 'pre-wrap' }}
-            
-          />
+      <Text color={textColor} fontSize="3xl">
+          {/* Manually add <br> between "Good Evening" and the rest of the sentence */}
+          {displayedText.includes(',') ? (
+            <>
+              {displayedText.split(',')[0]}
+              <br />
+              {displayedText.split(',')[1]}
+            </>
+          ) : (
+            displayedText
+          )}
         </Text>
         <Fade in={isOpen}>
           <Box>
