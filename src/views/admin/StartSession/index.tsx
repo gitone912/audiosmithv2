@@ -42,7 +42,7 @@ export default function StartSession() {
     return { displayedText, isFinished };
   };
 
-  const { displayedText, isFinished } = useTypingEffect(`Goood day ${firstName},`+`What would you like to do today?,`, 50);
+  const { displayedText, isFinished } = useTypingEffect(`Goood day\u201A ${firstName}!,`+`What would you like to do today?,`, 50);
 
   useEffect(() => {
     if (isFinished) {

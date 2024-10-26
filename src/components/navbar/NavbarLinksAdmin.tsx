@@ -117,7 +117,7 @@ export default function HeaderLinks(props:any) {
     borderRadius='8px'
     px='14px'
     bg={buttonBg}
-    onClick={() => navigate('/auth/sign-out')} // Navigate to sign-out
+    onClick={() => navigate('/sign-out')} // Navigate to sign-out
   >
     <Text fontSize='sm'>Log out</Text>
   </MenuItem>

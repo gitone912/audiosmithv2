@@ -141,10 +141,12 @@ function InnerComponent() {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Act as a personal journal assistant who writes journal in user's behalf, Based only on the user’s explicit input and the AI’s response, compile a concise journal entry. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and key points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user. Do not add dates, times, or greetings unless provided. 
-If the journal entry does not have input, write this: "It seems there isn’t enough specific input to create a journal entry based on your direct thoughts or reflections." Conversation history: "${chatHistory}".`;
+      const journalPrompt = `Act as a personal journal assistant who writes journal in user's behalf, Based only on the user’s explicit input and the AI’s response, compile a concise journal entry. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and key points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user. Do not add dates, times, or greetings unless provided. If the journal entry does not have input, write this: "It seems there isn’t enough specific input to create a journal entry based on your direct thoughts or reflections."`;
       const journalCompletion = await groq.chat.completions.create({
-        messages: [{ role: "user", content: journalPrompt }],
+        messages: [
+          { role: "system", content: journalPrompt },
+          { role: "user", content: `${chatHistory}` },
+        ],
         model: "llama3-groq-70b-8192-tool-use-preview",
       });
 

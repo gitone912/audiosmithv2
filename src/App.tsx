@@ -1,3 +1,4 @@
+// src/Main.tsx
 import './assets/css/App.css';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from './layouts/auth';
@@ -14,6 +15,7 @@ import DialoguePht from 'views/Dialogue_playht';
 import DialogueHume from 'views/DialogueHume';
 import SignOut from 'views/auth/signOut';
 import Entries from 'views/admin/Journals/Entries';
+import NotFound from './views/404'; // Import the 404 component
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -46,13 +48,14 @@ export default function Main() {
           }
         />
         <Route path="/" element={<Navigate to="/admin" replace />} />
+        <Route path="/auth" element={<Navigate to="/admin" replace />} />
         <Route path="dialogue/" element={<DialogueHume />} />
         <Route path="monologue/" element={<Monologue />} />
         <Route path="savechat/" element={<SaveChat />} />
         <Route path="savechatmono/" element={<SaveChatMono />} />
         <Route path="edit/" element={<EditJournal />} />
         <Route path="dialoguepht/" element={<DialoguePht />} />
-        <Route path="auth/sign-out/" element={<SignOut />} />
+        <Route path="sign-out/" element={<SignOut />} />
         <Route path="entries/" element={<Entries />} />
       </Routes>
     </ChakraProvider>
