@@ -160,6 +160,14 @@ export default function Overview() {
         <Box mt="8">
           {isEditing ? (
             <Stack spacing="4">
+               <Text
+          color={textColorPrimary}
+          fontWeight="bold"
+          fontSize="sm"
+          mt="6"
+        >
+          Update Name
+        </Text>
               <Input
                 name="displayName"
                 placeholder="Display Name"
@@ -169,6 +177,14 @@ export default function Overview() {
                 color={inputTextColor}
                 borderColor={borderColor}
               />
+              <Text
+          color={textColorPrimary}
+          fontWeight="bold"
+          fontSize="sm"
+          mt="6"
+        >
+          Update profile pic
+        </Text>
              
               <Input
                 type="file"
