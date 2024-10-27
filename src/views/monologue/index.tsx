@@ -124,6 +124,12 @@ import OpenAI from "openai";
       setChatHistory("");
       setTempTranscript("");
     };
+    const stopListeningBack = () => {
+      setIsListening(false);
+      SpeechRecognition.stopListening();
+      navigate(-1);
+      
+    };
   
     const toggleConnection = async () => {
       if (isConnected) {
@@ -168,7 +174,7 @@ import OpenAI from "openai";
         w="24px"
           h="24px"
           _hover={{ cursor: 'pointer' }}
-        onClick={() => navigate(-1)} // Navigate to the previous page
+        onClick={stopListeningBack} // Navigate to the previous page
       />
 </Flex>
         <VStack spacing={6} align="center">     

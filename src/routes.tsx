@@ -10,7 +10,8 @@ import {
   MdNotes,
   MdFeedback,
   MdSentimentNeutral,
-  MdDashboard
+  MdDashboard,
+  MdRequestPage
 } from 'react-icons/md';
 
 // Admin Imports
@@ -27,6 +28,7 @@ import ActionRec from 'views/admin/ActionRec';
 import Feedback from 'views/admin/Feedback';
 import LockedPage from 'views/admin/500';
 import { LineChart } from 'recharts';
+import ReqFeatures from 'views/admin/ReqFeatures';
 
 
 // Utility to check if the user is logged in
@@ -92,6 +94,14 @@ const adminRoutes = [
     path: '/feedback',
     icon: <Icon as={MdFeedback} width="20px" height="20px" color="inherit" />,
     component: <Feedback />,
+    lock:false
+  },
+  {
+    name: 'Request Feature',
+    layout: '/admin',
+    path: '/request-feature',
+    icon: <Icon as={MdRequestPage} width="20px" height="20px" color="inherit" />,
+    component: <ReqFeatures />,
     lock:false
   },
 ];

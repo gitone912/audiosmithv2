@@ -7,13 +7,13 @@ const Feedback: React.FC = () => {
 
   useEffect(() => {
     // Redirect to Google Form link after mounting
-    window.location.href = 'https://forms.gle/YOUR_GOOGLE_FORM_LINK';
+    window.location.href = 'https://audiosmith.me/feedback';
   }, []);
 
   return (
     <div>
       <h2>Redirecting to Feedback Form...</h2>
-      <p>If you are not redirected, <a href="https://forms.gle/YOUR_GOOGLE_FORM_LINK">click here</a>.</p>
+      <p>If you are not redirected, <a href="https://audiosmith.me/feedback">click here</a>.</p>
     </div>
   );
 };
