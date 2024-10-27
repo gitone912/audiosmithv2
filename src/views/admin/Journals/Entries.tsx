@@ -67,7 +67,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
       try {
         const currentUserEmail = getCurrentUserEmail();
         let journalData: Journal[] = [];
-  
+    
         if (journalType === "all" || journalType === "dialogue") {
           const dialogueSnapshot = await getDocs(collection(db, "chats"));
           journalData = journalData.concat(
@@ -86,7 +86,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
               .filter((journal) => journal.user === currentUserEmail)
           );
         }
-  
+    
         if (journalType === "all" || journalType === "monologue") {
           const monologueSnapshot = await getDocs(collection(db, "chat_monologue"));
           journalData = journalData.concat(
@@ -105,13 +105,17 @@ import { IoChevronBackOutline } from "react-icons/io5";
               .filter((journal) => journal.user === currentUserEmail)
           );
         }
-  
+    
+        // Sort journal entries in descending order based on timestamp
+        journalData.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+    
         setJournals(journalData);
       } catch (error) {
         console.error("Error fetching journals: ", error);
       }
       setLoading(false);
     };
+    
   
     useEffect(() => {
       fetchJournals();

@@ -23,12 +23,14 @@ import {
   import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
   import Groq from "groq-sdk";
 import { IoChevronBackOutline } from "react-icons/io5";
+import OpenAI from "openai";
   
 
   const groq = new Groq({
     apiKey: process.env.REACT_APP_GROQ_API_KEY!,
     dangerouslyAllowBrowser: true,
   });
+  const openai = new OpenAI({apiKey: process.env.REACT_APP_OPENAI_API_KEY,dangerouslyAllowBrowser: true});
   const Monologue = () => {
     const [originalText, setOriginalText] = useState<string>("");
     const textColor = useColorModeValue("gray.800", "gray.100");
@@ -65,10 +67,10 @@ import { IoChevronBackOutline } from "react-icons/io5";
   
     const compileJournal = async () => {
         try {
-          const journalPrompt = `Based on the user's input, compile a concise journal entry. User's input: "${tempTranscript}".`;
-          const journalCompletion = await groq.chat.completions.create({
-            messages: [{ role: "user", content: journalPrompt }],
-            model: "llama3-8b-8192",
+          const journalPrompt = `Based on the chat history , act as a personal journal assistant who writes journal entry in user's behalf. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user.  Do not mention the date of the journal. Make it a full blown journal entry. Do not add things the user didn't say or imply. Write in a length of about 1,300 to 2,000 characters in several pargaraphs. Lengthen it depending on the length of the input. It should be like this everytime. Not random. Do not make it sound poetic. Just a normal journal entry written by a real human.`;
+          const journalCompletion = await openai.chat.completions.create({
+            messages: [{ role: "system", content: journalPrompt },{ role: "user", content: `user's chat: ${tempTranscript}` }],
+            model: "gpt-4o",
           });
           return journalCompletion.choices[0]?.message?.content || "";
         } catch (error) {

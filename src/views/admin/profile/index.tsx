@@ -155,11 +155,7 @@ export default function Overview() {
             {userDetails.email || 'Your Email'}
           </Text>
         </Flex>
-        <Flex justify="center" mt="2">
-          <Text color={textColorSecondary} fontSize="lg">
-            {userDetails.phoneNumber || 'Your Phone Number'}
-          </Text>
-        </Flex>
+       
 
         <Box mt="8">
           {isEditing ? (
@@ -173,15 +169,7 @@ export default function Overview() {
                 color={inputTextColor}
                 borderColor={borderColor}
               />
-              <Input
-                name="phoneNumber"
-                placeholder="Phone Number"
-                value={userDetails.phoneNumber}
-                onChange={handleInputChange}
-                bg={inputBg}
-                color={inputTextColor}
-                borderColor={borderColor}
-              />
+             
               <Input
                 type="file"
                 accept="image/*"
