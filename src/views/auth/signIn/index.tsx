@@ -68,6 +68,16 @@ function SignIn() {
       console.log("No profile image found for this user.");
     }
   };
+  const checkOnboardingStatus = async (uid:any) => {
+    const userDocRef = doc(db, "users", uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      const { onboarding } = userDoc.data();
+      return onboarding === true;
+    }
+    return false;
+  };
 
   // Fetch user's fullName and phoneNumber from Firestore
   const fetchUserDetails = async (uid: string) => {
@@ -130,9 +140,15 @@ function SignIn() {
       localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
 
       setNotification("Successfully signed in! Redirecting...");
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+      const hasOnboarded = await checkOnboardingStatus(user.uid);
+      
+      // Redirect based on onboarding status
+      if (hasOnboarded) {
+        navigate("../../admin/session");
+        window.location.reload();
+      } else {
+        navigate("../onboarding");
+      }
     } catch (error) {
       setError("Failed to sign in. Please check your credentials.");
     } finally {
@@ -162,7 +178,7 @@ function SignIn() {
 
       setNotification("Google sign-in successful! Redirecting...");
       setTimeout(() => {
-        window.location.href = "/";
+        navigate('../onboarding');
       }, 1000);
     } catch (error) {
       setError("Google sign-in failed.");

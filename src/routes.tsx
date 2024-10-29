@@ -29,7 +29,8 @@ import Feedback from 'views/admin/Feedback';
 import LockedPage from 'views/admin/500';
 import { LineChart } from 'recharts';
 import ReqFeatures from 'views/admin/ReqFeatures';
-
+import Onboarding from 'views/auth/onboarding_comps/onboarding';
+import ChooseCover from 'views/auth/onboarding_comps/chooseCover';
 
 // Utility to check if the user is logged in
 const isUserLoggedIn = () => {
@@ -122,6 +123,22 @@ const authRoutes = [
     path: '/sign-up',
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: <SignUp />,
+    lock:false
+  },
+  {
+    name: 'Onboarding',
+    layout: '/auth',
+    path: '/onboarding',
+    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
+    component: <Onboarding />,
+    lock:false
+  },
+  {
+    name: 'choose-cover',
+    layout: '/auth',
+    path: '/choose-cover',
+    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
+    component: <ChooseCover />,
     lock:false
   },
 ];

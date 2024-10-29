@@ -8,12 +8,14 @@ import { db, auth } from "../../firebase";
 import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from "firebase/firestore";
 import { TypeAnimation } from 'react-type-animation';
 import Groq from "groq-sdk";
+import OpenAI from "openai";
+  
 
-const groq = new Groq({
-  apiKey: process.env.REACT_APP_GROQ_API_KEY!,
-  dangerouslyAllowBrowser: true,
-});
-
+  const groq = new Groq({
+    apiKey: process.env.REACT_APP_GROQ_API_KEY!,
+    dangerouslyAllowBrowser: true,
+  });
+  const openai = new OpenAI({apiKey: process.env.REACT_APP_OPENAI_API_KEY,dangerouslyAllowBrowser: true});
 
 const SaveChat: React.FC = () => {
   const [compiledJournal, setCompiledJournal] = useState<string>("");
@@ -131,13 +133,13 @@ const SaveChat: React.FC = () => {
 
     try {
       // Simulate Groq API calls for mood, summary, and tasks
-      const moodResponse = await fetchGroqData("find my current mood based on this journal in 5 words"+compiledJournal);
+      const moodResponse = await fetchData("find my current mood based on this journal in 3 words"+compiledJournal);
 
-      const moodEmojiRes = await fetchGroqData("find my current mood based on this journal and send it in one emoji only, show only face emojis"+compiledJournal);
+      const moodEmojiRes = await fetchData("find my current mood based on this journal and send it in one emoji only, show only face emojis"+compiledJournal);
 
-      const summaryResponse = await fetchGroqData("Summarize the journal entry in the second person, keeping it brief and concise."+compiledJournal);
+      const summaryResponse = await fetchData("Summarize the journal entry in the second person, keeping it brief and concise at 430 characters."+compiledJournal);
 
-      const tasksResponse = await fetchGroqData("Based on the journal entry, recommend three specific and realistic actions that the person can take to improve their well-being and productivity. Keep the suggestions concise, without any additional explanations."+compiledJournal);
+      const tasksResponse = await fetchData("Based on the journal entry, recommend three specific and realistic actions that the person can take to improve their well-being and productivity. Keep the suggestions concise, without any additional explanations. Make it specific with actions that can be performed in real life."+compiledJournal);
       setMood(moodResponse);
       setSummary(summaryResponse);
       setTasks(tasksResponse);
@@ -158,10 +160,10 @@ const SaveChat: React.FC = () => {
     }
   };
 
-  const fetchGroqData = async (prompt: string): Promise<string> => {
-    const MoodTracker = await groq.chat.completions.create({
+  const fetchData = async (prompt: string): Promise<string> => {
+    const MoodTracker = await openai.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama3-groq-70b-8192-tool-use-preview",
+      model: "gpt-4o",
     });
     return MoodTracker.choices[0]?.message?.content || "";
   };
