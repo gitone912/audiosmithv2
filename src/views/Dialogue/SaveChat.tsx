@@ -24,6 +24,8 @@ const SaveChat: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [docId, setDocId] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false);     // Track if analysis has been performed
+
 
   const [showAnalysis, setShowAnalysis] = useState<boolean>(false);  // Track analysis section visibility
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);  // Track loading state for Analyze button
@@ -83,22 +85,30 @@ const SaveChat: React.FC = () => {
     loadAudio();
   }, []);
 
+  const saveToDatabase = async () => {
+    const journalRef = doc(db, "chats", docId);
+  
+    await updateDoc(journalRef, {
+      compiledJournal: editedJournal,
+      moodEmoji: moodEmoji,  // Save mood emoji and mood string
+      mood: mood,
+      summary: summary,      // Save summary
+      actions: tasks         // Save tasks (action recommendations)
+    });
+  };
+
   const handleSave = async () => {
-    if (!docId) return;
+    if (!docId || isSaving) return;  // Prevent redundant calls if already saving
   
     setIsSaving(true);
   
     try {
-      const journalRef = doc(db, "chats", docId);
-      
-      // Update the document with the edited journal, mood, summary, and tasks
-      await updateDoc(journalRef, {
-        compiledJournal: editedJournal,
-        moodEmoji: `${moodEmoji}`, // Save mood emoji + mood string
-        mood:mood,
-        summary: summary,             // Save summary
-        actions: tasks                // Save tasks (action recommendations)
-      });
+      if (!isAnalyzed) {
+        // Ensure the analysis completes before proceeding with saving
+        alert("analyse the journal before saving")
+        return  // This should set `isAnalyzed` to true after completion
+      }
+      await saveToDatabase();   // Proceed to save after analysis is complete
   
       if (audio) {
         await audio.play();
@@ -126,9 +136,10 @@ const SaveChat: React.FC = () => {
       setIsSaving(false);
     }
   };
-  
 
   const fetchAnalysis = async () => {
+    if (isAnalyzed || isAnalyzing) return; // Skip if already analyzed or in progress
+
     setIsAnalyzing(true); // Start loading state
 
     try {
@@ -144,8 +155,9 @@ const SaveChat: React.FC = () => {
       setSummary(summaryResponse);
       setTasks(tasksResponse);
       setMoodEmoji(moodEmojiRes);
-
+      
       setShowAnalysis(true); // Display the analysis section
+      setIsAnalyzed(true); 
     } catch (error) {
       console.error("Error fetching analysis:", error);
       toast({
