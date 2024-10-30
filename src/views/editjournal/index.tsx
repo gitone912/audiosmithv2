@@ -2,16 +2,13 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Button, Textarea, VStack, Text, Spinner,
   useColorModeValue, useToast,
-  IconButton,
   Icon,
   Flex
 } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { TypeAnimation } from "react-type-animation";
 import Groq from "groq-sdk";
-import { ArrowBackIcon } from "@chakra-ui/icons";
 import { IoChevronBackOutline } from "react-icons/io5";
 
 const groq = new Groq({
@@ -225,19 +222,12 @@ const EditJournals: React.FC = () => {
                 borderColor={boxBg}
                 bg={boxBg}
               >
-                <Text
+                 <Text
                   color={textColor}
                   fontSize={{ base: 'sm', md: 'lg' }}
                   whiteSpace="pre-wrap"
                 >
-                  <TypeAnimation
-                    sequence={[editedJournal, 1000]}
-                    speed={75}
-                    wrapper="span"
-                    cursor
-                    repeat={0}
-                    style={{ whiteSpace: 'pre-wrap' }}
-                  />
+                  {editedJournal}
                 </Text>
               </Box>
 
