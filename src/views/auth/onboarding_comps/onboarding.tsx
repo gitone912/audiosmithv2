@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Image, Flex } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,9 +11,41 @@ import img5 from "assets/img/OnboardingImages/83.png";
 
 const images = [img1, img2, img3, img4, img5];
 
+// Helper function to preload an image
+const preloadImage = (src: string) => {
+  return new Promise<void>((resolve) => {
+    const img = new window.Image(); // Correct usage of Image constructor in the browser environment
+    img.src = src;
+    img.onload = () => resolve();
+  });
+};
+
 function Onboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Preload all images initially
+    Promise.all(images.map((src) => preloadImage(src))).then(() => {
+      // Once all images are preloaded, set initial loading state
+      setIsLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    // Set loading state until the current and next images are fully loaded
+    setIsLoading(true);
+
+    // Load current and next image if available
+    preloadImage(images[currentIndex]).then(() => {
+      if (currentIndex < images.length - 1) {
+        preloadImage(images[currentIndex + 1]).then(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
+      }
+    });
+  }, [currentIndex]);
 
   const handleNext = () => {
     if (currentIndex < images.length - 1) {
@@ -36,20 +68,21 @@ function Onboarding() {
         position="absolute"
         bottom="95px"
         width="100%"
-        justifyContent={currentIndex > 0 ? "flex-end" : "center"} // Adjust alignment based on page
-        pr={currentIndex > 0 ? "530px" : "0"} // Add right padding only from 2nd page onward
+        justifyContent={currentIndex > 0 ? "flex-end" : "center"}
+        pr={currentIndex > 0 ? "530px" : "0"}
         alignItems="center"
       >
         <Button
           onClick={handleNext}
-          backgroundColor="rgb(133,135,115)" // Button background color
+          backgroundColor="rgb(133,135,115)"
           color="white"
-          borderRadius="30px" // Rounded edges
-          px="45px" // Increased horizontal padding for a wider button
-          py="26px" // Increased vertical padding for a taller button
-          fontSize="xl" // Larger font size
-          fontWeight="bold" // Bold text
-          _hover={{ bg: "#5A5F56" }} // Keeps color consistent on hover
+          borderRadius="30px"
+          px="45px"
+          py="26px"
+          fontSize="xl"
+          fontWeight="bold"
+          _hover={{ bg: "#5A5F56" }}
+          disabled={isLoading} // Disable button until the image is loaded
         >
           Next
         </Button>
