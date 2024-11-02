@@ -83,14 +83,7 @@ const adminRoutes = [
     lock:true
   },
  
-  {
-    name: 'Profile',
-    layout: '/admin',
-    path: '/profile',
-    icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
-    component: <Profile />,
-    lock:false
-  },
+
   {
     name: 'Feedback',
     layout: '/admin',

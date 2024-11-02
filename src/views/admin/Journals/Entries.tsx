@@ -192,6 +192,8 @@ import PaperImg from "assets/img/Journal Covers/Paper.png";
         boxSize="100%"
         borderRadius="md"
         objectFit="cover"
+        _hover={{ transform: "scale(1.05)" }}
+            transition="transform 0.2s"
       />
       <Box
         position="absolute"

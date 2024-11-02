@@ -16,6 +16,7 @@ import DialogueHume from 'views/DialogueHume';
 import SignOut from 'views/auth/signOut';
 import Entries from 'views/admin/Journals/Entries';
 import NotFound from './views/404'; // Import the 404 component
+import Profile from 'views/admin/profile';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -57,6 +58,7 @@ export default function Main() {
         <Route path="dialoguepht/" element={<DialoguePht />} />
         <Route path="sign-out/" element={<SignOut />} />
         <Route path="entries/" element={<Entries />} />
+        <Route path="admin/profile/" element={<Profile />} />
       </Routes>
     </ChakraProvider>
   );

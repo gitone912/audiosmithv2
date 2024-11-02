@@ -1,9 +1,11 @@
 import { ChangeEvent, useState, useEffect } from 'react';
-import { Box, Grid, Button, Input, Avatar, Flex, Text, useColorModeValue, Stack, Spinner, useToast } from '@chakra-ui/react';
+import { Box, Grid, Button, Input, Avatar, Flex, Text, useColorModeValue, Stack, Spinner, useToast, Icon } from '@chakra-ui/react';
 import avatarDefault from 'assets/img/avatars/image.png';
 import banner from 'assets/img/auth/banner.png';
 import { storage, ref, uploadBytes, getDownloadURL, db, auth } from '../../../firebase'; // Adjust path as needed
 import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore'; // Firestore functions
+import { IoChevronBackOutline } from 'react-icons/io5';
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Overview() {
   const [userDetails, setUserDetails] = useState(() => {
@@ -15,6 +17,7 @@ export default function Overview() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState(avatarDefault);
   const [isLoading, setIsLoading] = useState(false); // Spinner control
+  const navigate = useNavigate();
 
   const toast = useToast(); // Chakra toast notification
 
@@ -117,6 +120,23 @@ export default function Overview() {
 
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" justifyContent="center" alignItems="center">
+      <Flex
+        display={{ base: 'flex', xl: 'flex' }}
+        alignItems="center"
+        position="fixed"
+        top="20px"
+        left="20px"
+        zIndex="10"
+      >
+        <Icon
+          as={IoChevronBackOutline}
+          color="white"
+          w="24px"
+          h="24px"
+          _hover={{ cursor: 'pointer' }}
+          onClick={() => navigate(-1)}
+        />
+      </Flex>
       <Box
         bg="transparent"
         borderRadius="lg"
