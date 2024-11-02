@@ -108,7 +108,7 @@ const adminRoutes = [
     lock:false
   },
   {
-    name: 'Discord',
+    name: 'Join Discord Community',
     layout: '/admin',
     path: '/discord',
     icon: <Icon as={FaDiscord} width="20px" height="20px" color="inherit" />,

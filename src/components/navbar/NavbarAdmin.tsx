@@ -32,16 +32,12 @@ export default function AdminNavbar(props: {
     '2xl': isSidebarOpen ? 'calc(100vw - 400px)' : '90vw', // Adjust based on sidebar state
   };
   
-
-  // Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
-  let mainText = useColorModeValue('#474d41', 'white');
-  let secondaryText = useColorModeValue('gray.700', 'white');
   let navbarPosition = 'fixed' as const;
   let navbarFilter = 'none';
-  let navbarBackdrop = 'blur(20px)';
+  let navbarBackdrop = 'none'; // Remove blur effect
   let navbarShadow = 'none';
-  let navbarBg = useColorModeValue('rgba(244, 247, 254, 0.2)', 'rgb(55, 60, 49)');
-  let navbarBorder = 'transparent';
+  let navbarBg = 'transparent'; // Full transparency
+  let navbarBorder = 'transparent'; // Remove border for full transparency
   let secondaryMargin = '0px';
   let paddingX = '15px';
   let gap = '0px';
@@ -61,7 +57,7 @@ export default function AdminNavbar(props: {
       bg={navbarBg}
       borderColor={navbarBorder}
       filter={navbarFilter}
-      backdropFilter={navbarBackdrop}
+      backdropFilter={navbarBackdrop} // No blur or opacity
       backgroundPosition='center'
       backgroundSize='cover'
       borderRadius='16px'
