@@ -15,12 +15,14 @@ import {
     Spinner,
     Flex,
     Icon,
+    Image
   } from "@chakra-ui/react";
   import { useState, useEffect } from "react";
   import { useNavigate } from "react-router-dom";
   import { collection, getDocs } from "firebase/firestore";
   import { db } from "../../../firebase";
 import { IoChevronBackOutline } from "react-icons/io5";
+import PaperImg from "assets/img/Journal Covers/Paper.png";
   
   // Define the Journal type
   interface Journal {
@@ -172,7 +174,7 @@ import { IoChevronBackOutline } from "react-icons/io5";
             <Spinner size="xl" />
           </Box>
         ) : journals.length > 0 ? (
-          <SimpleGrid columns={{ base: 3, sm: 3, md: 4, lg: 5 }} spacing={4} p={4}>
+          <SimpleGrid columns={{ base: 3, sm: 3, md: 4, lg: 7 }} spacing={4} p={4}>
             {journals.map((journal, index) => (
               <Box
                 key={index}
@@ -184,23 +186,33 @@ import { IoChevronBackOutline } from "react-icons/io5";
                 onClick={() => openJournal(journal)}
                 cursor="pointer"
               >
-                <Box
-                  h={{ base: "120px", md: "160px", lg: "180px" }}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  border="1px solid"
-                  borderRadius="0px"
-                  pl="16px"
-                  position="relative"
-                >
-                  <Box position="absolute" top="0" left="8px" h="100%" w="1px" bg="white" />
-                  <Text color={textColor} fontWeight="bold" fontSize={{ base: "xs", md: "sm", lg: "md" }}>
-                    {journal.date} <br />
-                    {journal.time}
-                  </Text>
-                </Box>
-              </Box>
+                <Image
+        src={PaperImg}
+        alt={`Journal entry ${index + 1}`}
+        boxSize="100%"
+        borderRadius="md"
+        objectFit="cover"
+      />
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        bg="transparent" // Make the background fully transparent
+        borderRadius="md"
+        textAlign="center"
+        p={2}
+      >
+        <Text 
+          color="black" // Adjust color based on visibility needs
+          fontWeight="normal" // Make font weight normal
+          fontSize="sm" // Smaller font size
+        >
+          {journal.date} <br />
+          {journal.time}
+        </Text>
+      </Box>
+          </Box>
             ))}
           </SimpleGrid>
         ) : (

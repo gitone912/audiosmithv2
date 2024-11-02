@@ -70,7 +70,7 @@ export default function AdminNavbar(props: {
       transition='0.5s ease' // Smooth transition for navbar width and alignment
       alignItems='center'
       display={secondary ? 'block' : 'flex'}
-      minH='75px'
+      minH='25px'
       justifyContent={navbarAlignment} // Dynamically set alignment
       mx='auto'
       mt={secondaryMargin}

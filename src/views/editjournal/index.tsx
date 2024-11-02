@@ -316,15 +316,6 @@ const EditJournals: React.FC = () => {
           display={{ base: 'none', sm: 'block' }}
         >
           {/* Mood Box */}
-          <Text
-            fontSize={{ base: 'md', md: 'lg' }}
-            fontWeight="bold"
-            color="#b8b9b7"
-            width="100%"
-            textAlign="left"
-          >
-            Mood
-          </Text>
           <Box bg={SideboxBg} padding={6} borderRadius="16px" width="100%">
             <Box display="flex" alignItems="center">
               <Text fontSize={{ base: '4xl', md: '7xl' }} color="white" mr={4}>
@@ -370,21 +361,20 @@ const EditJournals: React.FC = () => {
             Action Recommendations
           </Text>
           <Box
-            bg={SideboxBg}
-            padding={5}
-            borderRadius="16px"
-            width="100%"
-            maxH={{ base: '150px', md: '200px' }}
-            overflowY="auto"
-          >
-            <Text color="white" fontSize={{ base: 'sm', md: 'md' }} lineHeight="1.6">
-              {formattedTasks.map((task, index) => (
-                <span key={index} style={{ display: 'block', marginBottom: '8px' }}>
-                  {task.trim()}
-                </span>
-              ))}
-            </Text>
-          </Box>
+    bg={SideboxBg}
+    padding={5}
+    borderRadius="16px"
+    width="100%"
+>
+    <Text color="white" fontSize={{ base: 'sm', md: 'md' }} lineHeight="1.6">
+        {formattedTasks.map((task, index) => (
+            <span key={index} style={{ display: 'block', marginBottom: '8px' }}>
+                {task.trim()}
+            </span>
+        ))}
+    </Text>
+</Box>
+
         </VStack>
       </Flex>
     </Box>

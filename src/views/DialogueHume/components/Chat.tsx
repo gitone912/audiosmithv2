@@ -9,6 +9,7 @@ import {
   ModalBody,
   useToast,
   Icon,
+  Progress,
 } from "@chakra-ui/react";
 import { MdMic, MdStop } from "react-icons/md"; // Mic and Stop icons
 import { useNavigate } from "react-router-dom"; // Router for navigation
@@ -51,6 +52,8 @@ function InnerComponent() {
   const [latestUserMessage, setLatestUserMessage] = useState<string | null>(null);
   const [latestAssistantMessage, setLatestAssistantMessage] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0); // Initialize progress at 0
+
 
   // States for typing animation
   const [typedResponse, setTypedResponse] = useState<string>(""); // For simulating the typing animation
@@ -121,27 +124,40 @@ function InnerComponent() {
       disconnect();
       const user = auth.currentUser;
       if (!user) return;
+  
       setIsSaving(true);
-      const compiledJournalEntry = await compileJournal();
-      const chatData = {
-        user: user.email!,
-        timestamp: new Date(),
-        chatHistory,
-        compiledJournal: compiledJournalEntry,
-      };
+      setProgress(10); // Start progress at 10%
+  
+      const interval = setInterval(() => {
+        setProgress(prev => (prev < 80 ? prev + 1 : prev));
+      }, 100); // Increment progress every 100ms up to 80%
+  
       try {
+        const compiledJournalEntry = await compileJournal();
+        const chatData = {
+          user: user.email!,
+          timestamp: new Date(),
+          chatHistory,
+          compiledJournal: compiledJournalEntry,
+        };
         await addDoc(collection(db, "chats"), chatData);
-        setIsSaving(false);
+        clearInterval(interval);
+        setProgress(100); // Complete progress bar on success
         navigate("/savechat");
       } catch (error) {
-        setIsSaving(false);
+        clearInterval(interval);
         console.error("Error saving chat:", error);
+        setProgress(0); // Reset progress on error
+      } finally {
+        setIsSaving(false);
+        setTimeout(() => setProgress(0), 500); // Reset progress after a delay
       }
     } else {
       setIsConnecting(true);
       connect().finally(() => setIsConnecting(false));
     }
   };
+  
 
   const compileJournal = async () => {
     try {
@@ -159,8 +175,41 @@ function InnerComponent() {
       return "";
     }
   };
+  
 
   return (
+    <>
+    {isSaving ? (
+        <Box
+        minH="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        position="fixed"
+        top="0"
+        left="0"
+        width="100%"
+        height="100%"
+        zIndex="20"
+        bg="rgb(51, 56, 46)" // Dark green background
+      >
+        <Text fontSize="xl" mb={4} color="white">
+          Generating Journal Entry
+        </Text>
+        <Progress
+          value={progress}
+          size="xs" // Smaller size as shown in the image
+          width="200px" // Adjust this width to control the bar's length
+          sx={{
+            "& > div": {
+              backgroundColor: "rgb(137, 142, 133)", // Filling element color
+            },
+          }}
+          bg="rgb(51, 56, 46)" // Non-filled part color to match the background
+        />
+      </Box>
+      ) : (
     <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
       <Flex
         display={{ sm: 'flex', xl: 'flex' }}
@@ -180,17 +229,7 @@ function InnerComponent() {
         />
       </Flex>
       <VStack spacing={6} align="center" width="100%" maxW="1200px">
-        {isSaving && (
-          <Modal isOpen={isSaving} onClose={() => { }}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Saving Chat</ModalHeader>
-              <ModalBody>
-                <Spinner color="teal" size="xl" />
-              </ModalBody>
-            </ModalContent>
-          </Modal>
-        )}
+
 
         {/* Latest User Message Box */}
         {/* <Box
@@ -253,5 +292,7 @@ function InnerComponent() {
         </Text>
       </VStack>
     </Box>
+      )}
+    </>
   );
 }

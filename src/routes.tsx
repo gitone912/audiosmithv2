@@ -11,9 +11,10 @@ import {
   MdFeedback,
   MdSentimentNeutral,
   MdDashboard,
-  MdRequestPage
+  MdRequestPage,
+  MdBuild
 } from 'react-icons/md';
-
+import { FaDiscord } from 'react-icons/fa';
 // Admin Imports
 import MainDashboard from 'views/admin/default';
 import Profile from 'views/admin/profile';
@@ -31,6 +32,7 @@ import { LineChart } from 'recharts';
 import ReqFeatures from 'views/admin/ReqFeatures';
 import Onboarding from 'views/auth/onboarding_comps/onboarding';
 import ChooseCover from 'views/auth/onboarding_comps/chooseCover';
+import Discord from 'views/admin/Feedback/discord';
 
 // Utility to check if the user is logged in
 const isUserLoggedIn = () => {
@@ -101,10 +103,18 @@ const adminRoutes = [
     name: 'Request Feature',
     layout: '/admin',
     path: '/request-feature',
-    icon: <Icon as={MdRequestPage} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdBuild} width="20px" height="20px" color="inherit" />,
     component: <ReqFeatures />,
     lock:false
   },
+  {
+    name: 'Discord',
+    layout: '/admin',
+    path: '/discord',
+    icon: <Icon as={FaDiscord} width="20px" height="20px" color="inherit" />,
+    component: <Discord />,
+    lock:false
+  }
 ];
 
 // Routes for non-logged-in users (Auth routes)
