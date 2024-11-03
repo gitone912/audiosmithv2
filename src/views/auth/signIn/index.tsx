@@ -165,6 +165,11 @@ function SignIn() {
 
       const { fullName, phoneNumber } = await fetchUserDetails(user.uid);
 
+      const userDetails = localStorage.getItem("userDetails");
+      if (!userDetails || !JSON.parse(userDetails).userImage) {
+        await checkUserImage(user.email);
+      }
+
       const newUserDetails = {
         email: user.email,
         displayName: fullName || user.displayName,
@@ -177,9 +182,15 @@ function SignIn() {
       localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
 
       setNotification("Google sign-in successful! Redirecting...");
-      setTimeout(() => {
-        navigate('../onboarding');
-      }, 1000);
+      const hasOnboarded = await checkOnboardingStatus(user.uid);
+      
+      // Redirect based on onboarding status
+      if (hasOnboarded) {
+        navigate("../../admin/session");
+        window.location.reload();
+      } else {
+        navigate("../onboarding");
+      }
     } catch (error) {
       setError("Google sign-in failed.");
       console.error(error);

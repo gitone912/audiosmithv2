@@ -1,23 +1,20 @@
-// chakra imports
 import { Box, Flex, Stack } from '@chakra-ui/react';
-//   Custom components
 import Brand from 'components/sidebar/components/Brand';
-import Links from 'components/sidebar/components/Links';
-
-// FUNCTIONS
+import SidebarLinks from './Links';
 
 function SidebarContent(props: { routes: RoutesType[]; onClose: () => void }) {
 	const { routes, onClose } = props;
-  
+
 	return (
-	  <Flex direction="column" height="100%" pt="25px" borderRadius="30px" pe={{ lg: '16px', '2xl': '16px' }}>
-		<Brand />
-		<Stack direction="column" mt="8px" mb="auto">
-		  <Box ps="20px" pe={{ lg: '16px', '2xl': '16px' }}>
-			<Links routes={routes} onClose={onClose} /> {/* Pass onClose */}
-		  </Box>
-		</Stack>
-	  </Flex>
+		<Flex direction="column" height="100vh" pt="25px" borderRadius="30px" pe={{ lg: '16px', '2xl': '16px' }}>
+			<Brand />
+			<Stack direction="column" mt="8px" mb="auto" overflowY="auto" height="calc(100vh - 100px)">
+				<Box ps="20px" pe={{ lg: '16px', '2xl': '16px' }}>
+					<SidebarLinks routes={routes} onClose={onClose} />
+				</Box>
+			</Stack>
+		</Flex>
 	);
 }
+
 export default SidebarContent;
