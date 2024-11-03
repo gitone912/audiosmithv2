@@ -106,9 +106,9 @@ export default function HeaderLinks(props:any) {
     borderRadius='8px'
     px='14px'
     bg={buttonBg}
-    onClick={() => navigate('/admin/profile')} // Navigate to profile
+    onClick={() => navigate('/profile')} // Navigate to profile
   >
-    <Text fontSize='sm'>Profile Settings</Text>
+    <Text fontSize='sm'>Settings</Text>
   </MenuItem>
 
   <MenuItem

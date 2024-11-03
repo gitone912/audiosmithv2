@@ -17,6 +17,9 @@ import SignOut from 'views/auth/signOut';
 import Entries from 'views/admin/Journals/Entries';
 import NotFound from './views/404'; // Import the 404 component
 import Profile from 'views/admin/profile';
+import LanguageSet from 'views/admin/profile/langSet';
+import VoiceSet from 'views/admin/profile/voiceSet';
+import TherapySet from 'views/admin/profile/therapySet';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -58,7 +61,10 @@ export default function Main() {
         <Route path="dialoguepht/" element={<DialoguePht />} />
         <Route path="sign-out/" element={<SignOut />} />
         <Route path="entries/" element={<Entries />} />
-        <Route path="admin/profile/" element={<Profile />} />
+        <Route path="profile/" element={<Profile />} />
+        <Route path="language/" element={<LanguageSet />} />
+        <Route path="voice/" element={<VoiceSet />} />
+        <Route path="therapy-type/" element={<TherapySet />} />
       </Routes>
     </ChakraProvider>
   );

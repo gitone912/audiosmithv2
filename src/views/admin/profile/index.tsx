@@ -6,6 +6,7 @@ import { storage, ref, uploadBytes, getDownloadURL, db, auth } from '../../../fi
 import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore'; // Firestore functions
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { useLocation, useNavigate } from "react-router-dom";
+import Navbar from './nabar';
 
 export default function Overview() {
   const [userDetails, setUserDetails] = useState(() => {
@@ -18,6 +19,7 @@ export default function Overview() {
   const [previewImage, setPreviewImage] = useState(avatarDefault);
   const [isLoading, setIsLoading] = useState(false); // Spinner control
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toast = useToast(); // Chakra toast notification
 
@@ -113,15 +115,17 @@ export default function Overview() {
 
   // Styling improvements for light/dark mode
   const textColorPrimary = useColorModeValue('black', 'white');
-  const textColorSecondary = useColorModeValue('gray.600', 'gray.400');
   const inputBg = useColorModeValue('gray.100', 'gray.700');
   const inputTextColor = useColorModeValue('black', 'white');
   const borderColor = useColorModeValue('gray.300', 'gray.500');
+  const activeButtonColor = useColorModeValue('teal.500', 'teal.200'); // Color for active button
+  const inactiveButtonColor = useColorModeValue('gray.500', 'gray.200'); // Color for inactive buttons
+
 
   return (
-    <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" justifyContent="center" alignItems="center">
+    <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" flexDirection="column" alignItems="center">
       <Flex
-        display={{ base: 'flex', xl: 'flex' }}
+        display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
         top="20px"
@@ -130,44 +134,22 @@ export default function Overview() {
       >
         <Icon
           as={IoChevronBackOutline}
-          color="white"
+          color='white'
           w="24px"
           h="24px"
           _hover={{ cursor: 'pointer' }}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("../admin")} // Navigate to the previous page
         />
       </Flex>
-      <Box
-        bg="transparent"
-        borderRadius="lg"
-        shadow="xl"
-        p="6"
-        w={{ base: '90%', md: '70%', lg: '50%' }}
-      >
-        <Box
-          bg={`url(${banner})`}
-          bgSize="cover"
-          borderRadius="16px"
-          h="150px"
-          w="100%"
-          mb="6"
-        />
-        <Avatar
-          mx="auto"
-          src={previewImage}
-          h="120px"
-          w="120px"
-          mt="-75px"
-          border="4px solid"
-          borderColor="white"
-        />
-        <Text
-          textAlign="center"
-          color={textColorPrimary}
-          fontWeight="bold"
-          fontSize="2xl"
-          mt="6"
-        >
+      {/* Navbar with buttons */}
+      <Text fontSize="2xl" fontWeight="bold" mb="6" textAlign="center">Profile Settings</Text>
+    <Navbar/>
+
+      {/* Profile Content */}
+      <Box bg="transparent" borderRadius="lg" shadow="xl" p="6" w={{ base: '90%', md: '70%', lg: '50%' }}>
+        <Box bg={`url(${banner})`} bgSize="cover" borderRadius="16px" h="150px" w="100%" mb="6" />
+        <Avatar mx="auto" src={previewImage} h="120px" w="120px" mt="-75px" border="4px solid" borderColor="white" />
+        <Text textAlign="center" color={textColorPrimary} fontWeight="bold" fontSize="2xl" mt="6">
           {userDetails.displayName || 'Your Name'}
         </Text>
         <Flex justify="center" mt="4">
@@ -175,19 +157,9 @@ export default function Overview() {
             {userDetails.email || 'Your Email'}
           </Text>
         </Flex>
-       
-
         <Box mt="8">
           {isEditing ? (
             <Stack spacing="4">
-               <Text
-          color={textColorPrimary}
-          fontWeight="bold"
-          fontSize="sm"
-          mt="6"
-        >
-          Update Name
-        </Text>
               <Input
                 name="displayName"
                 placeholder="Display Name"
@@ -197,23 +169,7 @@ export default function Overview() {
                 color={inputTextColor}
                 borderColor={borderColor}
               />
-              <Text
-          color={textColorPrimary}
-          fontWeight="bold"
-          fontSize="sm"
-          mt="6"
-        >
-          Update profile pic
-        </Text>
-             
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                bg={inputBg}
-                color={inputTextColor}
-                borderColor={borderColor}
-              />
+              <Input type="file" accept="image/*" onChange={handleImageUpload} bg={inputBg} color={inputTextColor} borderColor={borderColor} />
               <Button onClick={handleSave} colorScheme="teal" isDisabled={isLoading}>
                 {isLoading ? <Spinner size="sm" /> : 'Save Changes'}
               </Button>
