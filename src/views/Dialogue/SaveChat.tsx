@@ -241,6 +241,8 @@ const SaveChat: React.FC = () => {
               >
                 Edit
               </Button>
+             
+              <Button bg={buttonBg} color="white" m={3} onClick={fetchAnalysis} isLoading={isAnalyzing}>Analyze</Button>
               <Button
                 bg={buttonBg}
                 color="white"
@@ -252,7 +254,6 @@ const SaveChat: React.FC = () => {
               >
                 Save
               </Button>
-              <Button bg={buttonBg} color="white" m={3} onClick={fetchAnalysis} isLoading={isAnalyzing}>Analyze</Button>
             </Box>
           </>
         ) : (
@@ -267,6 +268,8 @@ const SaveChat: React.FC = () => {
               resize="vertical"  // Allows the user to resize the box vertically if needed
             />
 
+            
+            <Button bg={buttonBg} color="white" m={3} onClick={fetchAnalysis} isLoading={isAnalyzing}>Analyze</Button>
             <Button
               bg={buttonBg}
               color="white"
@@ -277,7 +280,6 @@ const SaveChat: React.FC = () => {
             >
               Save
             </Button>
-            <Button bg={buttonBg} color="white" m={3} onClick={fetchAnalysis} isLoading={isAnalyzing}>Analyze</Button>
           </>
         )}
       </VStack>
