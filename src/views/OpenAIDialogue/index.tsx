@@ -9,7 +9,8 @@ import { WavRenderer } from './utils/wav_renderer';
 import { EditIcon, CloseIcon, WarningIcon } from "@chakra-ui/icons"; // Replace with your actual icons
 import OpenAI from "openai";
 import { db, auth } from "../../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
+
 import {
   Box,
   Flex,
@@ -21,8 +22,14 @@ import {
   Divider,
   Button,
   Progress,
+  IconButton,
+  Spinner,
+  Icon,
 } from "@chakra-ui/react";
 import { useNavigate } from 'react-router-dom';
+import { MdStop, MdMic } from 'react-icons/md';
+import { IoChevronBackOutline } from 'react-icons/io5';
+import { getPrompt } from './utils/system';
 
 const openai = new OpenAI({apiKey: process.env.REACT_APP_OPENAI_API_KEY,dangerouslyAllowBrowser: true});
 
@@ -50,8 +57,9 @@ export function OpenAIDialoguePage() {
         : { apiKey: apiKey, dangerouslyAllowAPIKeyInBrowser: true }
     )
   );
-  const SYSTEM_MESSAGE = 'You are a helpful and bubbly human assistant named pinky who loves to chat about anything and flirts a lot the user is interested about and is prepared to offer them facts. You have a penchant for dad jokes, owl jokes, and rickrolling – subtly. Always stay positive, but work in a joke when appropriate.';
-  const VOICE = 'alloy';
+  const language = localStorage.getItem("userLanguage") || "English"; // Fallback to "Korean" if not set
+  const VOICE = localStorage.getItem("userVoice") || "alloy"; // Fallback to "shimmer" if not set
+  const SYSTEM_MESSAGE = getPrompt(language);
 
   const clientCanvasRef = useRef<HTMLCanvasElement>(null);
   const serverCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -114,8 +122,10 @@ export function OpenAIDialoguePage() {
         setTimeout(() => setProgress(0), 500); // Reset progress after a delay
       }
     } else {
-      setIsConnecting(true);
-      connectConversation();
+      setIsConnecting(true); // Begin "Connecting..." state
+      await connectConversation();
+      setIsConnecting(false);  // Transition to "Connected" state
+      setIsAudioPlaying(true);
     }
   };
   
@@ -149,7 +159,7 @@ export function OpenAIDialoguePage() {
     await wavRecorder.begin();
     await wavStreamPlayer.connect();
     await client.connect();
-    client.updateSession({ voice: VOICE, instructions: SYSTEM_MESSAGE });
+    client.updateSession({  voice: VOICE as "alloy" | "shimmer" | "echo", instructions: SYSTEM_MESSAGE });
     client.sendUserMessageContent([
       { type: `input_text`, text: `Hello!` }
     ]);
@@ -424,168 +434,69 @@ export function OpenAIDialoguePage() {
         />
       </Box>
       ) : (
-    <Box
-      data-component="ConsolePage"
-      fontFamily="'Roboto Mono', monospace"
-      fontWeight="400"
-      fontStyle="normal"
-      fontSize="12px"
-      height="100%"
-      display="flex"
-      flexDirection="column"
-      overflow="hidden"
-      mx="2"
-    >
+        <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
+        <Flex
+          display={{ sm: 'flex', xl: 'flex' }}
+          alignItems="center"
+          position="fixed"
+          top="20px"
+          left="20px"
+          zIndex="10"
+        >
+          <Icon
+            as={IoChevronBackOutline}
+            color='white'
+            w="24px"
+            h="24px"
+            _hover={{ cursor: 'pointer' }}
+            onClick={() => {
+              disconnectConversation(); // Disconnect the conversation
+              navigate('../admin'); // Navigate to the admin page
+            }}
+             // Navigate to the previous page
+          />
+        </Flex>
+        <VStack spacing={6} align="center" width="100%" maxW="1200px">
 
-      {/* Content Main */}
-      <Flex
-        className="content-main"
-        flex="1"
-        mx="4"
-        display="flex"
-        overflow="hidden"
-        mb="6"
-      >
-        {/* Content Logs */}
-        <Flex className="content-logs" flex="1" direction="column" overflow="hidden">
+      
           {/* Events Block */}
           <Box className="content-block events" flex="1" position="relative">
             <Box className="visualization">
               <Flex className="visualization-entry client" color="#0099ff" gap="2">
-                <canvas ref={clientCanvasRef} width="100" height="40" />
+                <canvas ref={clientCanvasRef} width="200" height="70" />
               </Flex>
               <Flex className="visualization-entry server" color="#009900" gap="2">
-                <canvas ref={serverCanvasRef} width="100" height="40" />
+                <canvas ref={serverCanvasRef} width="200" height="70" />
               </Flex>
             </Box>
           </Box>
 
           {/* Conversation Block */}
-          <Box
-            className="content-block conversation"
-            flex="none"
-            width="100%"
-            height="200px"
-            overflow="hidden"
-            borderTop="1px solid #e7e7e7"
-            mt="4"
-          >
-            <Text className="content-block-title" px="4" pt="4" pb="1">
-              conversation
-            </Text>
-            <Box
-              className="content-block-body"
-              px="2"
-              overflow="auto"
-              data-conversation-content
-              height="calc(200px - 24px)"
-            >
-              {!items.length && "awaiting connection..."}
-              {items.map((conversationItem) => (
-                <Flex
-                  key={conversationItem.id}
-                  className="conversation-item"
-                  position="relative"
-                  align="flex-start"
-                  gap="4"
-                  mb="4"
-                  _hover={{ ".close": { display: "flex" } }}
-                >
-                  {/* Speaker */}
-                  <VStack
-                    className={`speaker ${conversationItem.role || ""}`}
-                    align="start"
-                    width="80px"
-                    color={
-                      conversationItem.role === "user"
-                        ? "#0099ff"
-                        : conversationItem.role === "assistant"
-                        ? "#009900"
-                        : "#101010"
-                    }
-                  >
-                    <Text>
-                      {(conversationItem.role || conversationItem.type).replaceAll(
-                        "_",
-                        " "
-                      )}
-                    </Text>
-                    <Box
-                      className="close"
-                      position="absolute"
-                      top="0"
-                      right="-5"
-                      bg="#aaa"
-                      color="#fff"
-                      display="none"
-                      borderRadius="full"
-                      p="0.5"
-                      cursor="pointer"
-                      _hover={{ bg: "#696969" }}
-                      onClick={() => deleteConversationItem(conversationItem.id)}
-                    >
-                      <CloseIcon boxSize="3" />
-                    </Box>
-                  </VStack>
-
-                  {/* Speaker Content */}
-                  <Box className="speaker-content" color="#18181b" wordBreak="break-word">
-                    {/* Function Call Output */}
-                    {conversationItem.type === "function_call_output" && (
-                      <Text>{conversationItem.formatted.output}</Text>
-                    )}
-                    {/* Tool Call */}
-                    {conversationItem.formatted.tool && (
-                      <Text>
-                        {conversationItem.formatted.tool.name}(
-                        {conversationItem.formatted.tool.arguments})
-                      </Text>
-                    )}
-                    {/* User Message */}
-                    {!conversationItem.formatted.tool &&
-                      conversationItem.role === "user" && (
-                        <Text>
-                          {conversationItem.formatted.transcript ||
-                            (conversationItem.formatted.audio?.length
-                              ? "(awaiting transcript)"
-                              : conversationItem.formatted.text ||
-                                "(item sent)")}
-                        </Text>
-                      )}
-                    {/* Assistant Message */}
-                    {!conversationItem.formatted.tool &&
-                      conversationItem.role === "assistant" && (
-                        <Text>
-                          {conversationItem.formatted.transcript ||
-                            conversationItem.formatted.text ||
-                            "(truncated)"}
-                        </Text>
-                      )}
-                  </Box>
-                </Flex>
-              ))}
-            </Box>
-          </Box>
+          
 
           {/* Actions */}
-          <Flex
-            className="content-actions"
-            align="center"
-            justify="center"
-            gap="4"
-            mt="4"
-          >
-            <Box flex="1" />
-            <Button
-              colorScheme={isConnected ? "gray" : "blue"}
-              variant={isConnected ? "outline" : "solid"}
-              onClick={handleCallClick}
-            >
-              {isConnected ? "Disconnect" : "Connect"}
-            </Button>
-          </Flex>
-        </Flex>
-      </Flex>
+          <IconButton
+  icon={isConnecting ? <Spinner color="white" size="md" /> : isConnected ? <MdStop /> : <MdMic />}
+  bg="#9ba192"
+  color="white"
+  onClick={handleCallClick}
+  size="lg"
+  isRound
+  aria-label={isConnected ? "Stop" : "Start"}
+  isDisabled={isConnecting}  // Prevent double-clicks while connecting
+  transition="transform 1s ease"
+  transform={isAudioPlaying ? "translateY(180px)" : "translateY(0px)"}
+/>
+
+        <Text fontSize={{ base: "sm", md: "lg" }} color="gray.400" transition="transform 1s ease"
+          transform={isAudioPlaying ? "translateY(180px)" : "translateY(0px)"}>
+          {isConnecting
+            ? "Connecting..."
+            : isAudioPlaying
+              ? "Connected! Click to End The Conversation"
+              : "Disconnected - Click to Start the Conversation"}
+        </Text>
+        </VStack>
     </Box>
      )}
     </>

@@ -12,7 +12,7 @@ export default function VoiceSet() {
   const toast = useToast();
 
   // Voice options
-  const voices = ['Laura', 'William'];
+  const voices = ['shimmer', 'echo'];
 
   // Fetch user ID based on email stored in localStorage
   useEffect(() => {
