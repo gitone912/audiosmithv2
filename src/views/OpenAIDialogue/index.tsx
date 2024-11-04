@@ -7,7 +7,9 @@ import { WavRecorder, WavStreamPlayer } from './wavtools/index.js';
 import { instructions } from './utils/conversation_config.js';
 import { WavRenderer } from './utils/wav_renderer';
 import { EditIcon, CloseIcon, WarningIcon } from "@chakra-ui/icons"; // Replace with your actual icons
-
+import OpenAI from "openai";
+import { db, auth } from "../../firebase";
+import { collection, addDoc } from "firebase/firestore";
 import {
   Box,
   Flex,
@@ -18,7 +20,11 @@ import {
   Stack,
   Divider,
   Button,
+  Progress,
 } from "@chakra-ui/react";
+import { useNavigate } from 'react-router-dom';
+
+const openai = new OpenAI({apiKey: process.env.REACT_APP_OPENAI_API_KEY,dangerouslyAllowBrowser: true});
 
 interface RealtimeEvent {
   time: string;
@@ -58,6 +64,77 @@ export function OpenAIDialoguePage() {
   const [expandedEvents, setExpandedEvents] = useState<{ [key: string]: boolean }>({});
   const [isConnected, setIsConnected] = useState(false);
   const [memoryKv, setMemoryKv] = useState<{ [key: string]: any }>({});
+
+
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const navigate = useNavigate();
+
+  const [latestUserMessage, setLatestUserMessage] = useState<string | null>(null);
+  const [latestAssistantMessage, setLatestAssistantMessage] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0); // Initialize progress at 0
+
+
+  // States for typing animation
+  const [typedResponse, setTypedResponse] = useState<string>(""); // For simulating the typing animation
+  const [finalResponse, setFinalResponse] = useState<string>(""); // For storing the final AI message
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const handleCallClick = async () => {
+    if (isConnected) {
+      disconnectConversation();
+      const user = auth.currentUser;
+      if (!user) return;
+  
+      setIsSaving(true);
+      setProgress(10); // Start progress at 10%
+  
+      const interval = setInterval(() => {
+        setProgress(prev => (prev < 80 ? prev + 1 : prev));
+      }, 100); // Increment progress every 100ms up to 80%
+  
+      try {
+        const compiledJournalEntry = await compileJournal();
+        const chatData = {
+          user: user.email!,
+          timestamp: new Date(),
+          chatHistory,
+          compiledJournal: compiledJournalEntry,
+        };
+        await addDoc(collection(db, "chats"), chatData);
+        clearInterval(interval);
+        setProgress(100); // Complete progress bar on success
+        navigate("/savechat");
+      } catch (error) {
+        clearInterval(interval);
+        console.error("Error saving chat:", error);
+        setProgress(0); // Reset progress on error
+      } finally {
+        setIsSaving(false);
+        setTimeout(() => setProgress(0), 500); // Reset progress after a delay
+      }
+    } else {
+      setIsConnecting(true);
+      connectConversation();
+    }
+  };
+  
+  const compileJournal = async () => {
+    try {
+      const journalPrompt = `Based on the chat history , act as a personal journal assistant who writes journal entry in user's behalf. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user.  Do not mention the date of the journal. Make it a full blown journal entry. Do not add things the user didn't say or imply. Write in a length of about 2,000 characters in several pargaraphs. It should be like this everytime. Not random. Do not make it sound poetic. Just a normal journal entry written by a real human.`;
+      const journalCompletion = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: journalPrompt },
+          { role: "user", content: `Chat History: ${chatHistory}` },
+        ],
+        model: "gpt-4o",
+      });
+
+      return journalCompletion.choices[0]?.message?.content || "";
+    } catch (error) {
+      return "";
+    }
+  };
 
   const connectConversation = useCallback(async () => {
     const client = clientRef.current;
@@ -200,6 +277,8 @@ export function OpenAIDialoguePage() {
     };
   }, []);
 
+  
+
   /**
    * Core RealtimeClient and audio capture setup
    * Set all of our instructions, tools, events, and more
@@ -301,6 +380,8 @@ export function OpenAIDialoguePage() {
       client.reset();
     };
   }, []);
+
+
   useEffect(() => {
     if (!isConnected) {
       console.log("Chat History:", chatHistory);
@@ -311,6 +392,38 @@ export function OpenAIDialoguePage() {
    * Render the application
    */
   return (
+    <>
+    {isSaving ? (
+        <Box
+        minH="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        position="fixed"
+        top="0"
+        left="0"
+        width="100%"
+        height="100%"
+        zIndex="20"
+        bg="rgb(51, 56, 46)" // Dark green background
+      >
+        <Text fontSize="xl" mb={4} color="white">
+          Generating Journal Entry
+        </Text>
+        <Progress
+          value={progress}
+          size="xs" // Smaller size as shown in the image
+          width="200px" // Adjust this width to control the bar's length
+          sx={{
+            "& > div": {
+              backgroundColor: "rgb(137, 142, 133)", // Filling element color
+            },
+          }}
+          bg="rgb(51, 56, 46)" // Non-filled part color to match the background
+        />
+      </Box>
+      ) : (
     <Box
       data-component="ConsolePage"
       fontFamily="'Roboto Mono', monospace"
@@ -466,7 +579,7 @@ export function OpenAIDialoguePage() {
             <Button
               colorScheme={isConnected ? "gray" : "blue"}
               variant={isConnected ? "outline" : "solid"}
-              onClick={isConnected ? disconnectConversation : connectConversation}
+              onClick={handleCallClick}
             >
               {isConnected ? "Disconnect" : "Connect"}
             </Button>
@@ -474,6 +587,8 @@ export function OpenAIDialoguePage() {
         </Flex>
       </Flex>
     </Box>
+     )}
+    </>
   );
 };
 
