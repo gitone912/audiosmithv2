@@ -1,17 +1,6 @@
-/**
- * Running a local relay server will allow you to hide your API key
- * and run custom logic on the server
- *
- * Set the local relay server address to:
- * REACT_APP_LOCAL_RELAY_SERVER_URL=http://localhost:8081
- *
- * This will also require you to set OPENAI_API_KEY= in a `.env` file
- * You can run it with `npm run relay`, in parallel with `npm start`
- */
 const LOCAL_RELAY_SERVER_URL: string = '';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-
 import { RealtimeClient } from '@openai/realtime-api-beta';
 import { ItemType } from '@openai/realtime-api-beta/dist/lib/client.js';
 import { WavRecorder, WavStreamPlayer } from './wavtools/index.js';
@@ -31,9 +20,6 @@ import {
   Button,
 } from "@chakra-ui/react";
 
-/**
- * Type for all event logs
- */
 interface RealtimeEvent {
   time: string;
   source: 'client' | 'server';
@@ -42,19 +28,9 @@ interface RealtimeEvent {
 }
 
 export function OpenAIDialoguePage() {
-  /**
-   * Ask user for API Key
-   * If we're using the local relay server, we don't need this
-   */
-  const apiKey =process.env.REACT_APP_OPENAI_API_KEY;
-
-
-  /**
-   * Instantiate:
-   * - WavRecorder (speech input)
-   * - WavStreamPlayer (speech output)
-   * - RealtimeClient (API client)
-   */
+  const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+  const [chatHistory, setChatHistory] = useState<string[]>([]);
+  
   const wavRecorderRef = useRef<WavRecorder>(
     new WavRecorder({ sampleRate: 24000 })
   );
@@ -65,94 +41,45 @@ export function OpenAIDialoguePage() {
     new RealtimeClient(
       LOCAL_RELAY_SERVER_URL
         ? { url: LOCAL_RELAY_SERVER_URL }
-        : {
-            apiKey: apiKey,
-            dangerouslyAllowAPIKeyInBrowser: true,
-          }
+        : { apiKey: apiKey, dangerouslyAllowAPIKeyInBrowser: true }
     )
   );
   const SYSTEM_MESSAGE = 'You are a helpful and bubbly human assistant named pinky who loves to chat about anything and flirts a lot the user is interested about and is prepared to offer them facts. You have a penchant for dad jokes, owl jokes, and rickrolling – subtly. Always stay positive, but work in a joke when appropriate.';
-const VOICE = 'alloy';
+  const VOICE = 'alloy';
 
-  /**
-   * References for
-   * - Rendering audio visualization (canvas)
-   * - Autoscrolling event logs
-   * - Timing delta for event log displays
-   */
   const clientCanvasRef = useRef<HTMLCanvasElement>(null);
   const serverCanvasRef = useRef<HTMLCanvasElement>(null);
   const eventsScrollHeightRef = useRef(0);
   const eventsScrollRef = useRef<HTMLDivElement>(null);
   const startTimeRef = useRef<string>(new Date().toISOString());
 
-  /**
-   * All of our variables for displaying application state
-   * - items are all conversation items (dialog)
-   * - realtimeEvents are event logs, which can be expanded
-   * - memoryKv is for set_memory() function
-   * - coords, marker are for get_weather() function
-   */
   const [items, setItems] = useState<ItemType[]>([]);
   const [realtimeEvents, setRealtimeEvents] = useState<RealtimeEvent[]>([]);
-  const [expandedEvents, setExpandedEvents] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const [expandedEvents, setExpandedEvents] = useState<{ [key: string]: boolean }>({});
   const [isConnected, setIsConnected] = useState(false);
   const [memoryKv, setMemoryKv] = useState<{ [key: string]: any }>({});
 
-
-  
-  /**
-   * When you click the API key
-   */
-
-
-  /**
-   * Connect to conversation:
-   * WavRecorder taks speech input, WavStreamPlayer output, client is API client
-   */
   const connectConversation = useCallback(async () => {
     const client = clientRef.current;
     const wavRecorder = wavRecorderRef.current;
     const wavStreamPlayer = wavStreamPlayerRef.current;
 
-    
-
-    // Set state variables
     startTimeRef.current = new Date().toISOString();
     setIsConnected(true);
     setRealtimeEvents([]);
     setItems(client.conversation.getItems());
 
-    // Connect to microphone
     await wavRecorder.begin();
-
-    // Connect to audio output
     await wavStreamPlayer.connect();
-
-    // Connect to realtime API
     await client.connect();
-    client.updateSession({
-      voice: VOICE,
-      instructions: SYSTEM_MESSAGE,
-    }
-    )
+    client.updateSession({ voice: VOICE, instructions: SYSTEM_MESSAGE });
     client.sendUserMessageContent([
-      {
-        type: `input_text`,
-        text: `Hello!`,
-        
-        // text: `For testing purposes, I want you to list ten car brands. Number each item, e.g. "one (or whatever number you are one): the item name".`
-      },
+      { type: `input_text`, text: `Hello!` }
     ]);
 
     changeTurnEndType();
   }, []);
 
-  /**
-   * Disconnect and reset conversation state
-   */
   const disconnectConversation = useCallback(async () => {
     setIsConnected(false);
     setRealtimeEvents([]);
@@ -174,36 +101,21 @@ const VOICE = 'alloy';
     client.deleteItem(id);
   }, []);
 
-  /**
-   * In push-to-talk mode, start recording
-   * .appendInputAudio() for each sample
-   */
-
-  /**
-   * Switch between Manual <> VAD mode for communication
-   */
   const changeTurnEndType = async () => {
     const client = clientRef.current;
     const wavRecorder = wavRecorderRef.current;
-  
-    // Set turn detection to server_vad by default
-    client.updateSession({
-      turn_detection: { type: 'server_vad' },
-    });
-  
-    // Start recording if connected
+
+    client.updateSession({ turn_detection: { type: 'server_vad' } });
+
     if (client.isConnected()) {
       await wavRecorder.record((data: any) => client.appendInputAudio(data.mono));
     }
   };
-  /**
-   * Auto-scroll the event logs
-   */
+
   useEffect(() => {
     if (eventsScrollRef.current) {
       const eventsEl = eventsScrollRef.current;
       const scrollHeight = eventsEl.scrollHeight;
-      // Only scroll if height has just changed
       if (scrollHeight !== eventsScrollHeightRef.current) {
         eventsEl.scrollTop = scrollHeight;
         eventsScrollHeightRef.current = scrollHeight;
@@ -211,9 +123,6 @@ const VOICE = 'alloy';
     }
   }, [realtimeEvents]);
 
-  /**
-   * Auto-scroll the conversation logs
-   */
   useEffect(() => {
     const conversationEls = [].slice.call(
       document.body.querySelectorAll('[data-conversation-content]')
@@ -224,9 +133,6 @@ const VOICE = 'alloy';
     }
   }, [items]);
 
-  /**
-   * Set up render loops for the visualization canvas
-   */
   useEffect(() => {
     let isLoaded = true;
 
@@ -296,7 +202,7 @@ const VOICE = 'alloy';
 
   /**
    * Core RealtimeClient and audio capture setup
-   * Set all of our instructions, tools, events and more
+   * Set all of our instructions, tools, events, and more
    */
   useEffect(() => {
     // Get refs
@@ -338,7 +244,6 @@ const VOICE = 'alloy';
         return { ok: true };
       }
     );
-    
 
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
@@ -353,6 +258,7 @@ const VOICE = 'alloy';
         }
       });
     });
+
     client.on('error', (event: any) => console.error(event));
     client.on('conversation.interrupted', async () => {
       const trackSampleOffset = await wavStreamPlayer.interrupt();
@@ -361,10 +267,21 @@ const VOICE = 'alloy';
         await client.cancelResponse(trackId, offset);
       }
     });
+
     client.on('conversation.updated', async ({ item, delta }: any) => {
       const items = client.conversation.getItems();
       if (delta?.audio) {
         wavStreamPlayer.add16BitPCM(delta.audio, item.id);
+      }
+      if (item.status === 'completed') {
+        let text = item.formatted.transcript || item.formatted.text || "...";
+        // Format chat history based on the role
+        if (item.role === 'user') {
+          text = `user: ${text}`;
+        } else if (item.role === 'assistant') {
+          text = `AI: ${text}`;
+        }
+        setChatHistory((prevHistory) => [...prevHistory, text]);
       }
       if (item.status === 'completed' && item.formatted.audio?.length) {
         const wavFile = await WavRecorder.decode(
@@ -384,6 +301,11 @@ const VOICE = 'alloy';
       client.reset();
     };
   }, []);
+  useEffect(() => {
+    if (!isConnected) {
+      console.log("Chat History:", chatHistory);
+    }
+  }, [isConnected, chatHistory]);
 
   /**
    * Render the application
@@ -401,7 +323,6 @@ const VOICE = 'alloy';
       overflow="hidden"
       mx="2"
     >
-
 
       {/* Content Main */}
       <Flex
@@ -541,21 +462,18 @@ const VOICE = 'alloy';
             gap="4"
             mt="4"
           >
-           
-            
             <Box flex="1" />
             <Button
-  colorScheme={isConnected ? "gray" : "blue"}
-  variant={isConnected ? "outline" : "solid"}
-  onClick={isConnected ? disconnectConversation : connectConversation}
->
-  {isConnected ? "Disconnect" : "Connect"}
-</Button>
+              colorScheme={isConnected ? "gray" : "blue"}
+              variant={isConnected ? "outline" : "solid"}
+              onClick={isConnected ? disconnectConversation : connectConversation}
+            >
+              {isConnected ? "Disconnect" : "Connect"}
+            </Button>
           </Flex>
         </Flex>
-
-       
       </Flex>
     </Box>
   );
 };
+
