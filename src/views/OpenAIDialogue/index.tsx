@@ -62,7 +62,7 @@ export function OpenAIDialoguePage() {
   const userDetails = JSON.parse(localStorage.getItem("userDetails") || '{}');
   const fullname = userDetails.displayName || "No name provided, you can ask his/her name"; // Fallback to "Korean" if not set
   console.log(fullname)
-  const VOICE = localStorage.getItem("userVoice") || "alloy"; // Fallback to "shimmer" if not set
+  const VOICE = localStorage.getItem("userVoice") || "sage"; // Fallback to "shimmer" if not set
   const SYSTEM_MESSAGE = getPrompt(language);
 
   const clientCanvasRef = useRef<HTMLCanvasElement>(null);
