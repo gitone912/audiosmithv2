@@ -19,7 +19,7 @@ const FetchPrompts = () => {
       if (!querySnapshot.empty) {
         const userDoc = querySnapshot.docs[0].data();
         const fetchedLanguage = userDoc.language || "english";
-        const fetchedVoice = userDoc.voice || "alloy";
+        const fetchedVoice = userDoc.voice || "sage";
 
         // Store preferences in local storage
         localStorage.setItem("userLanguage", fetchedLanguage);

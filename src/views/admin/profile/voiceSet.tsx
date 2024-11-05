@@ -11,8 +11,11 @@ export default function VoiceSet() {
   const [userId, setUserId] = useState<string | null>(null);
   const toast = useToast();
 
-  // Voice options
-  const voices = ['shimmer', 'echo'];
+  // Voice options displayed to the user
+  const visibleVoices = [
+    { displayName: 'laura', actualVoice: 'sage' },
+    { displayName: 'william', actualVoice: 'verse' },
+  ];
 
   // Fetch user ID based on email stored in localStorage
   useEffect(() => {
@@ -35,7 +38,10 @@ export default function VoiceSet() {
   };
 
   const handleVoiceSelect = (voice: string) => {
-    setSelectedVoice(voice);
+    const selectedVoiceOption = visibleVoices.find(v => v.displayName === voice);
+    if (selectedVoiceOption) {
+      setSelectedVoice(selectedVoiceOption.actualVoice);
+    }
   };
 
   const handleSaveVoice = async () => {
@@ -72,11 +78,12 @@ export default function VoiceSet() {
       });
     }
   };
+
   const navigate = useNavigate();
 
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" flexDirection="column" alignItems="center">
-         <Flex
+      <Flex
         display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
@@ -96,14 +103,12 @@ export default function VoiceSet() {
       {/* Navbar Component */}
       <Text fontSize="2xl" fontWeight="bold" mb="6" textAlign="center">Voice Settings</Text>
       <Navbar />
-      
-
 
       {/* Voice Options in a Row */}
       <Grid templateColumns="repeat(2, 1fr)" gap="4" mb="6" mt="20">
-        {voices.map((voice) => (
+        {visibleVoices.map(({ displayName }) => (
           <Box
-            key={voice}
+            key={displayName}
             border="1px solid rgba(255, 255, 255, 0.2)"
             borderRadius="16px"
             px="20px"
@@ -111,11 +116,11 @@ export default function VoiceSet() {
             cursor="pointer"
             textAlign="center"
             fontWeight="bold"
-            bg={selectedVoice === voice ? 'rgb(80, 84, 72)' : 'transparent'}
+            bg={selectedVoice === visibleVoices.find(v => v.displayName === displayName)?.actualVoice ? 'rgb(80, 84, 72)' : 'transparent'}
             color='white'
-            onClick={() => handleVoiceSelect(voice)}
+            onClick={() => handleVoiceSelect(displayName)}
           >
-            {voice}
+            {displayName}
           </Box>
         ))}
       </Grid>
