@@ -230,44 +230,7 @@ function InnerComponent() {
       </Flex>
       <VStack spacing={6} align="center" width="100%" maxW="1200px">
 
-
-        {/* Latest User Message Box */}
-        {/* <Box
-          w={{ base: "100%", md: "80%", lg: "100%" }}
-          maxW="800px"
-          minH="150px"
-        > */}
-        {/* {latestUserMessage && (
-            <Text
-              color="white"
-              textAlign="center"
-              fontSize={{ base: "sm", md: "lg" }}
-              wordBreak="break-word"
-              p={4}
-            >
-              {latestUserMessage}
-            </Text>
-          )} */}
-        {/* </Box> */}
         <AudioVisualizer />
-
-        {/* <Box
-          w={{ base: "100%", md: "80%", lg: "60%" }}
-          maxW="100%"
-          minH="100px"
-        >
-          {typedResponse && (
-            <Text
-              color="#fdde7f"
-              textAlign="center"
-              fontSize={{ base: "sm", md: "lg" }}
-              wordBreak="break-word"
-              p={4}
-            >
-              {typedResponse}
-            </Text>
-          )}
-        </Box> */}
 
         <IconButton
           icon={isConnecting ? <Spinner color="white" size="md" /> : isAudioPlaying ? <MdStop /> : <MdMic />}

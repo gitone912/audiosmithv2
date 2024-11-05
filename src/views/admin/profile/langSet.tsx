@@ -12,7 +12,7 @@ export default function LanguageSet() {
   const toast = useToast();
 
   // List of available languages
-  const languages = ['English', 'German', 'Korean', 'Italian', 'Dutch', 'Spanish'];
+  const languages = ['English', 'German', 'Korean', 'Italian', 'Dutch', 'Spanish','Hindi'];
 
   // Fetch user ID based on email stored in localStorage
   useEffect(() => {
