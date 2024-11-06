@@ -30,6 +30,7 @@ const SaveChatMono: React.FC = () => {
   const [summary, setSummary] = useState<string>("");
   const [tasks, setTasks] = useState<string>("");
   const [moodEmoji, setMoodEmoji] = useState<string>("");
+  const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false); 
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -87,6 +88,11 @@ const SaveChatMono: React.FC = () => {
     setIsSaving(true);
 
     try {
+      if (!isAnalyzed) {
+        // Ensure the analysis completes before proceeding with saving
+        alert("analyse the journal before saving")
+        return  // This should set `isAnalyzed` to true after completion
+      }
       const journalRef = doc(db, "chat_monologue", docId);
       await updateDoc(journalRef, { compiledJournal: editedJournal });
 
@@ -135,6 +141,7 @@ const SaveChatMono: React.FC = () => {
       setMoodEmoji(moodEmojiRes);
 
       setShowAnalysis(true); // Display the analysis section
+      setIsAnalyzed(true);
     } catch (error) {
       console.error("Error fetching analysis:", error);
       toast({
