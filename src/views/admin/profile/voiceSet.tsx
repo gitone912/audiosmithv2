@@ -10,22 +10,23 @@ export default function VoiceSet() {
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const toast = useToast();
+  const navigate = useNavigate();
 
   // Voice options displayed to the user
   const visibleVoices = [
-    { displayName: 'laura', actualVoice: 'sage' },
-    { displayName: 'william', actualVoice: 'verse' },
+    { displayName: 'Laura', actualVoice: 'sage' },
+    { displayName: 'William', actualVoice: 'verse' },
   ];
 
-  // Fetch user ID based on email stored in localStorage
+  // Fetch user ID and saved voice preference based on email stored in localStorage
   useEffect(() => {
     const userDetails = JSON.parse(localStorage.getItem("userDetails") || '{}');
     if (userDetails && userDetails.email) {
-      fetchUserId(userDetails.email);
+      fetchUserIdAndVoice(userDetails.email);
     }
   }, []);
 
-  const fetchUserId = async (email: string) => {
+  const fetchUserIdAndVoice = async (email: string) => {
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("email", "==", email));
     const querySnapshot = await getDocs(q);
@@ -33,6 +34,10 @@ export default function VoiceSet() {
     if (!querySnapshot.empty) {
       querySnapshot.forEach((doc) => {
         setUserId(doc.id);
+        const userData = doc.data();
+        if (userData.voice) {
+          setSelectedVoice(userData.voice); // Set the saved voice as selected
+        }
       });
     }
   };
@@ -79,8 +84,6 @@ export default function VoiceSet() {
     }
   };
 
-  const navigate = useNavigate();
-
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" flexDirection="column" alignItems="center">
       <Flex
@@ -106,7 +109,7 @@ export default function VoiceSet() {
 
       {/* Voice Options in a Row */}
       <Grid templateColumns="repeat(2, 1fr)" gap="4" mb="6" mt="20">
-        {visibleVoices.map(({ displayName }) => (
+        {visibleVoices.map(({ displayName, actualVoice }) => (
           <Box
             key={displayName}
             border="1px solid rgba(255, 255, 255, 0.2)"
@@ -116,7 +119,7 @@ export default function VoiceSet() {
             cursor="pointer"
             textAlign="center"
             fontWeight="bold"
-            bg={selectedVoice === visibleVoices.find(v => v.displayName === displayName)?.actualVoice ? 'rgb(80, 84, 72)' : 'transparent'}
+            bg={selectedVoice === actualVoice ? 'rgb(80, 84, 72)' : 'transparent'}
             color='white'
             onClick={() => handleVoiceSelect(displayName)}
           >

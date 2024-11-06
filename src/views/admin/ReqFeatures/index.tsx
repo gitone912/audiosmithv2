@@ -7,13 +7,13 @@ const ReqFeatures: React.FC = () => {
 
   useEffect(() => {
     // Redirect to Google Form link after mounting
-    window.location.href = 'https://audiosmith.me/feature-requests';
+    window.location.href = '/../profile';
   }, []);
 
   return (
     <div>
-      <h2>Redirecting to Feedback Form...</h2>
-      <p>If you are not redirected, <a href="https://audiosmith.me/feature-requests">click here</a>.</p>
+      <h2>Redirecting to settings...</h2>
+      <p>If you are not redirected, <a href="/../profile">click here</a>.</p>
     </div>
   );
 };

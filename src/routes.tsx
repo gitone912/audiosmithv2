@@ -12,7 +12,8 @@ import {
   MdSentimentNeutral,
   MdDashboard,
   MdRequestPage,
-  MdBuild
+  MdBuild,
+  MdSettings
 } from 'react-icons/md';
 import { FaDiscord } from 'react-icons/fa';
 // Admin Imports
@@ -93,10 +94,10 @@ const adminRoutes = [
     lock:false
   },
   {
-    name: 'Request Feature',
+    name: 'Settings',
     layout: '/admin',
-    path: '/request-feature',
-    icon: <Icon as={MdBuild} width="20px" height="20px" color="inherit" />,
+    path: '/../profile',
+    icon: <Icon as={MdSettings} width="20px" height="20px" color="inherit" />,
     component: <ReqFeatures />,
     lock:false
   },

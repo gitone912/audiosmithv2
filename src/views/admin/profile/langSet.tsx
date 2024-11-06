@@ -10,19 +10,20 @@ export default function LanguageSet() {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const toast = useToast();
+  const navigate = useNavigate();
 
   // List of available languages
-  const languages = ['English', 'German', 'Korean', 'Italian', 'Dutch', 'Spanish','Hindi'];
+  const languages = ['English', 'German', 'Hindi'];
 
-  // Fetch user ID based on email stored in localStorage
+  // Fetch user ID and saved language preference based on email stored in localStorage
   useEffect(() => {
     const userDetails = JSON.parse(localStorage.getItem("userDetails") || '{}');
     if (userDetails && userDetails.email) {
-      fetchUserId(userDetails.email);
+      fetchUserIdAndLanguage(userDetails.email);
     }
   }, []);
 
-  const fetchUserId = async (email: string) => {
+  const fetchUserIdAndLanguage = async (email: string) => {
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("email", "==", email));
     const querySnapshot = await getDocs(q);
@@ -30,6 +31,10 @@ export default function LanguageSet() {
     if (!querySnapshot.empty) {
       querySnapshot.forEach((doc) => {
         setUserId(doc.id);
+        const userData = doc.data();
+        if (userData.language) {
+          setSelectedLanguage(userData.language); // Set the saved language as selected
+        }
       });
     }
   };
@@ -72,11 +77,10 @@ export default function LanguageSet() {
       });
     }
   };
-  const navigate = useNavigate();
 
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }} display="flex" flexDirection="column" alignItems="center">
-         <Flex
+      <Flex
         display={{ sm: 'flex', xl: 'flex' }}
         alignItems="center"
         position="fixed"
@@ -93,12 +97,12 @@ export default function LanguageSet() {
           onClick={() => navigate("../admin")} // Navigate to the previous page
         />
       </Flex>
-         <Text fontSize="2xl" fontWeight="bold" mb="6" textAlign="center">Language Settings</Text>
+      <Text fontSize="2xl" fontWeight="bold" mb="6" textAlign="center">Language Settings</Text>
      
-<Navbar/>
+      <Navbar />
 
-     
-<Grid templateColumns="repeat(3, 1fr)" gap="4" mb="6" mt="20">
+      {/* Language Options in a Grid */}
+      <Grid templateColumns="repeat(3, 1fr)" gap="4" mb="6" mt="20">
         {languages.map((language) => (
           <Box
             key={language}

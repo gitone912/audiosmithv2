@@ -25,12 +25,14 @@ export default function AdminNavbar(props: {
   // Adjust navbar styles based on the sidebar open/closed state
   const navbarAlignment = isSidebarOpen ? 'flex-start' : 'center';
   const navbarWidth = {
-    base: 'calc(100vw - 6%)',  // Mobile views remain the same
-    md: 'calc(100vw - 8%)',    // Mobile views remain the same
-    lg: 'calc(100vw - 6%)',    // Desktop views remain the same
-    xl: isSidebarOpen ? 'calc(100vw - 350px)' : '90vw', // Adjust based on sidebar state
-    '2xl': isSidebarOpen ? 'calc(100vw - 400px)' : '90vw', // Adjust based on sidebar state
+    base: 'calc(100vw - 6%)',          // Mobile view (up to 480px)
+    sm: 'calc(100vw - 7%)',            // Tablet view (between 480px and 768px)
+    md: 'calc(100vw - 8%)',            // Larger tablet view (768px and above)
+    lg: 'calc(100vw - 6%)',            // Desktop view (1024px and above)
+    xl: isSidebarOpen ? 'calc(100vw - 350px)' : '90vw', // Desktop, adjusts for sidebar state
+    '2xl': isSidebarOpen ? 'calc(100vw - 400px)' : '90vw', // Extra-large desktops
   };
+  
   
   let navbarPosition = 'fixed' as const;
   let navbarFilter = 'none';
