@@ -23,6 +23,7 @@ import TherapySet from 'views/admin/profile/therapySet';
 import { OpenAIDialoguePage } from 'views/OpenAIDialogue';
 import FetchPrompts from 'views/OpenAIDialogue/fetchPrompt';
 import ConversationalAI from 'views/Dialogue11labs';
+import FetchPromptsMono from 'views/monologue/fetchPromptMono';
 
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
@@ -70,6 +71,7 @@ export default function Main() {
         <Route path="therapy-type/" element={<TherapySet />} />
         <Route path="dialogue-new/" element={<OpenAIDialoguePage />} />
         <Route path="fetching/" element={<FetchPrompts />} />
+        <Route path="fetching-mono/" element={<FetchPromptsMono />} />
       </Routes>
     </ChakraProvider>
   );

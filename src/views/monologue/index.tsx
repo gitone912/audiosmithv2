@@ -39,68 +39,62 @@ const Monologue = () => {
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+    const language = (localStorage.getItem("userLanguage") || "English");
 
-  const startListening = async () => {
-    setIsConnecting(true);
-    setConnectionStatus("Connecting...");
-
-    // Initialize WebSocket connection
-    socketRef.current = new WebSocket("wss://api.deepgram.com/v1/listen", [
-      "token",
-      "e2b10be16ef191908492b50e6deab126112a1d1f",
-    ]);
-
-    socketRef.current.onopen = () => {
-
-
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: "audio/webm" });
-
-        mediaRecorderRef.current.addEventListener("dataavailable", (event) => {
-          if (event.data.size > 0 && socketRef.current?.readyState === 1) {
-            socketRef.current.send(event.data);
-          }
+    const startListening = async () => {
+      setIsConnecting(true);
+      setConnectionStatus("Connecting...");
+      const selectedLanguage = language === "German" ? "de" : language === "Hindi" ? "hi" : "en-US";
+  
+      // Initialize WebSocket connection with enhanced parameters
+      socketRef.current = new WebSocket(`wss://api.deepgram.com/v1/listen?language=${selectedLanguage}&model=general-enhanced&profanity_filter=false&filler_words=false&interim_results=false`, [
+        "token",
+        "e2b10be16ef191908492b50e6deab126112a1d1f",
+      ]);
+  
+      socketRef.current.onopen = () => {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: "audio/webm" });
+  
+          mediaRecorderRef.current.addEventListener("dataavailable", (event) => {
+            if (event.data.size > 0 && socketRef.current?.readyState === 1) {
+              socketRef.current.send(event.data);
+            }
+          });
+  
+          mediaRecorderRef.current.start(500); // Send audio data every second
         });
-
-        mediaRecorderRef.current.start(500); // Send audio data every second
-      });
-      setTimeout(() => {
-        setIsConnected(true);
+        setTimeout(() => {
+          setIsConnected(true);
+          setIsConnecting(false);
+          setConnectionStatus("Connected! Click to End The Conversation");
+          console.log("WebSocket connected");
+        }, 2000); // 2-second delay
+      };
+  
+      socketRef.current.onmessage = (message) => {
+        const received = JSON.parse(message.data);
+        const transcript = received.channel.alternatives[0]?.transcript;
+  
+        if (transcript && received.is_final) {
+          setTempTranscript((prev) => `${prev} ${transcript}`); // Append new text to `tempTranscript`
+          console.log("Received transcript:", transcript);
+        }
+      };
+  
+      socketRef.current.onclose = () => {
+        console.log("WebSocket closed");
+        setIsConnected(false);
+        setConnectionStatus("Disconnected - Click to Start the Conversation");
+      };
+  
+      socketRef.current.onerror = (error) => {
+        console.error("WebSocket error:", error);
         setIsConnecting(false);
-        setConnectionStatus("Connected! Click to End The Conversation");
-        console.log("WebSocket connected");
-      }, 2000); // 2-second delay
+        setConnectionStatus("Error connecting");
+      };
     };
-
-    socketRef.current.onmessage = (message) => {
-      const received = JSON.parse(message.data);
-      const transcript = received.channel.alternatives[0]?.transcript;
-
-      if (transcript && received.is_final) {
-        setTempTranscript((prev) => `${prev} ${transcript}`); // Append new text to `tempTranscript`
-        console.log("Received transcript:", transcript);
-      }
-    };
-
-    socketRef.current.onclose = () => {
-      console.log("WebSocket closed");
-      setIsConnected(false);
-      setConnectionStatus("Disconnected - Click to Start the Conversation");
-    };
-
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setIsConnecting(false);
-      setConnectionStatus("Error connecting");
-      toast({
-        title: "Connection Error",
-        description: "Failed to connect to the Deepgram API.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    };
-  };
+  
 
   const stopListening = () => {
     mediaRecorderRef.current?.stop();

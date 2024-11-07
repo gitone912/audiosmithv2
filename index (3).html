@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <title>Multilingual Transcription</title>
+  </head>
+  <body>
+    <h1>Live Transcription</h1>
+    <label for="language">Choose a Language: </label>
+    <select id="language">
+      <option value="en-US">English</option>
+      <option value="de">German</option>
+      <option value="hi">Hindi</option>
+    </select>
+    <p id="status">Not Connected</p>
+    <p id="transcript"></p>
+    <script>
+      // Function to start transcription with the selected language
+      function startTranscription(language) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+          if (!MediaRecorder.isTypeSupported('audio/webm'))
+            return alert('Browser not supported')
+          
+          const mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'audio/webm',
+          })
+          
+          // Connect to Deepgram WebSocket API with the selected language
+          const socket = new WebSocket(`wss://api.deepgram.com/v1/listen?language=${language}&model=general-enhanced&profanity_filter=false&filler_words=false&interim_results=false`, [
+            'token',
+            'e2b10be16ef191908492b50e6deab126112a1d1f',
+          ])
+          
+          socket.onopen = () => {
+            document.querySelector('#status').textContent = 'Connected'
+            mediaRecorder.addEventListener('dataavailable', async (event) => {
+              if (event.data.size > 0 && socket.readyState == 1) {
+                socket.send(event.data)
+              }
+            })
+            mediaRecorder.start(1000)
+          }
+          
+          socket.onmessage = (message) => {
+            const received = JSON.parse(message.data)
+            const transcript = received.channel.alternatives[0].transcript
+            if (transcript && received.is_final) {
+              document.querySelector('#transcript').textContent += transcript + ' '
+            }
+          }
+          
+          socket.onclose = () => {
+            console.log({ event: 'onclose' })
+          }
+          
+          socket.onerror = (error) => {
+            console.log({ event: 'onerror', error })
+          }
+        })
+      }
+      
+      // Listen for language changes
+      document.getElementById('language').addEventListener('change', (event) => {
+        // Close any existing connections before starting a new one
+        startTranscription(event.target.value)
+      })
+      
+      // Start transcription with the default language (English)
+      startTranscription('en-US')
+    </script>
+  </body>
+</html>
