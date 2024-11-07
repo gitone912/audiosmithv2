@@ -68,7 +68,7 @@ export default function Main() {
         <Route path="language/" element={<LanguageSet />} />
         <Route path="voice/" element={<VoiceSet />} />
         <Route path="therapy-type/" element={<TherapySet />} />
-        <Route path="dialogue-new/" element={<ConversationalAI />} />
+        <Route path="dialogue-new/" element={<OpenAIDialoguePage />} />
         <Route path="fetching/" element={<FetchPrompts />} />
       </Routes>
     </ChakraProvider>

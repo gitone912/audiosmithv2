@@ -135,7 +135,7 @@ export function OpenAIDialoguePage() {
   
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Based on the chat history , act as a personal journal assistant who writes journal entry in user's behalf. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user.  Do not mention the date of the journal. Make it a full blown journal entry. Do not add things the user didn't say or imply. Write in a length of about 2,000 characters in several pargaraphs. It should be like this everytime. Not random. Do not make it sound poetic. Just a normal journal entry written by a real human.`;
+      const journalPrompt = `use this langauge ${language} and Based on the chat history , act as a personal journal assistant who writes journal entry in user's behalf. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user.  Do not mention the date of the journal. Make it a full blown journal entry. Do not add things the user didn't say or imply. Write in a length of about 2,000 characters in several pargaraphs in ${language}. It should be like this everytime. Not random. Do not make it sound poetic. Just a normal journal entry written by a real human.`;
       const journalCompletion = await openai.chat.completions.create({
         messages: [
           { role: "system", content: journalPrompt },
@@ -165,7 +165,7 @@ export function OpenAIDialoguePage() {
     await client.connect();
     client.updateSession({  voice: VOICE as "alloy" | "shimmer" | "echo", instructions: SYSTEM_MESSAGE });
     client.sendUserMessageContent([
-      { type: `input_text`, text: `information: this is user's name ${fullname}, start you conversation by saying this - Hi ${fullname}, I'm Laura. Audiosmith's  mental health and journaling companion. I am here to help you navigate your life, emotions, feelings, and thoughts so you could become the better version of you.   How do you feel today?` }
+      { type: `input_text`, text: `information: this is user's name ${fullname}, start you conversation in ${language}by saying this - Hi ${fullname}, I'm ${VOICE === "sage" ? "Laura" : "William"}. Audiosmith's  mental health and journaling companion. I am here to help you navigate your life, emotions, feelings, and thoughts so you could become the better version of you.   How do you feel today?` }
     ]);
 
     changeTurnEndType();
