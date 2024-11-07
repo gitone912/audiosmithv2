@@ -129,7 +129,11 @@ const ConversationalAI = () => {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `use this langauge ${language} and Based on the chat history , act as a personal journal assistant who writes journal entry in user's behalf. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user.  Do not mention the date of the journal. Make it a full blown journal entry. Do not add things the user didn't say or imply. Write in a length of maximum 2,000 characters in several pargaraphs in ${language}. If there is not much information, then you can write in shorter form. If there is a lot, then write more. It should be like this everytime. Not random. Do not make it sound poetic. Just a normal journal entry written by a real human.`;
+      const journalPrompt = `Use ${language} and based on the chat history, act as a personal journal assistant who writes a journal entry on the user's behalf. Focus only on translating the user’s confirmed answers, emotions, and reflections into a natural, everyday narrative that reflects their day. Do not infer or assume details that the user hasn't provided. Keep the tone personal and straightforward, like the user is talking casually about their day.
+
+Avoid adding events or emotions unless they were directly mentioned by the user. Only include thoughts, feelings, and points confirmed by the user. Maintain the user's emotions and insights, but remove the structure of direct dialogue. Do not add anything that wasn't explicitly said or implied by the user.
+
+Write in a maximum length of 2,000 characters in several paragraphs, keeping the language simple and clear. If there's not much information, write briefly. If there's more, expand accordingly. Make the journal sound real and relatable, like how an everyday person would talk to themselves. Do not add any greeting or intro like "Dear Journal". Do not make the language flowery or poetic. Stick to normal, simple words that people use today.`;
       const journalCompletion = await openai.chat.completions.create({
         messages: [
           { role: "system", content: journalPrompt },
@@ -146,10 +150,35 @@ const ConversationalAI = () => {
   return (
     <>
       {isSaving ? (
-        <Box minH="100vh" display="flex" justifyContent="center" alignItems="center" bg="rgb(51, 56, 46)" position="fixed" top="0" left="0" width="100%" zIndex="20">
-          <Text fontSize="xl" mb={4} color="white">Generating Journal Entry</Text>
-          <Progress value={progress} size="xs" width="200px" bg="rgb(51, 56, 46)" sx={{ "& > div": { backgroundColor: "rgb(137, 142, 133)" } }} />
-        </Box>
+        <Box
+        minH="100vh"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        position="fixed"
+        top="0"
+        left="0"
+        width="100%"
+        height="100%"
+        zIndex="20"
+        bg="rgb(51, 56, 46)" // Dark green background
+      >
+        <Text fontSize="xl" mb={4} color="white">
+          Generating Journal Entry
+        </Text>
+        <Progress
+          value={progress}
+          size="xs" // Smaller size as shown in the image
+          width="200px" // Adjust this width to control the bar's length
+          sx={{
+            "& > div": {
+              backgroundColor: "rgb(137, 142, 133)", // Filling element color
+            },
+          }}
+          bg="rgb(51, 56, 46)" // Non-filled part color to match the background
+        />
+      </Box>
       ) : (
         <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
           <Flex position="fixed" top="20px" left="20px" zIndex="10">
