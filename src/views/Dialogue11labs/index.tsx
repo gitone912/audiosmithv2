@@ -76,6 +76,7 @@ const ConversationalAI = () => {
   const handleConnect = async () => {
     try {
       // Request microphone access
+      setIsConnecting(true)
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
       // Start conversation session with the agent ID
@@ -88,6 +89,7 @@ const ConversationalAI = () => {
       } else {
         try {
           await navigator.mediaDevices.getUserMedia({ audio: true });
+          setIsConnecting(false)
           await startSession({ agentId });
         } catch (error) {
           console.error("Failed to start conversation:", error);
@@ -237,11 +239,11 @@ const ConversationalAI = () => {
   aria-label={isConnected ? "Stop" : "Start"}
   isDisabled={isConnecting}  // Prevent double-clicks while connecting
   transition="transform 1s ease"
-  transform={isAudioPlaying ? "translateY(180px)" : "translateY(0px)"}
+  transform={isConnected ? "translateY(180px)" : "translateY(0px)"}
 />
 
         <Text fontSize={{ base: "sm", md: "lg" }} color="gray.400" transition="transform 1s ease"
-          transform={isAudioPlaying ? "translateY(180px)" : "translateY(0px)"}>
+          transform={isConnected ? "translateY(180px)" : "translateY(0px)"}>
           {isConnecting
             ? "Connecting..."
             : isAudioPlaying
