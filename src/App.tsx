@@ -69,7 +69,7 @@ export default function Main() {
         <Route path="language/" element={<LanguageSet />} />
         <Route path="voice/" element={<VoiceSet />} />
         <Route path="therapy-type/" element={<TherapySet />} />
-        <Route path="dialogue-new/" element={<OpenAIDialoguePage />} />
+        <Route path="dialogue-new/" element={<ConversationalAI />} />
         <Route path="fetching/" element={<FetchPrompts />} />
         <Route path="fetching-mono/" element={<FetchPromptsMono />} />
       </Routes>

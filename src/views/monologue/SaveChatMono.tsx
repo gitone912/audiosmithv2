@@ -13,6 +13,7 @@ const openai = new OpenAI({ apiKey: process.env.REACT_APP_OPENAI_API_KEY, danger
 
 const SaveChatMono: React.FC = () => {
   const [compiledJournal, setCompiledJournal] = useState<string>("");
+  const language = localStorage.getItem("userLanguage") || "English"; // Fallback to "Korean" if not set
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedJournal, setEditedJournal] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -124,13 +125,13 @@ const SaveChatMono: React.FC = () => {
 
     try {
       // Simulate Groq API calls for mood, summary, and tasks
-      const moodResponse = await fetchData("find my current mood based on this journal in 3 words" + compiledJournal);
+      const moodResponse = await fetchData(`In ${language} find my current mood based on this journal in 3 words` + compiledJournal);
 
-      const moodEmojiRes = await fetchData("find my current mood based on this journal and send it in one emoji only, show only face emojis" + compiledJournal);
+      const moodEmojiRes = await fetchData(`In ${language} find my current mood based on this journal and send it in one emoji only, show only face emojis` + compiledJournal);
 
-      const summaryResponse = await fetchData("Summarize the journal entry in the second person, focusing on analyzing the well-being of the person, keeping it brief and concise at 400 characters." + compiledJournal);
+      const summaryResponse = await fetchData(`In ${language} Summarize the journal entry in the second person, focusing on analyzing the well-being of the person, keeping it brief and concise at 400 characters.` + compiledJournal);
 
-      const tasksResponse = await fetchData("Based on the journal entry, recommend three specific and realistic actions that the person can take right away to improve their well-being and productivity. Keep the suggestions concise, with numbers, no need for titles, without any additional explanations. Don't need to write a title for it and don't make it bold. Make it specific with actions that can be performed in real life." + compiledJournal);
+      const tasksResponse = await fetchData(`In ${language} Based on the journal entry, recommend three specific and realistic actions that the person can take right away to improve their well-being and productivity. Keep the suggestions concise, with numbers, no need for titles, without any additional explanations. Don't need to write a title for it and don't make it bold. Make it specific with actions that can be performed in real life.` + compiledJournal);
       setMood(moodResponse);
       setSummary(summaryResponse);
       setTasks(tasksResponse);
