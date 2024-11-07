@@ -79,8 +79,20 @@ const SaveChatMono: React.FC = () => {
     loadAudio();
   }, []);
 
+  const saveToDatabase = async () => {
+    const journalRef = doc(db, "chat_monologue", docId);
+
+    await updateDoc(journalRef, {
+      compiledJournal: editedJournal,
+      moodEmoji: moodEmoji,  // Save mood emoji and mood string
+      mood: mood,
+      summary: summary,      // Save summary
+      actions: tasks         // Save tasks (action recommendations)
+    });
+  };
+
   const handleSave = async () => {
-    if (!docId) return;
+    if (!docId || isSaving) return;  // Prevent redundant calls if already saving
 
     setIsSaving(true);
 
@@ -90,8 +102,7 @@ const SaveChatMono: React.FC = () => {
         alert("analyse the journal before saving")
         return  // This should set `isAnalyzed` to true after completion
       }
-      const journalRef = doc(db, "chat_monologue", docId);
-      await updateDoc(journalRef, { compiledJournal: editedJournal });
+      await saveToDatabase();   // Proceed to save after analysis is complete
 
       if (audio) {
         await audio.play();

@@ -35,8 +35,15 @@ const FetchPromptsMono = () => {
     } catch (error) {
       console.error("Error fetching user preferences:", error);
     } finally {
-      // Navigate to the main dialogue page after fetching
-      navigate('/monologue'); // Change '/dialogue' to your desired path
+      const language = (localStorage.getItem("userLanguage") || "English");
+      if(language ===`English` || language ==='German'){
+        navigate('/monologue-new'); 
+      }
+      else{
+        navigate('/monologue'); 
+
+      }
+      
     }
   };
 

@@ -125,10 +125,10 @@ const Monologue = () => {
           chatHistory:tempTranscript,
           compiledJournal: compiledJournalEntry,
         };
-        await addDoc(collection(db, "chats"), chatData);
+        await addDoc(collection(db, "chat_monologue"), chatData);
         clearInterval(interval);
         setProgress(100);
-        navigate("/savechat");
+        navigate("/savechatmono");
       } catch (error) {
         clearInterval(interval);
         console.error("Error saving chat:", error);
