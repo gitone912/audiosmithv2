@@ -1,33 +1,38 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Box, Button, Textarea, VStack, Text, Spinner, 
-  useColorModeValue, useToast 
+import {
+  Box, Button, Textarea, VStack, Text, Spinner,
+  useColorModeValue, useToast
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../../firebase";
-import { collection, query, orderBy, limit, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { TypeAnimation } from 'react-type-animation';
+import Groq from "groq-sdk";
 import OpenAI from "openai";
 
+const groq = new Groq({
+  apiKey: process.env.REACT_APP_GROQ_API_KEY!,
+  dangerouslyAllowBrowser: true,
+});
 const openai = new OpenAI({ apiKey: process.env.REACT_APP_OPENAI_API_KEY, dangerouslyAllowBrowser: true });
 
-const SaveChatMono: React.FC = () => {
+const SaveChat: React.FC = () => {
   const [compiledJournal, setCompiledJournal] = useState<string>("");
-  const language = localStorage.getItem("userLanguage") || "English"; // Fallback to "Korean" if not set
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedJournal, setEditedJournal] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [docId, setDocId] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false);
+  const language = localStorage.getItem("userLanguage") || "English";
 
-  const [showAnalysis, setShowAnalysis] = useState<boolean>(false);  // Track analysis section visibility
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);  // Track loading state for Analyze button
+  const [showAnalysis, setShowAnalysis] = useState<boolean>(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
   const [mood, setMood] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [tasks, setTasks] = useState<string>("");
   const [moodEmoji, setMoodEmoji] = useState<string>("");
-  const [isAnalyzed, setIsAnalyzed] = useState<boolean>(false); 
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -36,7 +41,6 @@ const SaveChatMono: React.FC = () => {
   const SideboxBg = useColorModeValue('secondaryGray.300', 'rgb(76,80,71)');
   const buttonBg = '#9ba192';
   const textColor = useColorModeValue('black', 'white');
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const fetchLatestJournal = async () => {
@@ -68,45 +72,22 @@ const SaveChatMono: React.FC = () => {
 
     fetchLatestJournal();
   }, []);
-  const formattedTasks = tasks.split(/(?=\d+\.)/); 
+  
+  const formattedTasks = tasks.split(/(?=\d+\.)/);
 
-  useEffect(() => {
-    const loadAudio = async () => {
-      const audioInstance = new Audio("https://github.com/gitone912/testaudio/raw/refs/heads/main/deepgram-stella-1727359968635.mp3");
-      audioInstance.load();
-      setAudio(audioInstance);
-    };
-    loadAudio();
-  }, []);
-
-  const saveToDatabase = async () => {
-    const journalRef = doc(db, "chat_monologue", docId);
-
-    await updateDoc(journalRef, {
-      compiledJournal: editedJournal,
-      moodEmoji: moodEmoji,  // Save mood emoji and mood string
-      mood: mood,
-      summary: summary,      // Save summary
-      actions: tasks         // Save tasks (action recommendations)
-    });
-  };
+  // const saveToDatabase = async () => {
+ 
+  // };
 
   const handleSave = async () => {
-    if (!docId || isSaving) return;  // Prevent redundant calls if already saving
+    if (!docId || isSaving) return;
 
     setIsSaving(true);
-
     try {
       if (!isAnalyzed) {
-        // Ensure the analysis completes before proceeding with saving
-        alert("analyse the journal before saving")
-        return  // This should set `isAnalyzed` to true after completion
+        await performAnalysis();  // Automatically perform analysis if not yet done
       }
-      await saveToDatabase();   // Proceed to save after analysis is complete
-
-      if (audio) {
-        await audio.play();
-      }
+      // await saveToDatabase();
 
       toast({
         title: "Journal Saved",
@@ -115,7 +96,6 @@ const SaveChatMono: React.FC = () => {
         duration: 3000,
         isClosable: true,
       });
-
       setTimeout(() => navigate("/admin/journals"), 2000);
     } catch (error) {
       console.error("Error saving the journal:", error);
@@ -131,11 +111,38 @@ const SaveChatMono: React.FC = () => {
     }
   };
 
-  const fetchAnalysis = async () => {
-    setIsAnalyzing(true); // Start loading state
+  const handleDiscard = async () => {
+    if (!docId) return;
 
     try {
-      // Simulate Groq API calls for mood, summary, and tasks
+      await deleteDoc(doc(db, "chat_monologue", docId));
+
+      toast({
+        title: "Journal Discarded",
+        description: "The journal entry has been discarded.",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate("/admin/journals");
+    } catch (error) {
+      console.error("Error discarding the journal:", error);
+      toast({
+        title: "Error",
+        description: "Failed to discard the journal entry.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const performAnalysis = async () => {
+    if (isAnalyzed || isAnalyzing) return;
+
+    setIsAnalyzing(true);
+
+    try {
       const moodResponse = await fetchData(`In ${language} find my current mood based on this journal in 3 words` + compiledJournal);
 
       const moodEmojiRes = await fetchData(`In ${language} find my current mood based on this journal and send it in one emoji only, show only face emojis` + compiledJournal);
@@ -143,13 +150,22 @@ const SaveChatMono: React.FC = () => {
       const summaryResponse = await fetchData(`In ${language} Summarize the journal entry in the second person, focusing on analyzing the well-being of the person, keeping it brief and concise at 400 characters.` + compiledJournal);
 
       const tasksResponse = await fetchData(`In ${language} Based on the journal entry, recommend three specific and realistic actions that the person can take right away to improve their well-being and productivity. Keep the suggestions concise, with numbers, no need for titles, without any additional explanations. Don't need to write a title for it and don't make it bold. Make it specific with actions that can be performed in real life.` + compiledJournal);
+      
       setMood(moodResponse);
       setSummary(summaryResponse);
       setTasks(tasksResponse);
       setMoodEmoji(moodEmojiRes);
 
-      setShowAnalysis(true); // Display the analysis section
+      setShowAnalysis(true);
       setIsAnalyzed(true);
+      const journalRef = doc(db, "chat_monologue", docId);
+      await updateDoc(journalRef, {
+        compiledJournal: editedJournal,
+        moodEmoji:moodEmojiRes,
+        mood:moodResponse,
+        summary:summaryResponse,
+        actions: tasksResponse
+      });
     } catch (error) {
       console.error("Error fetching analysis:", error);
       toast({
@@ -160,10 +176,10 @@ const SaveChatMono: React.FC = () => {
         isClosable: true,
       });
     } finally {
-      setIsAnalyzing(false); // Stop loading state
+      setIsAnalyzing(false);
     }
+    
   };
-
   const fetchData = async (prompt: string): Promise<string> => {
     const MoodTracker = await openai.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
@@ -180,15 +196,6 @@ const SaveChatMono: React.FC = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Spinner size="xl" />
-      </Box>
-    );
-  }
-
-
   return (
     <Box
       pt={{ base: '100px', md: '150px' }}
@@ -198,11 +205,10 @@ const SaveChatMono: React.FC = () => {
       justifyContent="center"
       alignItems="flex-start"
     >
-      
       <VStack spacing={3} width={{ base: '90%', md: '80%', lg: '60%' }} maxW="800px" mx="auto">
         {!isEditing ? (
           <>
-            <Box
+              <Box
               width="100%"
               padding={4}
               borderRadius="md"
@@ -241,6 +247,8 @@ const SaveChatMono: React.FC = () => {
               >
                 Edit
               </Button>
+             
+              <Button bg={buttonBg} color="white" m={3} onClick={handleSave} isLoading={isAnalyzing}>Analyze</Button>
               <Button
                 bg={buttonBg}
                 color="white"
@@ -252,7 +260,7 @@ const SaveChatMono: React.FC = () => {
               >
                 Save
               </Button>
-              <Button bg={buttonBg} color="white" m={3} onClick={fetchAnalysis} isLoading={isAnalyzing}>Analyze</Button>
+              <Button bg="red.400" color="white" m={3} onClick={handleDiscard}>Discard</Button>
             </Box>
           </>
         ) : (
@@ -263,122 +271,100 @@ const SaveChatMono: React.FC = () => {
               size="md"
               border="1px solid"
               borderColor={boxBg}
-              height="700px"  // Increased the height for a larger edit box
-              resize="vertical"  // Allows the user to resize the box vertically if needed
+              height="700px"
+              resize="vertical"
             />
-
-            <Button
-              bg={buttonBg}
-              color="white"
-              size={{ base: 'sm', md: 'md' }}
-              fontSize={{ base: 'sm', md: 'md' }}
-              onClick={handleSave}
-              isLoading={isSaving} // Show spinner while saving
-            >
-              Save
-            </Button>
-            <Button bg={buttonBg} color="white" m={3} onClick={fetchAnalysis} isLoading={isAnalyzing}>Analyze</Button>
+            <Button bg={buttonBg} color="white" m={3} onClick={handleSave} isLoading={isSaving || isAnalyzing}>Save</Button>
+            <Button bg="red.400" color="white" m={3} onClick={handleDiscard}>Discard</Button>
           </>
         )}
       </VStack>
 
-
-{/* stack that i need to get appeared only when analyse button get clicked , and content here will be generated by groq */}
-{showAnalysis && (
-      <VStack
-      spacing={5}
-      width={{ base: '90%', md: '80%', lg: '60%' }}
-      maxW="500px"
-      mx="auto"
-      bg={boxBg}
-      justifyContent="center"
-      padding={5}
-    >
-      {/* Mood Box */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color="#b8b9b7"
-        width="100%"
-        textAlign="left"
+      {showAnalysis && (
+        <VStack
+        spacing={5}
+        width={{ base: '90%', md: '80%', lg: '60%' }}
+        maxW="500px"
+        mx="auto"
+        bg={boxBg}
+        justifyContent="center"
+        padding={5}
       >
-        Mood
-      </Text>
-      <Box
+        {/* Mood Box */}
+
+        <Box
+          bg={SideboxBg}
+          padding={8}
+          borderRadius="16px"
+          width="100%"
+        >
+          <Box display="flex" alignItems="center">
+            <Text fontSize="7xl" color="white" mr={4}>
+              {moodEmoji}
+            </Text>
+            <Text fontSize="lg" color="white">
+              {mood}
+            </Text>
+          </Box>
+        </Box>
+
+
+        {/* Summary Title */}
+        <Text
+          fontSize="lg"
+          fontWeight="bold"
+          color="#b8b9b7"
+          width="100%"
+          textAlign="left"
+        >
+          Summary
+        </Text>
+
+        {/* Summary Box */}
+        <Box
+          bg={SideboxBg}
+          padding={6}
+          borderRadius="16px"
+          width="100%"
+          maxH="300px" // Set max height for scrollable content
+          overflowY="auto" // Enable vertical scroll if needed
+        >
+          <Text color="white" fontSize="md" lineHeight="1.6">
+            {summary}
+          </Text>
+        </Box>
+
+        {/* Action Recommendations Title */}
+        <Text
+          fontSize="lg"
+          fontWeight="bold"
+          color="#b8b9b7"
+          width="100%"
+          textAlign="left"
+        >
+          Action Recommendations
+        </Text>
+
+        {/* Action Recommendations Box */}
+        <Box
   bg={SideboxBg}
-  padding={8}
+  padding={6}
   borderRadius="16px"
   width="100%"
 >
-  <Box display="flex" alignItems="center">
-    <Text fontSize="7xl" color="white" mr={4}>
-      {moodEmoji}
-    </Text>
-    <Text fontSize="lg" color="white">
-    {mood}
-    </Text>
-  </Box>
+  <Text color="white" fontSize="md" lineHeight="1.6">
+      {formattedTasks.map((task, index) => (
+          <span key={index} style={{ display: 'block', marginBottom: '8px' }}>
+              {task.trim()}
+          </span>
+      ))}
+  </Text>
 </Box>
 
-
-      {/* Summary Title */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color="#b8b9b7"
-        width="100%"
-        textAlign="left"
-      >
-        Summary
-      </Text>
-
-      {/* Summary Box */}
-      <Box
-        bg={SideboxBg}
-        padding={6}
-        borderRadius="16px"
-        width="100%"
-        maxH="300px" // Set max height for scrollable content
-        overflowY="auto" // Enable vertical scroll if needed
-      >
-        <Text color="white" fontSize="md" lineHeight="1.6">
-        {summary}
-        </Text>
-      </Box>
-
-      {/* Action Recommendations Title */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color="#b8b9b7"
-        width="100%"
-        textAlign="left"
-      >
-        Action Recommendations
-      </Text>
-
-      {/* Action Recommendations Box */}
-      <Box
-        bg={SideboxBg}
-        padding={6}
-        borderRadius="16px"
-        width="100%"
-        maxH="200px" // Set max height for scrollable content
-        overflowY="auto" // Enable vertical scroll if needed
-      >
-       <Text color="white" fontSize="md" lineHeight="1.6">
-  {formattedTasks.map((task, index) => (
-    <span key={index} style={{ display: 'block', marginBottom: '8px' }}>
-      {task.trim()}
-    </span>
-  ))}
-</Text>
-
-      </Box>
-    </VStack>
-)}
+      </VStack>
+      )}
     </Box>
   );
 };
 
-export default SaveChatMono;
+export default SaveChat;
