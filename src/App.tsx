@@ -58,7 +58,7 @@ export default function Main() {
         />
         <Route path="/" element={<Navigate to="/admin" replace />} />
         <Route path="/auth" element={<Navigate to="/admin" replace />} />
-        <Route path="dialogue/" element={<DialogueHume />} />
+        <Route path="dialogue/" element={<OpenAIDialoguePage />} />
         <Route path="monologue/" element={<Monologue />} />
         <Route path="monologue-new/" element={<MonologueEng />} />
         <Route path="savechat/" element={<SaveChat />} />

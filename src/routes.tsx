@@ -1,19 +1,14 @@
 import { Icon } from '@chakra-ui/react';
 import {
-  MdBarChart,
-  MdPerson,
   MdHome,
   MdLock,
-  MdOutlineShoppingCart,
-  MdAddIcCall,
   MdRecordVoiceOver,
   MdNotes,
   MdFeedback,
   MdSentimentNeutral,
   MdDashboard,
-  MdRequestPage,
-  MdBuild,
-  MdSettings
+  MdSettings,
+  MdToday
 } from 'react-icons/md';
 import { FaDiscord } from 'react-icons/fa';
 // Admin Imports
@@ -25,15 +20,13 @@ import Journals from 'views/admin/Journals';
 // Auth Imports
 import SignInCentered from 'views/auth/signIn';
 import SignUp from 'views/auth/signup';
-import SignOut from 'views/auth/signOut';
-import ActionRec from 'views/admin/ActionRec';
 import Feedback from 'views/admin/Feedback';
 import LockedPage from 'views/admin/500';
-import { LineChart } from 'recharts';
 import ReqFeatures from 'views/admin/ReqFeatures';
 import Onboarding from 'views/auth/onboarding_comps/onboarding';
 import ChooseCover from 'views/auth/onboarding_comps/chooseCover';
 import Discord from 'views/admin/Feedback/discord';
+import DailyStreak from 'views/Gamification/dailystreak';
 
 // Utility to check if the user is logged in
 const isUserLoggedIn = () => {
@@ -99,6 +92,14 @@ const adminRoutes = [
     path: '/../profile',
     icon: <Icon as={MdSettings} width="20px" height="20px" color="inherit" />,
     component: <ReqFeatures />,
+    lock:false
+  },
+  {
+    name: 'Streak',
+    layout: '/admin',
+    path: '/streak',
+    icon: <Icon as={MdToday} width="20px" height="20px" color="inherit" />,
+    component: <DailyStreak />,
     lock:false
   },
   {

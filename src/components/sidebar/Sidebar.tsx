@@ -78,14 +78,9 @@ function Sidebar(props: {
             overflowX="hidden"
             boxShadow={shadow}
           >
-            <Scrollbars
-              autoHide
-              renderTrackVertical={renderTrack}
-              renderThumbVertical={renderThumb}
-              renderView={renderView}
-            >
+            
               <Content routes={routes} onClose={onClose} />
-            </Scrollbars>
+
           </Box>
         </Box>
       )}

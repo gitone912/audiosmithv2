@@ -3,13 +3,10 @@ import { Box } from '@chakra-ui/react';
 export const renderTrack = ({ ...props }) => {
 	const trackStyle = {
 		position: 'absolute',
-		maxWidth: '100%',
-		width: 6,
+		width: 0,
 		transition: 'opacity 200ms ease 0s',
 		opacity: 0,
 		background: 'transparent',
-		bottom: 2,
-		top: 2,
 		borderRadius: 3,
 		right: 0
 	} as const;
