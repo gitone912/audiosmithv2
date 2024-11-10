@@ -62,6 +62,7 @@ const SaveChat: React.FC = () => {
           setCompiledJournal(journalData);
           setEditedJournal(journalData);
           setDocId(latestDoc.id);
+
         }
       } catch (error) {
         console.error("Error fetching the latest journal:", error);
@@ -72,7 +73,12 @@ const SaveChat: React.FC = () => {
 
     fetchLatestJournal();
   }, []);
-  
+  useEffect(() => {
+    if (compiledJournal) {  // Trigger only if compiledJournal has content
+      performAnalysis();
+    }
+  }, [compiledJournal]); 
+
   const formattedTasks = tasks.split(/(?=\d+\.)/);
 
   // const saveToDatabase = async () => {
@@ -84,10 +90,6 @@ const SaveChat: React.FC = () => {
 
     setIsSaving(true);
     try {
-      if (!isAnalyzed) {
-        await performAnalysis();  // Automatically perform analysis if not yet done
-      }
-      // await saveToDatabase();
 
       toast({
         title: "Journal Saved",
@@ -138,14 +140,14 @@ const SaveChat: React.FC = () => {
   };
 
   const performAnalysis = async () => {
-    if (isAnalyzed || isAnalyzing) return;
+    if (isAnalyzed || isAnalyzing || !compiledJournal) return; 
 
     setIsAnalyzing(true);
 
     try {
       const moodResponse = await fetchData(`In ${language} find my current mood based on this journal in 3 words` + compiledJournal);
 
-      const moodEmojiRes = await fetchData(`In ${language} find my current mood based on this journal and send it in one emoji only, show only face emojis` + compiledJournal);
+      const moodEmojiRes = await fetchData(`find my current mood based on this journal and send it in one emoji only, show only face emojis` + compiledJournal);
 
       const summaryResponse = await fetchData(`In ${language} Summarize the journal entry in the second person, focusing on analyzing the well-being of the person, keeping it brief and concise at 400 characters.` + compiledJournal);
 
@@ -248,7 +250,6 @@ const SaveChat: React.FC = () => {
                 Edit
               </Button>
              
-              <Button bg={buttonBg} color="white" m={3} onClick={handleSave} isLoading={isAnalyzing}>Analyze</Button>
               <Button
                 bg={buttonBg}
                 color="white"
