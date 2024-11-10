@@ -62,7 +62,7 @@ export function OpenAIDialoguePage() {
   const userDetails = JSON.parse(localStorage.getItem("userDetails") || '{}');
   const fullname = userDetails.displayName || "No name provided, you can ask his/her name"; // Fallback to "Korean" if not set
   console.log(fullname)
-  const VOICE = localStorage.getItem("userVoice") || "sage"; // Fallback to "shimmer" if not set
+   // Fallback to "shimmer" if not set
   const SYSTEM_MESSAGE = getPrompt(language);
 
   const clientCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -163,6 +163,7 @@ export function OpenAIDialoguePage() {
     await wavRecorder.begin();
     await wavStreamPlayer.connect();
     await client.connect();
+    const VOICE = localStorage.getItem("userVoice") || "sage";
     client.updateSession({  voice: VOICE as "alloy" | "shimmer" | "echo", instructions: SYSTEM_MESSAGE });
     client.sendUserMessageContent([
       { type: `input_text`, text: `information: this is user's name ${fullname}, start you conversation in ${language}by saying this - Hi ${fullname}, I'm ${VOICE === "sage" ? "Laura" : "William"}. Audiosmith's  mental health and journaling companion. I am here to help you navigate your life, emotions, feelings, and thoughts so you could become the better version of you.   How do you feel today?` }

@@ -124,7 +124,7 @@ const SaveChat: React.FC = () => {
         duration: 3000,
         isClosable: true,
       });
-      navigate("/admin/journals");
+      navigate("/admin");
     } catch (error) {
       console.error("Error discarding the journal:", error);
       toast({
