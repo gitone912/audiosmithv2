@@ -95,7 +95,7 @@ const adminRoutes = [
     lock:false
   },
   {
-    name: 'Streak',
+    name: 'My Journey',
     layout: '/admin',
     path: '/streak',
     icon: <Icon as={MdToday} width="20px" height="20px" color="inherit" />,

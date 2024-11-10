@@ -64,14 +64,14 @@ export default function Main() {
         <Route path="savechat/" element={<SaveChat />} />
         <Route path="savechatmono/" element={<SaveChatMono />} />
         <Route path="edit/" element={<EditJournal />} />
-        <Route path="dialoguepht/" element={<DialoguePht />} />
+        {/* <Route path="dialoguepht/" element={<DialoguePht />} /> */}
         <Route path="sign-out/" element={<SignOut />} />
         <Route path="entries/" element={<Entries />} />
         <Route path="profile/" element={<Profile />} />
         <Route path="language/" element={<LanguageSet />} />
         <Route path="voice/" element={<VoiceSet />} />
         <Route path="therapy-type/" element={<TherapySet />} />
-        <Route path="dialogue-new/" element={<ConversationalAI />} />
+        <Route path="dialogue-new/" element={<DialogueHume />} />
         <Route path="fetching/" element={<FetchPrompts />} />
         <Route path="fetching-mono/" element={<FetchPromptsMono />} />
       </Routes>

@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase'; // Adjust the import based on your firebase setup
-import { getPrompt } from './utils/system'; // Adjust based on your actual path
 import { Box, Spinner } from '@chakra-ui/react';
 
 const FetchPrompts = () => {
@@ -25,14 +24,10 @@ const FetchPrompts = () => {
         localStorage.setItem("userLanguage", fetchedLanguage);
         localStorage.setItem("userVoice", fetchedVoice);
 
-        // Fetch SYSTEM_MESSAGE and store it
-        const systemMessage = getPrompt(fetchedLanguage);
-        localStorage.setItem("systemMessage", systemMessage);
 
         console.log("Fetched and stored preferences:", {
           fetchedLanguage,
           fetchedVoice,
-          systemMessage,
         });
       } else {
         console.error("No user found with that email.");
@@ -40,8 +35,15 @@ const FetchPrompts = () => {
     } catch (error) {
       console.error("Error fetching user preferences:", error);
     } finally {
-      // Navigate to the main dialogue page after fetching
-      navigate('/dialogue-new'); // Change '/dialogue' to your desired path
+      const language = (localStorage.getItem("userLanguage") || "English");
+      if(language ===`English`){
+        navigate('/dialogue-new'); 
+      }
+      else{
+        navigate('/dialogue'); 
+
+      }
+      
     }
   };
 

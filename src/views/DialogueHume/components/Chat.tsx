@@ -25,15 +25,21 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 const openai = new OpenAI({apiKey: process.env.REACT_APP_OPENAI_API_KEY,dangerouslyAllowBrowser: true});
-
+function getConfigId() {
+  const voice = localStorage.getItem("userVoice") || "sage"; // Fallback to "shimmer" if not set
+  if (voice === "sage") return "7c28f563-25a2-4b41-b5a7-8ffcd61030a3";
+  if (voice === "verse") return "947def19-77e0-4f98-8f15-564a42b70fa5";
+  return "7c28f563-25a2-4b41-b5a7-8ffcd61030a3"; // default configId
+}
 
 
 
 export default function UnifiedComponent({ accessToken }: { accessToken: string }) {
+  const configId = getConfigId();
   return (
     <VoiceProvider
       auth={{ type: "accessToken", value: accessToken }}
-      configId="7c28f563-25a2-4b41-b5a7-8ffcd61030a3"
+      configId={configId}
     >
       <InnerComponent />
     </VoiceProvider>
@@ -161,7 +167,11 @@ function InnerComponent() {
 
   const compileJournal = async () => {
     try {
-      const journalPrompt = `Based on the chat history , act as a personal journal assistant who writes journal entry in user's behalf. Focus exclusively on translating the user’s confirmed answers, emotions, and reflections into a natural narrative that reflects their day. Do not infer or assume details not provided by the user. Ensure the tone is personal, introspective, and authentic, as though the user is recording their own private journal. Do not introduce any events or emotions unless the user has directly referenced them. Only include thoughts, feelings, and points confirmed by the user. Remove dialogue structure, but maintain the essence of the user’s emotions and insights. Avoid adding or imagining details beyond what has been explicitly stated by the user.  Do not mention the date of the journal. Make it a full blown journal entry. Do not add things the user didn't say or imply. Write in a length of about 2,000 characters in several pargaraphs. It should be like this everytime. Not random. Do not make it sound poetic. Just a normal journal entry written by a real human.`;
+      const journalPrompt = `based on the chat history, act as a personal journal assistant who writes a journal entry on the user's behalf. Focus only on translating the user’s confirmed answers, emotions, and reflections into a natural, everyday narrative that reflects their day. Do not infer or assume details that the user hasn't provided. Keep the tone personal and straightforward, like the user is talking casually about their day.
+
+Avoid adding events or emotions unless they were directly mentioned by the user. Only include thoughts, feelings, and points confirmed by the user. Maintain the user's emotions and insights, but remove the structure of direct dialogue. Do not add anything that wasn't explicitly said or implied by the user.
+
+Write in a maximum length of 2,000 characters in several paragraphs, keeping the language simple and clear. If there's not much information, write briefly. If there's more, expand accordingly. Make the journal sound real and relatable, like how an everyday person would talk to themselves. Do not add any greeting or intro like "Dear Journal". Do not make the language flowery or poetic. Stick to normal, simple words that people use today.`;
       const journalCompletion = await openai.chat.completions.create({
         messages: [
           { role: "system", content: journalPrompt },
@@ -225,7 +235,7 @@ function InnerComponent() {
           w="24px"
           h="24px"
           _hover={{ cursor: 'pointer' }}
-          onClick={() => navigate(-1)} // Navigate to the previous page
+          onClick={() => { disconnect(); navigate('../admin')}}
         />
       </Flex>
       <VStack spacing={6} align="center" width="100%" maxW="1200px">
