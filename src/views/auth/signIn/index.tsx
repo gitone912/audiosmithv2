@@ -283,7 +283,7 @@ function SignIn() {
                 variant="auth"
                 fontSize="sm"
                 type="email"
-                placeholder="mail@simmmple.com"
+                placeholder="mail@audiosmith.me"
                 mb="24px"
                 size="lg"
                 onChange={(e) => setEmail(e.target.value)} // Update email state

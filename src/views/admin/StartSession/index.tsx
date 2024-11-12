@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import imgMonologue from 'assets/img/session/Monologue.png';
 import imgDialogue from 'assets/img/session/Dialogue.png'
+import axios from 'axios';
+interface StreakResponse {
+  streak: number;
+}
 
 export default function StartSession() {
   const textColor = useColorModeValue('black', 'white');
@@ -13,6 +17,35 @@ export default function StartSession() {
   const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
   const userDisplayName = userDetails.displayName || 'Guest';
   const firstName = userDisplayName.split(' ')[0];
+  const utcOffsetMinutes = new Date().getTimezoneOffset() * -1;
+
+  const getEmailFromLocalStorage = (): string | null => {
+    const userDetails = localStorage.getItem('userDetails');
+    return userDetails ? JSON.parse(userDetails).email : null;
+  };
+
+
+  useEffect(() => {
+    const email = getEmailFromLocalStorage();
+
+    if (!email) {
+      console.error("No email found in local storage");
+      return;
+    }
+
+    const fetchStreak = async () => {
+      try {
+        const response = axios.post<StreakResponse>('https://audiosmith-backendv2.vercel.app/updateStreak', { 
+          email, 
+          utcOffsetMinutes 
+        });
+      } catch (error) {
+        console.error('Error fetching streak:', error);
+      }
+    };
+
+    fetchStreak();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(onOpen, 3000); 

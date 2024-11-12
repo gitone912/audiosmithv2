@@ -40,19 +40,19 @@ const ChooseCover = () => {
     }
   };
 
-  const handleCoverSelect = (coverId:any) => {
+  const handleCoverSelect = async (coverId: any) => {
     if (userId) {
-      saveCoverToDB(coverId)
-        .then(() => {
-          navigate("../../admin/session"); // Navigate to the specified route
-          window.location.reload(); // Reload the page after navigation
-        })
-        .catch((error) => {
-          console.error("Error saving cover selection:", error);
-        });
+      console.log('saving');
+      try {
+        await saveCoverToDB(coverId);
+        navigate("../../admin/session"); // Navigate to the specified route
+        window.location.reload(); // Reload the page after navigation
+      } catch (error) {
+        console.error("Error saving cover selection:", error);
+      }
     }
   };
-
+  
   const saveCoverToDB = async (coverId:any) => {
     const userDocRef = doc(db, `users/${userId}`);
     

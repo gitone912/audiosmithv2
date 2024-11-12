@@ -74,33 +74,40 @@ function SignUp() {
     e.preventDefault();
     setNotification("");
     const { email, password, confirmPassword, fullName, phone } = formData;
-
+  
     if (password !== confirmPassword) {
+      console.log("Passwords do not match");
       setAlert({ message: "Passwords do not match", type: "error" });
       return;
     }
-
-    setLoading(true); // Start loading
+  
+    setLoading(true);
+    console.log("Starting sign up process");
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+      console.log("User created with ID:", user.uid);
+  
+      // Attempt to create the user document in Firestore
       await setDoc(doc(db, "users", user.uid), {
         fullName,
         email,
         phone,
       });
-
+      console.log("User document created in Firestore");
+  
       setAlert({ message: "Signup Successful!", type: "success" });
       navigate("/auth/sign-in");
     } catch (err) {
       if (err instanceof Error) {
+        console.error("Error during sign up or Firestore save:", err.message);
         setAlert({ message: err.message, type: "error" });
       }
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
+  
   const handleGoogleSignUp = async () => {
     const provider = new GoogleAuthProvider();
   
