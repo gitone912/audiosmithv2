@@ -166,7 +166,7 @@ export function OpenAIDialoguePage() {
     const VOICE = localStorage.getItem("userVoice") || "sage";
     client.updateSession({  voice: VOICE as "alloy" | "shimmer" | "echo", instructions: SYSTEM_MESSAGE });
     client.sendUserMessageContent([
-      { type: `input_text`, text: `information: this is user's name ${fullname}, start you conversation in ${language}by saying this - Hi ${fullname}, I'm ${VOICE === "sage" ? "Laura" : "William"}. Audiosmith's  mental health and journaling companion. I am here to help you navigate your life, emotions, feelings, and thoughts so you could become the better version of you.   How do you feel today?` }
+      { type: `input_text`, text: `information: this is user's name ${fullname}, start you conversation in ${language}by saying this - Hi ${fullname}, I'm ${VOICE === "sage" ? "Laura" : "William"}. Audiosmith's mental health and journaling companion. How do you feel today?` }
     ]);
 
     changeTurnEndType();

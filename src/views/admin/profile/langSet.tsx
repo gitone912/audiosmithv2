@@ -13,7 +13,7 @@ export default function LanguageSet() {
   const navigate = useNavigate();
 
   // List of available languages
-  const languages = ['English', 'German', 'Hindi'];
+  const languages = ['English', 'German', 'Hindi','Thai','Korean','Tagalog'];
 
   // Fetch user ID and saved language preference based on email stored in localStorage
   useEffect(() => {
