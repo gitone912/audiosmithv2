@@ -37,7 +37,7 @@ const FetchPrompts = () => {
     } finally {
       const language = (localStorage.getItem("userLanguage") || "English");
       if(language ===`English`){
-        navigate('/dialogue-new'); 
+        navigate('/dialogue'); 
       }
       else{
         navigate('/dialogue'); 

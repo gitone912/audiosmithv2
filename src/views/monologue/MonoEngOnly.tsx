@@ -65,6 +65,7 @@ import OpenAI from "openai";
         isClosable: true,
         position: "top", // Show toast at the top of the screen
       });
+      navigate('../monologue/')
     }
   }, [browserSupportsSpeechRecognition, toast]);
   
