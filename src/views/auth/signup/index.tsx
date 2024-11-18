@@ -96,6 +96,27 @@ function SignUp() {
       });
       console.log("User document created in Firestore");
   
+      // Send the sign-up data to the webhook
+      const webhookPayload = {
+        uid: user.uid,
+        email: user.email,
+        displayName: fullName || "No Name",
+      };
+  
+      // Send POST request to webhook URL
+      const response = await fetch("https://audiosmith-app-apis.vercel.app/webhook", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(webhookPayload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to send data to webhook");
+      }
+      console.log("Webhook sent successfully");
+  
       setAlert({ message: "Signup Successful!", type: "success" });
       navigate("/auth/sign-in");
     } catch (err) {
@@ -123,6 +144,27 @@ function SignUp() {
         phone: user.phoneNumber || "", // Fallback to empty if phone not provided
       });
   
+      // Send the Google sign-up data to the webhook
+      const webhookPayload = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || "No Name",
+      };
+  
+      // Send POST request to webhook URL
+      const response = await fetch("https://audiosmith-app-apis.vercel.app/webhook", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(webhookPayload),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to send data to webhook");
+      }
+      console.log("Webhook sent successfully");
+  
       setAlert({ message: "Google sign-up successful!", type: "success" });
       navigate("/auth/sign-in");
     } catch (err) {
@@ -133,6 +175,7 @@ function SignUp() {
       setLoading(false); // End loading
     }
   };
+  
 
   return (
     <DefaultAuth>

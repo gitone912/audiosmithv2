@@ -21,7 +21,7 @@ import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, storage, db } from "../../../firebase"; // Import Firestore
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import DefaultAuth from "layouts/auth/Default";
 import { HSeparator } from "components/separator/Separator";
 import { ref, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
@@ -158,32 +158,73 @@ function SignIn() {
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     setLoading(true);
-
+  
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
+  
+      // Check if the user's document exists in Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+  
+      if (!userDoc.exists()) {
+        // If the user is new, create a new document for the user
+        await setDoc(userDocRef, {
+          fullName: user.displayName || "No Name", // Fallback if no display name
+          email: user.email,
+          phone: user.phoneNumber || "Not provided",
+          createdAt: new Date(),
+        });
+  
+        // Send the new user data to the webhook only if they are new
+        const webhookPayload = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || "No Name",
+        };
+  
+        // Send POST request to the webhook URL
+        const response = await fetch("https://audiosmith-app-apis.vercel.app/webhook", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(webhookPayload),
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to send data to webhook");
+        }
+        console.log("Webhook sent successfully");
+      }
+  
+      // Fetch the user details from Firestore
       const { fullName, phoneNumber } = await fetchUserDetails(user.uid);
-
+  
+      // Check if the user has an image set, and if not, run the check
       const userDetails = localStorage.getItem("userDetails");
       if (!userDetails || !JSON.parse(userDetails).userImage) {
         await checkUserImage(user.email);
       }
-
+  
       const newUserDetails = {
         email: user.email,
         displayName: fullName || user.displayName,
         phoneNumber: phoneNumber || user.phoneNumber || "Not provided",
         userImage: user.photoURL,
       };
-
+  
+      // Set the details in localStorage with an expiration time
       const storageDuration = keepLoggedIn ? 7 : 1;
       localStorage.setItem("userDetails", JSON.stringify(newUserDetails));
-      localStorage.setItem("storageExpiry", JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000));
-
+      localStorage.setItem(
+        "storageExpiry",
+        JSON.stringify(Date.now() + storageDuration * 24 * 60 * 60 * 1000)
+      );
+  
       setNotification("Google sign-in successful! Redirecting...");
       const hasOnboarded = await checkOnboardingStatus(user.uid);
-      
+  
       // Redirect based on onboarding status
       if (hasOnboarded) {
         navigate("../../admin/session");
@@ -198,6 +239,7 @@ function SignIn() {
       setLoading(false);
     }
   };
+  
 
   return (
     <DefaultAuth>
