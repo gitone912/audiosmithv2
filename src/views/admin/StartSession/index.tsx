@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import imgMonologue from 'assets/img/session/Monologue.png';
 import imgDialogue from 'assets/img/session/Dialogue.png'
+import imgType from 'assets/img/session/Type.png'
+import imgChat from 'assets/img/session/Chat.png'
 import axios from 'axios';
 interface StreakResponse {
   streak: number;
@@ -130,6 +132,35 @@ export default function StartSession() {
       _hover={{ transform: 'scale(1.10)', boxShadow: 'lg' }}
       _active={{ transform: 'scale(0.95)', boxShadow: 'md' }}
       onClick={() => navigate('/fetching')}
+    />
+  </Box>
+</Fade>
+<Fade in={isOpen}>
+  <Box 
+    display="flex" 
+    flexDirection={{ base: 'row', md: 'row' }}  // Stack on phones, row on larger screens
+    gap={{ base: 4, md: 6 }}  // Adjust gap based on screen size
+    alignItems="center"  // Ensure alignment in both layouts
+  >
+    <Image
+      src={imgType}
+      alt="Monologue"
+      boxSize={{ base: '150px', md: '220px' }}  // Smaller image for phones
+      cursor="pointer"
+      transition="transform 0.3s, box-shadow 0.3s"
+      _hover={{ transform: 'scale(1.10)', boxShadow: 'lg' }}
+      _active={{ transform: 'scale(0.95)', boxShadow: 'md' }}
+      onClick={() => navigate('/type-journal')}
+    />
+    <Image
+      src={imgChat}
+      alt="Dialogue"
+      boxSize={{ base: '150px', md: '220px' }}  // Smaller image for phones
+      cursor="pointer"
+      transition="transform 0.3s, box-shadow 0.3s"
+      _hover={{ transform: 'scale(1.10)', boxShadow: 'lg' }}
+      _active={{ transform: 'scale(0.95)', boxShadow: 'md' }}
+      onClick={() => navigate('/type-chat-journal/')}
     />
   </Box>
 </Fade>

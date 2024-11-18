@@ -11,7 +11,6 @@ import SaveChat from 'views/Dialogue/SaveChat';
 import Monologue from 'views/monologue';
 import SaveChatMono from 'views/monologue/SaveChatMono';
 import EditJournal from 'views/editjournal';
-import DialoguePht from 'views/Dialogue_playht';
 import DialogueHume from 'views/DialogueHume';
 import SignOut from 'views/auth/signOut';
 import Entries from 'views/admin/Journals/Entries';
@@ -25,7 +24,9 @@ import FetchPrompts from 'views/OpenAIDialogue/fetchPrompt';
 import ConversationalAI from 'views/Dialogue11labs';
 import FetchPromptsMono from 'views/monologue/fetchPromptMono';
 import MonologueEng from 'views/monologue/MonoEngOnly';
-
+import CreateTypeJournal from 'views/Type';
+import SaveTypeChat from 'views/Chat/SaveTypeChat';
+import TypeChatJournal from 'views/Chat';
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const location = useLocation();
@@ -63,6 +64,7 @@ export default function Main() {
         <Route path="monologue-new/" element={<MonologueEng />} />
         <Route path="savechat/" element={<SaveChat />} />
         <Route path="savechatmono/" element={<SaveChatMono />} />
+        <Route path="save-type-chat/" element={<SaveTypeChat/>} />
         <Route path="edit/" element={<EditJournal />} />
         {/* <Route path="dialoguepht/" element={<DialoguePht />} /> */}
         <Route path="sign-out/" element={<SignOut />} />
@@ -74,6 +76,8 @@ export default function Main() {
         <Route path="dialogue-new/" element={<DialogueHume />} />
         <Route path="fetching/" element={<FetchPrompts />} />
         <Route path="fetching-mono/" element={<FetchPromptsMono />} />
+        <Route path="type-journal/" element={<CreateTypeJournal />} />
+        <Route path="type-chat-journal/" element={<TypeChatJournal />} />
       </Routes>
     </ChakraProvider>
   );

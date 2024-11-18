@@ -3,7 +3,7 @@
     "rules": "firestore.rules"
   },
   "hosting": {
-    "site": "audiosmith",
+    "site": "audiosmith-app",
     "public": "build",
     "ignore": [
       "firebase.json",

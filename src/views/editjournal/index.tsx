@@ -35,7 +35,14 @@ const EditJournals: React.FC = () => {
   const toast = useToast();
 
   const journalId = location.state?.id;
-  const collectionName = location.state?.type === "dialogue" ? "chats" : "chat_monologue";
+  const collectionName = location.state?.type === "dialogue"
+  ? "chats"
+  : location.state?.type === "monologue"
+  ? "chat_monologue"
+  : location.state?.type === "typejournal"
+  ? "typejournal"
+  : "typechatjournal"; // Default to typechatjournal if no match
+
 
   const [journal, setJournal] = useState<Journal | null>(null);
   const [editedJournal, setEditedJournal] = useState<string>("");
