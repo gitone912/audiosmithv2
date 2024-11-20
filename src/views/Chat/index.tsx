@@ -28,7 +28,7 @@ const TypeChatJournal = () => {
   
   const getGreeting = async () => {
     try {
-      const Prompt = `Send a random greeting for user like this - Hi ${fullname}, I'm ${assistantName}. Audiosmith's mental health and journaling companion. How do you feel today?, user's and assitant's sname should not change`;
+      const Prompt = `In language ${language} Send a random greeting for user like this - Hi ${fullname}, I'm ${assistantName}. Audiosmith's mental health and journaling companion. How do you feel today?, user's and assitant's sname should not change and give greetings in ${language} only`;
   
       const journalCompletion = await openai.chat.completions.create({
         messages: [
@@ -229,42 +229,71 @@ const TypeChatJournal = () => {
 >
   {/* Static Greeting */}
   
-   {greeting && (
-    <Box
-    bg="rgb(132, 135, 114)" // Background color of the greeting
+  {greeting ? (
+  <Box
+    bg="rgb(88, 94, 86)" // Background color of the greeting
     p={3}
     borderRadius="2xl"
     mb={2}
     maxW="60%"
     textAlign="left"
   >
-  <Text color="white" fontSize="lg">
-    {greeting}
-  </Text>
+    <Text color="white" fontSize="lg">
+      {greeting}
+    </Text>
   </Box>
+) : (
+  <Flex justify="center" align="center" mt={2}>
+    <Spinner color="white" size="sm" />
+  </Flex>
 )}
 
 
+
   {/* Dynamic Chat History */}
-  {chatHistory.map((msg, index) => (
+  {chatHistory.map((msg, index) => {
+  const wordCount = msg.replace(/^(User:|AI:)\s*/, '').split(/\s+/).length;
+  let maxWidth;
+
+  if (wordCount <= 3) {
+    maxWidth = '20%';
+  } else if (wordCount === 4) {
+    maxWidth = '30%';
+  } else if (wordCount === 5) {
+    maxWidth = '40%';
+  } 
+  else if (wordCount === 6) {
+    maxWidth = '50%';
+  }else if (wordCount >= 8) {
+    maxWidth = '60%';
+  } else {
+    maxWidth = '50%'; // Default fallback
+  }
+
+  return (
     <Box
       key={index}
-      bg={index % 2 === 0 ? 'rgb(132, 135, 114)' : 'rgb(88, 94, 86)'}
+      bg={msg.startsWith('User:') ? 'rgb(132, 135, 114)' : 'rgb(88, 94, 86)'}
       p={3}
       borderRadius="2xl"
       mb={2}
       alignSelf={msg.startsWith('User:') ? 'flex-end' : 'flex-start'}
-      maxW="60%"
+      maxW={maxWidth}
       width="auto"
       textAlign={msg.startsWith('User:') ? 'right' : 'left'}
       marginLeft={msg.startsWith('User:') ? 'auto' : 'unset'}
       marginRight={msg.startsWith('AI:') ? 'auto' : 'unset'}
     >
-      <Text color="white" fontSize="lg">
+      <Text
+        color="white"
+        fontSize={msg.startsWith('User:') ? 'md' : 'lg'} // Smaller font size for user messages
+      >
         {msg.replace(/^(User:|AI:)\s*/, '')}
       </Text>
     </Box>
-  ))}
+  );
+})}
+
 
   {isLoadingResponse && (
     <Flex justify="center" align="center" mt={2}>
@@ -281,17 +310,23 @@ const TypeChatJournal = () => {
   align="center" 
   border="1px solid white"
 >
-  <Input
-    placeholder="Type your message..."
-    value={chatInput}
-    onChange={(e) => setChatInput(e.target.value)}
-    bg="transparent"
-    color="white"
-    border="none" // No border on the input
-    flex="1"
-    _placeholder={{ color: 'gray.400' }}
-    _focus={{ boxShadow: 'none' }} // Remove focus box shadow
-  />
+<Input
+  placeholder="Type your message..."
+  value={chatInput}
+  onChange={(e) => setChatInput(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  }}
+  bg="transparent"
+  color="white"
+  border="none" // No border on the input
+  flex="1"
+  _placeholder={{ color: 'gray.400' }}
+  _focus={{ boxShadow: 'none' }} // Remove focus box shadow
+/>
+
   <Button
     onClick={handleSendMessage}
     isDisabled={!chatInput.trim() || isLoadingResponse}

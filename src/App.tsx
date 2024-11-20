@@ -28,6 +28,7 @@ import CreateTypeJournal from 'views/Type';
 import SaveTypeChat from 'views/Chat/SaveTypeChat';
 import TypeChatJournal from 'views/Chat';
 import SaveTypeChat2 from 'views/Type/SaveTypeChat2';
+import FetchLangForChat from 'views/Chat/fetchLangforChat';
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const location = useLocation();
@@ -80,6 +81,7 @@ export default function Main() {
         <Route path="fetching-mono/" element={<FetchPromptsMono />} />
         <Route path="type-journal/" element={<CreateTypeJournal />} />
         <Route path="type-chat-journal/" element={<TypeChatJournal />} />
+        <Route path="fetching-lang-for-chat/" element={<FetchLangForChat />} />
       </Routes>
     </ChakraProvider>
   );

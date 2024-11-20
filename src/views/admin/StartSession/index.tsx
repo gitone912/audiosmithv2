@@ -160,7 +160,7 @@ export default function StartSession() {
       transition="transform 0.3s, box-shadow 0.3s"
       _hover={{ transform: 'scale(1.10)', boxShadow: 'lg' }}
       _active={{ transform: 'scale(0.95)', boxShadow: 'md' }}
-      onClick={() => navigate('/type-chat-journal/')}
+      onClick={() => navigate('/fetching-lang-for-chat')}
     />
   </Box>
 </Fade>
