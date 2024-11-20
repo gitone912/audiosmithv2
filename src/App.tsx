@@ -27,6 +27,7 @@ import MonologueEng from 'views/monologue/MonoEngOnly';
 import CreateTypeJournal from 'views/Type';
 import SaveTypeChat from 'views/Chat/SaveTypeChat';
 import TypeChatJournal from 'views/Chat';
+import SaveTypeChat2 from 'views/Type/SaveTypeChat2';
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const location = useLocation();
@@ -65,6 +66,7 @@ export default function Main() {
         <Route path="savechat/" element={<SaveChat />} />
         <Route path="savechatmono/" element={<SaveChatMono />} />
         <Route path="save-type-chat/" element={<SaveTypeChat/>} />
+        <Route path="save-type-journal/" element={<SaveTypeChat2 />} />
         <Route path="edit/" element={<EditJournal />} />
         {/* <Route path="dialoguepht/" element={<DialoguePht />} /> */}
         <Route path="sign-out/" element={<SignOut />} />

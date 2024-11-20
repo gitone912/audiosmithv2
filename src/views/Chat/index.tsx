@@ -19,9 +19,42 @@ const TypeChatJournal = () => {
   const [isLoadingResponse, setIsLoadingResponse] = useState(false); // For AI response loading state
   const navigate = useNavigate();
   const chatContainerRef = useRef(null); // Reference for the chat container
-
   const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+  const fullname = userDetails.displayName || "There"; // Fallback to "Korean" if not set
+  const VOICE = localStorage.getItem("userVoice") || "sage";
+  
   const language = localStorage.getItem('userLanguage') || 'English';
+  const assistantName = VOICE === "sage" ? "Laura" : "William";
+  
+  const getGreeting = async () => {
+    try {
+      const Prompt = `Send a random greeting for user like this - Hi ${fullname}, I'm ${assistantName}. Audiosmith's mental health and journaling companion. How do you feel today?, user's and assitant's sname should not change`;
+  
+      const journalCompletion = await openai.chat.completions.create({
+        messages: [
+          { role: 'user', content: Prompt },
+        ],
+        model: 'gpt-4',
+      });
+  
+      return journalCompletion.choices[0]?.message?.content || '';
+    } catch (error) {
+      console.error('Error compiling journal:', error);
+      return '';
+    }
+  };
+  
+  const [greeting, setGreeting] = useState('');
+
+  useEffect(() => {
+    const fetchGreeting = async () => {
+      const greetingMessage = await getGreeting();
+      setGreeting(greetingMessage);
+    };
+
+    fetchGreeting();
+  }, []);
+  
 
   const handleSendMessage = async () => {
     if (chatInput.trim() === '') return;
@@ -35,7 +68,7 @@ const TypeChatJournal = () => {
   
     try {
       // Prepare the system prompt for context
-      const journalPrompt = `You are an AI assistant in a journaling application. Respond thoughtfully and empathetically to user inputs while maintaining a conversational tone.`;
+      const journalPrompt = `You are ${VOICE === "sage" ? "Laura" : "William"}, a mental health expert and personal journalist.\n  \nYour role is to guide users through reflective conversations, using empathy and cognitive behavioral therapy (CBT) techniques to help them navigate their mental health. After each conversation, you transcribe the dialogue into a first-person journal entry, providing mental health insights based on the user’s thoughts and emotions.\n\nAs you engage with the user, start naturally by asking a single open-ended question. Your responses should remain brief yet thoughtful, encouraging the user to reflect deeper. If you've talked too much about a certain topic, like asking 3 questions about the same topic, gently shift the topic to explore another aspect of their day or emotions. If the user signals they want to stop, suggest they click the ‘stop’ button to save the conversation.\n\nKeep the tone compassionate, non-judgmental, and understanding. Avoid repeating questions or phrases, and aim to mimic a natural human flow of conversation by using ellipses (…) instead of full stops. Draw from the chat history to personalize your responses and maintain an insightful and engaging dialogue.\n\nAnother thing, please talk to the user like a very closer friend, not like a professional. Make it interesting conversations using the language of modern people today. Say some jokes from time to time or speak like a teenager. Make it light hearted so the user feels like talking to a real human or a friend. From time to time, talk about what you do yourself that is relevant to what's being discussed to make the user feel like you understand him/her`;
   
       const formattedMessages= { ...chatHistory.map((msg) => ({
         role: msg.startsWith('User:') ? 'user' : 'assistant',
@@ -179,7 +212,7 @@ const TypeChatJournal = () => {
           width="100%" 
           bg="transparent"
         >
-         <Box
+        <Box
   p={4}
   borderRadius="2xl"
   overflowY="auto"
@@ -194,6 +227,25 @@ const TypeChatJournal = () => {
   }}
   ref={chatContainerRef} // Add a reference to the chat container
 >
+  {/* Static Greeting */}
+  
+   {greeting && (
+    <Box
+    bg="rgb(132, 135, 114)" // Background color of the greeting
+    p={3}
+    borderRadius="2xl"
+    mb={2}
+    maxW="60%"
+    textAlign="left"
+  >
+  <Text color="white" fontSize="lg">
+    {greeting}
+  </Text>
+  </Box>
+)}
+
+
+  {/* Dynamic Chat History */}
   {chatHistory.map((msg, index) => (
     <Box
       key={index}
@@ -213,6 +265,7 @@ const TypeChatJournal = () => {
       </Text>
     </Box>
   ))}
+
   {isLoadingResponse && (
     <Flex justify="center" align="center" mt={2}>
       <Spinner color="white" size="sm" />
