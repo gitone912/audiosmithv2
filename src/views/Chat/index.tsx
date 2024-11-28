@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, addDoc } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import OpenAI from 'openai';
+import { getPrompt } from 'views/OpenAIDialogue/utils/system';
 
 const openai = new OpenAI({
   apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -25,6 +26,8 @@ const TypeChatJournal = () => {
   
   const language = localStorage.getItem('userLanguage') || 'English';
   const assistantName = VOICE === "sage" ? "Laura" : "William";
+  const SYSTEM_MESSAGE = getPrompt(language);
+  
   
   const getGreeting = async () => {
     try {
@@ -68,7 +71,7 @@ const TypeChatJournal = () => {
   
     try {
       // Prepare the system prompt for context
-      const journalPrompt = `You are ${VOICE === "sage" ? "Laura" : "William"}, a mental health expert and personal journalist.\n  \nYour role is to guide users through reflective conversations, using empathy and cognitive behavioral therapy (CBT) techniques to help them navigate their mental health. After each conversation, you transcribe the dialogue into a first-person journal entry, providing mental health insights based on the user’s thoughts and emotions.\n\nAs you engage with the user, start naturally by asking a single open-ended question. Your responses should remain brief yet thoughtful, encouraging the user to reflect deeper. If you've talked too much about a certain topic, like asking 3 questions about the same topic, gently shift the topic to explore another aspect of their day or emotions. If the user signals they want to stop, suggest they click the ‘stop’ button to save the conversation.\n\nKeep the tone compassionate, non-judgmental, and understanding. Avoid repeating questions or phrases, and aim to mimic a natural human flow of conversation by using ellipses (…) instead of full stops. Draw from the chat history to personalize your responses and maintain an insightful and engaging dialogue.\n\nAnother thing, please talk to the user like a very closer friend, not like a professional. Make it interesting conversations using the language of modern people today. Say some jokes from time to time or speak like a teenager. Make it light hearted so the user feels like talking to a real human or a friend. From time to time, talk about what you do yourself that is relevant to what's being discussed to make the user feel like you understand him/her`;
+      const journalPrompt = SYSTEM_MESSAGE;
   
       const formattedMessages= { ...chatHistory.map((msg) => ({
         role: msg.startsWith('User:') ? 'user' : 'assistant',
@@ -77,7 +80,7 @@ const TypeChatJournal = () => {
       // Send messages to OpenAI
       const aiResponse = await openai.chat.completions.create({
         messages: [
-          { role: 'system', content: journalPrompt },
+          { role: 'system', content: `respond in${language} language only, ${journalPrompt}` },
           
           { role: 'user', content: chatInput }, // Include the latest user input
         ],

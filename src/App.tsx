@@ -29,6 +29,7 @@ import SaveTypeChat from 'views/Chat/SaveTypeChat';
 import TypeChatJournal from 'views/Chat';
 import SaveTypeChat2 from 'views/Type/SaveTypeChat2';
 import FetchLangForChat from 'views/Chat/fetchLangforChat';
+import FetchLangForType from 'views/Type/fetchLangforType';
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const location = useLocation();
@@ -82,6 +83,7 @@ export default function Main() {
         <Route path="type-journal/" element={<CreateTypeJournal />} />
         <Route path="type-chat-journal/" element={<TypeChatJournal />} />
         <Route path="fetching-lang-for-chat/" element={<FetchLangForChat />} />
+        <Route path="fetching-lang-for-type/" element={<FetchLangForType />} />
       </Routes>
     </ChakraProvider>
   );
