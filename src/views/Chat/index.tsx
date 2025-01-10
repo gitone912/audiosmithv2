@@ -71,7 +71,7 @@ const TypeChatJournal = () => {
   
     try {
       // Prepare the system prompt for context
-      const journalPrompt = SYSTEM_MESSAGE;
+      const botPrompt = SYSTEM_MESSAGE;
   
       const formattedMessages= { ...chatHistory.map((msg) => ({
         role: msg.startsWith('User:') ? 'user' : 'assistant',
@@ -80,7 +80,7 @@ const TypeChatJournal = () => {
       // Send messages to OpenAI
       const aiResponse = await openai.chat.completions.create({
         messages: [
-          { role: 'system', content: `respond in${language} language only, ${journalPrompt}` },
+          { role: 'system', content: `respond in${language} language only, ${botPrompt}` },
           
           { role: 'user', content: chatInput }, // Include the latest user input
         ],
