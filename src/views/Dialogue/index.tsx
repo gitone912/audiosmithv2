@@ -336,7 +336,7 @@ const Dialogue = () => {
     } else {
       setIsConnecting(true);
       const greetingAudioUrl = await getDeepgramTTS(
-        "Hey there, welcome to Audiosmith. How are you?"
+        "Hey there, welcome to Mindleaf. How are you?"
       );
 
       if (greetingAudioUrl) {

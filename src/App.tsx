@@ -30,6 +30,7 @@ import TypeChatJournal from 'views/Chat';
 import SaveTypeChat2 from 'views/Type/SaveTypeChat2';
 import FetchLangForChat from 'views/Chat/fetchLangforChat';
 import FetchLangForType from 'views/Type/fetchLangforType';
+
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const location = useLocation();
@@ -62,7 +63,8 @@ export default function Main() {
         />
         <Route path="/" element={<Navigate to="/admin" replace />} />
         <Route path="/auth" element={<Navigate to="/admin" replace />} />
-        <Route path="dialogue/" element={<OpenAIDialoguePage />} />
+        {/* <Route path="dialogue/" element={<OpenAIDialoguePage />} /> */}
+        <Route path="dialogue/" element={<NotFound />} />
         <Route path="monologue/" element={<Monologue />} />
         <Route path="monologue-new/" element={<MonologueEng />} />
         <Route path="savechat/" element={<SaveChat />} />

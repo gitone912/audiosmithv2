@@ -3,7 +3,7 @@
     "rules": "firestore.rules"
   },
   "hosting": {
-    "site": "audiosmith",
+    "site": "mindleaf",
     "public": "build",
     "ignore": [
       "firebase.json",

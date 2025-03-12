@@ -325,7 +325,7 @@ function SignIn() {
                 variant="auth"
                 fontSize="sm"
                 type="email"
-                placeholder="mail@audiosmith.me"
+                placeholder="mail@mindleaf.me"
                 mb="24px"
                 size="lg"
                 onChange={(e) => setEmail(e.target.value)} // Update email state

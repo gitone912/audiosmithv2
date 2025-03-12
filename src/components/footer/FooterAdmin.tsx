@@ -28,7 +28,7 @@ export default function Footer() {
 				{' '}
 				&copy; {new Date().getFullYear()}
 				<Text as='span' fontWeight='500' ms='4px'>
-					Audiosmith.me All Rights Reserved.
+					Mindleaf.web.app All Rights Reserved.
 					
 				</Text>
 			</Text>

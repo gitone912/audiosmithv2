@@ -31,7 +31,7 @@ const TypeChatJournal = () => {
   
   const getGreeting = async () => {
     try {
-      const Prompt = `In language ${language} Send a random greeting for user like this - Hi ${fullname}, I'm ${assistantName}. Audiosmith's mental health and journaling companion. How do you feel today?, user's and assitant's sname should not change and give greetings in ${language} only`;
+      const Prompt = `In language ${language} Send a random greeting for user like this - Hi ${fullname}, I'm ${assistantName}. Mindleaf's mental health and journaling companion. How do you feel today?, user's and assitant's sname should not change and give greetings in ${language} only`;
   
       const journalCompletion = await openai.chat.completions.create({
         messages: [

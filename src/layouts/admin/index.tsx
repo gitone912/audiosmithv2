@@ -110,7 +110,7 @@ export default function Dashboard(props: { [x: string]: any }) {
             <Box>
               <Navbar
                 onOpen={onOpen}
-                logoText={'audiosmith'}
+                logoText={'mindleaf'}
                 brandText={getActiveRoute(routes)}
                 secondary={getActiveNavbar(routes)}
                 message={getActiveNavbarText(routes)}
